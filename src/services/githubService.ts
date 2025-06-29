@@ -1,6 +1,9 @@
 // src/services/githubService.ts
 
-import type { CardData, GitHubRepo } from '../types';
+import type { CardData, GitHubRepo, HighlightedRepo } from '../types';
+
+const GITHUB_API_URL = 'https://api.github.com/graphql';
+const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
 
 // Un type pour la réponse de l'API /users/{username}
 // On ne type que ce dont on a besoin
@@ -15,56 +18,127 @@ interface GitHubUserResponse {
   repos_url: string;
 }
 
-export const fetchGithubUserData = async (username: string): Promise<CardData> => {
-  // --- Étape 1: Récupérer les informations de l'utilisateur ---
-  const userResponse = await fetch(`https://api.github.com/users/${username}`);
-  if (!userResponse.ok) {
-    throw new Error('Utilisateur GitHub non trouvé.');
-  }
-  const userData: GitHubUserResponse = await userResponse.json();
-
-  // --- Étape 2: Récupérer tous les dépôts de l'utilisateur ---
-  // On ajoute "?per_page=100" pour récupérer un maximum de dépôts en une seule requête
-  const reposResponse = await fetch(`${userData.repos_url}?per_page=100`);
-  if (!reposResponse.ok) {
-    throw new Error('Impossible de récupérer les dépôts.');
-  }
-  const reposData: GitHubRepo[] = await reposResponse.json();
-
-  // --- Étape 3: Calculer les statistiques (étoiles et langages) ---
-  let totalStars = 0;
-  const langStats: { [key: string]: number } = {};
-
-  for (const repo of reposData) {
-    totalStars += repo.stargazers_count;
-    if (repo.language) {
-      langStats[repo.language] = (langStats[repo.language] || 0) + 1;
+// La requête GraphQL qui va tout chercher d'un coup !
+const GITHUB_USER_QUERY = `
+  query GetUser($username: String!) {
+    user(login: $username) {
+      name
+      login
+      avatarUrl
+      bio
+      location
+      followers {
+        totalCount
+      }
+      repositories(first: 100, ownerAffiliations: OWNER, isFork: false, orderBy: {field: STARGAZERS, direction: DESC}) {
+        totalCount
+        nodes {
+          stargazers {
+            totalCount
+          }
+          languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
+            nodes {
+              name
+            }
+          }
+        }
+      }
+      contributionsCollection {
+        contributionCalendar {
+          totalContributions
+        }
+      }
+      pinnedItems(first: 3, types: REPOSITORY) {
+        nodes {
+          ... on Repository {
+            id
+            name
+            description
+            url
+            stargazerCount
+            forkCount
+          }
+        }
+      }
     }
   }
+`;
 
-  // Trier les langages par popularité et prendre les 5 premiers
-  const topLanguages = Object.entries(langStats)
+export async function fetchGithubUserData(username: string): Promise<CardData> {
+  const response = await fetch(GITHUB_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+    },
+    body: JSON.stringify({
+      query: GITHUB_USER_QUERY,
+      variables: { username },
+    }),
+  });
+
+  const { data, errors } = await response.json();
+
+  if (errors) {
+    console.error('Erreurs GraphQL:', errors);
+    throw new Error('Utilisateur GitHub non trouvé ou erreur API.');
+  }
+
+  const user = data.user;
+  if (!user) {
+    throw new Error('Utilisateur GitHub non trouvé.');
+  }
+
+  // Calcul du total des étoiles et des langages
+  let totalStars = 0;
+  const langMap = new Map<string, number>();
+  user.repositories.nodes.forEach((repo: any) => {
+    totalStars += repo.stargazers.totalCount;
+    repo.languages.nodes.forEach((lang: any) => {
+      langMap.set(lang.name, (langMap.get(lang.name) || 0) + 1);
+    });
+  });
+  const topLanguages = Array.from(langMap.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(entry => entry[0]);
 
-  // --- Étape 4: Formater les données pour notre application ---
-  const formattedData: CardData = {
-    name: userData.name || userData.login,
-    githubUser: userData.login,
-    avatarUrl: userData.avatar_url,
-    bio: userData.bio || 'Passionné(e) de code et de nouvelles technologies.',
-    location: userData.location || 'Quelque part sur Terre',
-    followers: userData.followers,
-    publicRepos: userData.public_repos,
-    totalStars: totalStars,
-    topLanguages: topLanguages,
-    template: 'holographic', // Valeur par défaut
-    customSkills: [
-        { id: '1', category: 'Développement Web', skills: 'React, TypeScript, Node.js' },
-        { id: '2', category: 'Outils & Design', skills: 'Figma, Git, Tailwind CSS' },
-    ],
-  };
+  // Traitement des dépôts mis en avant
+  let highlightedRepos: HighlightedRepo[] = user.pinnedItems.nodes.map((repo: any) => ({
+    id: repo.id,
+    name: repo.name,
+    description: repo.description,
+    url: repo.url,
+    stars: repo.stargazerCount,
+    forks: repo.forkCount,
+  }));
+  
+  // FALLBACK: Si l'utilisateur n'a pas de dépôts épinglés, on prend ses 3 plus populaires
+  if (highlightedRepos.length === 0) {
+      const topStarredRepos = user.repositories.nodes.slice(0, 3);
+      highlightedRepos = topStarredRepos.map((repo: any) => ({
+        id: repo.id, // Assure-toi que l'ID est bien récupéré dans la query principale
+        name: repo.name,
+        description: repo.description,
+        url: repo.url,
+        stars: repo.stargazers.totalCount,
+        forks: repo.forkCount
+      }));
+  }
 
-  return formattedData;
-};
+
+  return {
+    name: user.name || user.login,
+    githubUser: user.login,
+    avatarUrl: user.avatarUrl,
+    bio: user.bio || 'Développeur passionné',
+    location: user.location || 'Quelque part dans le code',
+    followers: user.followers.totalCount,
+    publicRepos: user.repositories.totalCount,
+    totalStars,
+    topLanguages,
+    highlightedRepos,
+    contributionsLastYear: user.contributionsCollection.contributionCalendar.totalContributions,
+    // On ne touche pas au template ici, il sera géré par App.tsx
+  } as CardData;
+}

@@ -7,25 +7,31 @@ export interface SkillCategory {
   skills: string;
 }
 
+export interface HighlightedRepo {
+  id: string;
+  name: string;
+  description: string | null;
+  url: string;
+  stars: number;
+  forks: number;
+}
+
 export interface CardData {
-  // Informations de base
   name: string;
   githubUser: string;
   avatarUrl: string;
-  bio: string; // On remplace "skills" par la bio, plus générique
+  bio: string;
   location: string;
-  
-  // Statistiques
   followers: number;
   publicRepos: number;
-  totalStars: number;
-
-  // Données calculées
+  totalStars: number; // Tu l'as déjà, c'est super !
   topLanguages: string[];
+  
+  // ON REMPLACE customSkills PAR ÇA :
+  highlightedRepos: HighlightedRepo[];
+  contributionsLastYear: number;
 
-  customSkills: SkillCategory[];
-  // Personnalisation
-  template: TemplateId;
+  template: 'holographic' | string; // Garde tes templates
 }
 
 // Type pour la réponse de l'API des dépôts

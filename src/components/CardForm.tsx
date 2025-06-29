@@ -23,40 +23,25 @@ export default function CardForm({ cardData, setCardData, setIsLoading, isLoadin
   const [username, setUsername] = useState('');
 
   const handleFetchGithub = async () => {
-    if (!username) {
+     if (!username) {
       alert('Veuillez entrer un pseudo GitHub.');
       return;
     }
     setIsLoading(true);
     try {
-      const data = await fetchGithubUserData(username);
-    setCardData(prevData => ({ ...data, template: prevData.template }));
+      const fetchedData = await fetchGithubUserData(username);
+      // On fusionne les données de l'API avec le template actuel
+      setCardData(prevData => ({ 
+        ...prevData, // Garde les anciennes données au cas où
+        ...fetchedData, // Écrase avec les nouvelles données de l'API
+        template: prevData.template // Conserve le template choisi par l'utilisateur
+      }));
     } catch (error) {
       console.error(error);
       alert((error as Error).message);
     } finally {
       setIsLoading(false);
     }
-  };
-
-   // --- Fonctions de gestion des compétences ---
-  const handleSkillChange = (index: number, field: keyof SkillCategory, value: string) => {
-    const newSkills = [...cardData.customSkills];
-    newSkills[index] = { ...newSkills[index], [field]: value };
-    setCardData(prev => ({ ...prev, customSkills: newSkills }));
-  };
-
-  const addSkillCategory = () => {
-    const newSkills: SkillCategory[] = [
-      ...cardData.customSkills,
-      { id: Date.now().toString(), category: 'Nouvelle Catégorie', skills: 'Compétence 1, Compétence 2' }
-    ];
-    setCardData(prev => ({ ...prev, customSkills: newSkills }));
-  };
-
-  const removeSkillCategory = (index: number) => {
-    const newSkills = cardData.customSkills.filter((_, i) => i !== index);
-    setCardData(prev => ({ ...prev, customSkills: newSkills }));
   };
 
 
@@ -111,57 +96,6 @@ return (
           ))}
         </div>
       </div>
-      
-       {/* === SECTION COMPÉTENCES - AVEC BOUTONS TEXTE === */}
-      <div>
-        <div className="flex justify-between items-center mb-1">
-          <label className={labelClasses}>
-            Domaines de Compétences
-          </label>
-          
-          {/* CORRECTION : Bouton "+" avec du texte */}
-          <button
-            type="button"
-            onClick={addSkillCategory}
-            className="h-7 w-7 flex items-center justify-center rounded-full bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 font-bold text-lg"
-            aria-label="Ajouter une catégorie"
-          >
-            +
-          </button>
-        </div>
-
-        <div className="space-y-3">
-          {cardData.customSkills.map((skill, index) => (
-            <div key={skill.id} className="group relative p-2 sm:p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <input
-                type="text"
-                placeholder="Catégorie (ex: Web)"
-                className={`${inputClasses} mb-2 font-medium`}
-                value={skill.category}
-                onChange={(e) => handleSkillChange(index, 'category', e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Compétences (ex: React, Node.js)"
-                className={inputClasses}
-                value={skill.skills}
-                onChange={(e) => handleSkillChange(index, 'skills', e.target.value)}
-              />
-              
-              {/* CORRECTION : Bouton "supprimer" avec du texte (une croix "×") */}
-              <button
-                type="button"
-                onClick={() => removeSkillCategory(index)}
-                className="absolute top-1.5 right-1.5 h-7 w-7 flex items-center justify-center rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 dark:text-red-400 font-mono text-xl leading-none opacity-0 group-hover:opacity-100 hover:!opacity-100 transition-all"
-                aria-label="Supprimer la catégorie"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
     </div>
   );
 }

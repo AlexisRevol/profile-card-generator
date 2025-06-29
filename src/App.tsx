@@ -16,10 +16,12 @@ const initialCardData: CardData = {
   publicRepos: 0,
   totalStars: 0,
   topLanguages: ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Python'],
-  customSkills: [
-    { id: '1', category: 'Développement Web', skills: 'React, TypeScript, Node.js' },
-    { id: '2', category: 'Outils & Design', skills: 'Figma, Git, Tailwind CSS' },
+  // customSkills: [...] // -> Supprimer cette ligne
+  highlightedRepos: [ // Tu peux mettre un exemple
+      { id: '1', name: 'mon-super-projet', description: 'Un projet incroyable pour ma carte de visite.', url: '#', stars: 123, forks: 45 },
+      { id: '2', name: 'portfolio-v2', description: 'La deuxième version de mon portfolio personnel.', url: '#', stars: 88, forks: 12 },
   ],
+  contributionsLastYear: 1337,
   template: 'holographic',
 };
 

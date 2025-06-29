@@ -4,7 +4,8 @@ import type { CardData, SkillCategory  } from '../types';
 import { TEMPLATES } from '../config/templates'; // On importe nos modèles
 import { FaReact, FaNodeJs, FaFigma, FaGitAlt, FaPython, FaJava, FaHtml5, FaCss3Alt, FaJs } from 'react-icons/fa';
 import { SiTypescript, SiVite, SiTailwindcss, SiCplusplus, SiSharp, SiGo, SiGithub } from 'react-icons/si';
-import { GoRepo, GoStar, GoPerson, GoLocation } from 'react-icons/go';
+import { GoRepo, GoStar, GoPerson, GoLocation, GoGitBranch } from 'react-icons/go';
+
 
 // Enrichissons notre dictionnaire d'icônes
 const iconMap: { [key: string]: React.ComponentType<any> } = {
@@ -66,24 +67,31 @@ return (
           />
         </div>
 
-        {/* --- CORPS PRINCIPAL --- */}
+         {/* --- CORPS PRINCIPAL --- */}
         <div className="absolute top-[48%] left-3 w-[65%] @[22rem]:top-64 @[22rem]:left-10 @[22rem]:w-3/5 flex flex-col gap-2 @[22rem]:gap-4 z-10 text-left">
         
-          {/* CORRECTION ICI: Texte de la bio plus petit et moins espacé sur mobile */}
           <h2 className={`text-[10px] tracking-wide @[22rem]:text-base @[22rem]:tracking-wider font-bold uppercase ${mainTextColor} ${textFloatEffect}`}>
             {data.bio}
           </h2>
 
-          <div className="space-y-1 @[22rem]:space-y-2">
-            {data.customSkills.map((item) => (
-              <div key={item.id}>
-                <h3 className={`text-[8px] @[22rem]:text-[10px] font-bold uppercase tracking-wider ${subTextColor}`}>
-                  {item.category}
+          {/* === NOUVELLE SECTION : DÉPÔTS MIS EN AVANT === */}
+          <div className="space-y-2 @[22rem]:space-y-3">
+            {data.highlightedRepos?.map((repo) => (
+              <div key={repo.id}>
+                <h3 className={`text-[9px] @[22rem]:text-[12px] font-bold truncate ${mainTextColor} ${textFloatEffect}`}>
+                  {repo.name}
                 </h3>
-                {/* CORRECTION ICI: Marge verticale supprimée sur mobile */}
-                <p className={`text-[10px] @[22rem]:text-xs mt-0 @[22rem]:mt-0.5 ${mainTextColor} ${textFloatEffect}`}>
-                  {item.skills}
+                <p className={`text-[8px] @[22rem]:text-[11px] mt-0 @[22rem]:mt-0.5 text-ellipsis overflow-hidden h-6 @[22rem]:h-auto ${subTextColor}`}>
+                  {repo.description || "Aucune description."}
                 </p>
+                <div className={`flex items-center gap-2 @[22rem]:gap-3 mt-1 ${subTextColor} text-[8px] @[22rem]:text-[10px]`}>
+                  <span className="flex items-center gap-0.5">
+                    <GoStar /> {repo.stars}
+                  </span>
+                  <span className="flex items-center gap-0.5">
+                    <GoGitBranch /> {repo.forks}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
