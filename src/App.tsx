@@ -37,6 +37,7 @@ function App() {
       </main>
       <aside className="sidebar">
         <CardForm 
+          cardData={cardData}
           setCardData={setCardData} 
           setIsLoading={setIsLoading}
           isLoading={isLoading}

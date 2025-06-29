@@ -1,4 +1,5 @@
 // src/types.ts
+export type TemplateId = 'pokemon' | 'aurora' | 'dark' | 'minimalist' | 'holographic';
 
 export interface CardData {
   // Informations de base
@@ -17,7 +18,7 @@ export interface CardData {
   topLanguages: string[];
 
   // Personnalisation
-  template: 'pokemon' | 'modern' | 'minimalist';
+  template: TemplateId;
 }
 
 // Type pour la réponse de l'API des dépôts
