@@ -68,55 +68,60 @@ return (
           />
         </div>
 
-         {/* --- CORPS PRINCIPAL --- */}
-        <div className="absolute top-[48%] left-3 w-[65%] @[22rem]:top-64 @[22rem]:left-10 @[22rem]:w-3/5 flex flex-col gap-2 @[22rem]:gap-4 z-10 text-left">
-        
-          <h2 className={`text-[10px] tracking-wide @[22rem]:text-base @[22rem]:tracking-wider font-bold uppercase ${mainTextColor} ${textFloatEffect}`}>
-            {data.bio}
-          </h2>
+        {/* --- CORPS PRINCIPAL - VERSION AMÉLIORÉE --- */}
+{/*
+  CHANGEMENTS CLÉS :
+  - Positionnement (top) : On passe de 48% à une valeur fixe plus haute sur mobile, qui s'ajuste ensuite.
+    `top-[160px]` est une bonne base pour la vue la plus petite.
+    `@[22rem]:top-64` reste notre point de référence pour les écrans plus grands.
+  - Largeur (w) : On donne plus d'espace.
+    `w-[70%]` sur mobile pour occuper plus d'espace horizontal.
+    `@[22rem]:w-[65%]` sur grand écran pour ne pas chevaucher l'avatar qui est plus gros.
+  - Marge (left) : On l'ajuste pour être cohérent avec le header.
+    `left-3` -> `left-4 @[22rem]:left-6`.
+  - Espacement (gap) : On affine l'espacement vertical entre la bio et les dépôts.
+    `gap-2 @[22rem]:gap-4` -> `gap-3 @[22rem]:gap-4`.
+*/}
+<div className="absolute top-[160px] left-4 w-[70%] @[22rem]:top-64 @[22rem]:left-6 @[22rem]:w-[65%] flex flex-col gap-3 @[22rem]:gap-4 z-10 text-left">
 
-          {/* === SECTION DÉPÔTS MIS EN AVANT - MULTI-OPTIONS === */}
-          <div className="space-y-3 @[22rem]:space-y-4">
-            {data.highlightedRepos?.slice(0, 3).map((repo) => (
-              <div key={repo.id}>
-                
-                {/* --- Conteneur principal pour le nom et les stats --- */}
-                <div className="flex justify-between items-start gap-2">
-                  
-                  {/* --- Partie gauche : Nom et description --- */}
-                  <div className="flex-1 min-w-0"> {/* min-w-0 est crucial pour que truncate fonctionne bien dans un flexbox */}
-                    <h3 className={`text-[9px] @[22rem]:text-[12px] font-bold ${mainTextColor} ${textFloatEffect} truncate`}>
-                      {repo.name}
-                    </h3>
-                    <p className={`text-[8px] @[22rem]:text-[11px] mt-0 @[22rem]:mt-0.5 ${subTextColor} h-6 @[22rem]:h-auto overflow-hidden`}>
-                      {repo.description || "Aucune description."}
-                    </p>
-                  </div>
+  {/* La bio reste la même, elle s'adapte bien */}
+  <h2 className={`text-[10px] tracking-wide @[22rem]:text-base @[22rem]:tracking-wider font-bold uppercase ${mainTextColor} ${textFloatEffect}`}>
+    {data.bio}
+  </h2>
 
-                  {/* --- Partie droite : Stats (CHOISIS UNE DES OPTIONS CI-DESSOUS) --- */}
-                  <div className="flex-shrink-0">
-                    
-                    {/* =================================================================== */}
-                    {/* OPTION 1 : Badges Modernes (Mon préféré pour commencer) */}
-                    {/* Décommente ce bloc pour l'activer */}
-                    {/* =================================================================== */}
-                    <div className="flex flex-col items-end gap-1 mt-0.5">
-                      <div className={`flex items-center gap-1 text-[8px] @[22rem]:text-[10px] font-medium rounded-full px-1.5 @[22rem]:px-2 py-0.5 ${isDarkTheme ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>
-                        <GoStar />
-                        <span>{repo.stars}</span>
-                      </div>
-                      <div className={`flex items-center gap-1 text-[8px] @[22rem]:text-[10px] font-medium rounded-full px-1.5 @[22rem]:px-2 py-0.5 ${isDarkTheme ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`}>
-                        <GoGitBranch />
-                        <span>{repo.forks}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+  {/* 
+    La section des dépôts est déjà bien, les changements ci-dessus lui donneront
+    plus d'espace pour respirer. L'espacement interne est juste légèrement ajusté.
+  */}
+  <div className="space-y-2 @[22rem]:space-y-3">
+    {data.highlightedRepos?.slice(0, 3).map((repo) => (
+      <div key={repo.id}>
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex-1 min-w-0">
+            <h3 className={`text-[9px] @[22rem]:text-[12px] font-bold ${mainTextColor} ${textFloatEffect} truncate`}>
+              {repo.name}
+            </h3>
+            <p className={`text-[8px] @[22rem]:text-[11px] mt-0 @[22rem]:mt-0.5 ${subTextColor} h-6 @[22rem]:h-auto overflow-hidden`}>
+              {repo.description || "Aucune description."}
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            <div className="flex flex-col items-end gap-1 mt-0.5">
+              <div className={`flex items-center gap-1 text-[8px] @[22rem]:text-[10px] font-medium rounded-full px-1.5 @[22rem]:px-2 py-0.5 ${isDarkTheme ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>
+                <GoStar />
+                <span>{repo.stars}</span>
               </div>
-            ))}
+              <div className={`flex items-center gap-1 text-[8px] @[22rem]:text-[10px] font-medium rounded-full px-1.5 @[22rem]:px-2 py-0.5 ${isDarkTheme ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`}>
+                <GoGitBranch />
+                <span>{repo.forks}</span>
+              </div>
+            </div>
           </div>
         </div>
-
+      </div>
+    ))}
+  </div>
+</div>
         {/* --- TECHNOLOGIES FAVORITES --- */}
         <div className="absolute bottom-3 left-3 @[22rem]:bottom-6 @[22rem]:left-6 z-10">
           {/* CORRECTION ICI: Titre encore plus petit sur mobile */}
