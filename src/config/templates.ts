@@ -9,6 +9,7 @@ export interface Template {
   outerClassName: string; 
   // Classes pour le conteneur intérieur
   innerClassName: string; 
+  theme: 'light' | 'dark';
 }
 
 export const TEMPLATES: Template[] = [
@@ -17,6 +18,7 @@ export const TEMPLATES: Template[] = [
     name: 'Classic',
     outerClassName: 'p-2 bg-gradient-to-br from-yellow-300 to-orange-400',
     innerClassName: 'bg-slate-50',
+     theme: 'light',
   },
   {
     id: 'holographic',
@@ -24,6 +26,7 @@ export const TEMPLATES: Template[] = [
     // On utilise la syntaxe `bg-[url(...)]` de Tailwind pour les images de fond !
     outerClassName: "p-2 bg-cover bg-center bg-[url('/templates/holographic.jpg')]",
     innerClassName: 'bg-white/70 backdrop-blur-sm', // Fond blanc semi-transparent avec un effet de flou
+     theme: 'light',
   },
   {
     id: 'blue',
@@ -31,11 +34,13 @@ export const TEMPLATES: Template[] = [
     // On utilise la syntaxe `bg-[url(...)]` de Tailwind pour les images de fond !
     outerClassName: "p-2 bg-cover bg-center bg-[url('/templates/blue.jpg')]",
     innerClassName: 'bg-white/90 backdrop-blur-sm', // Fond blanc semi-transparent avec un effet de flou
+     theme: 'light',
   },
   {
     id: 'dark',
     name: 'Sombre',
     outerClassName: "p-2 bg-cover bg-center bg-[url('/templates/dark.jpg')]",
     innerClassName: 'bg-gray-800/85 backdrop-blur-sm',
+     theme: 'dark',
   },
 ];

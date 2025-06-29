@@ -25,21 +25,22 @@ interface CardProps { data: CardData; }
 
 export default function Card({ data }: CardProps) {
   const currentTemplate = TEMPLATES.find(t => t.id === data.template) || TEMPLATES[0];
+  const isDarkTheme = currentTemplate.theme === 'dark';
 
-  // Définir des classes de texte ici pour éviter la répétition
-  const textFloatEffect = 'text-shadow-float stroke-black/50 stroke-1';
-  
-  // Styles conditionnels pour la couleur de base du texte
-  const mainTextColor = currentTemplate.id === 'dark' ? 'text-gray-100' : 'text-white';
-  const subTextColor = currentTemplate.id === 'dark' ? 'text-gray-400' : 'text-gray-300';
-  const iconColor = currentTemplate.id === 'dark' ? 'text-gray-300' : 'text-gray-200';
+  const textFloatEffect = isDarkTheme 
+    ? 'text-shadow-float stroke-black/50 stroke-1' 
+    : 'text-shadow-[0_2px_8px_rgba(0,0,0,0.2)] stroke-black/20 stroke-1'; // J'ai ajusté l'ombre claire pour un meilleur rendu sur fond clair
+
+  const mainTextColor = isDarkTheme ? 'text-gray-100' : 'text-gray-900';
+  const subTextColor = isDarkTheme ? 'text-gray-400' : 'text-gray-600';
+  const iconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-800';
+  const favIconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-900';
 
   return (
     <div className={`w-[384px] h-[536px] rounded-2xl shadow-lg font-sans transition-all duration-300 ${currentTemplate.outerClassName}`}>
-      {/* Le conteneur intérieur est le référent absolu. On enlève le padding par défaut pour un contrôle total. */}
       <div className={`relative w-full h-full rounded-xl overflow-hidden ${currentTemplate.innerClassName}`}>
 
-        {/* 1. Header: Icône + @username (positionné en haut à gauche) */}
+        {/* 1. Header: Icône + @username */}
         <header className="absolute top-6 left-6 flex items-center gap-2.5 z-10">
           <SiGithub className={`text-2xl ${iconColor}`} />
           <span className={`font-mono text-lg ${mainTextColor} ${textFloatEffect}`}>
@@ -47,21 +48,20 @@ export default function Card({ data }: CardProps) {
           </span>
         </header>
 
-        {/* 2. Avatar avec masque et bordures (positionné à droite) */}
+        {/* 2. Avatar avec masque et bordures (masque renforcé) */}
         <div 
           className="absolute top-20 -right-8 w-64 h-64"
-          style={{ maskImage: 'linear-gradient(to bottom left, black 50%, transparent 95%)' }}
+          style={{ maskImage: 'linear-gradient(to bottom left, black 40%, transparent 80%)' }}
         >
           <img
             src={data.avatarUrl}
             alt="Avatar"
-            // Bordures semi-transparentes pour l'effet "smooth"
-            className="w-full h-full object-cover rounded-full border-[10px] border-white/20"
+            className="w-full h-full object-cover rounded-full border-[6px] border-white/30"
           />
         </div>
 
-        {/* Conteneur pour tout le texte de gauche, pour l'alignement */}
-        <div className="absolute top-48 left-6 w-3/5 flex flex-col gap-5 z-10">
+        {/* Conteneur de texte (nettement plus bas) */}
+        <div className="absolute top-64 left-6 w-3/5 flex flex-col gap-5 z-10">
         
           {/* 3. Titre du Job (Bio) */}
           <h2 className={`text-base font-bold uppercase tracking-wider ${mainTextColor} ${textFloatEffect}`}>
@@ -84,9 +84,9 @@ export default function Card({ data }: CardProps) {
 
         </div>
 
-        {/* 5. Technologies favorites (positionné en bas à gauche) */}
+        {/* 5. Technologies favorites */}
         <div className="absolute bottom-6 left-6 z-10">
-          <h3 className={`text-xs font-bold uppercase tracking-wider mb-2 ${subTextColor}`}>
+          <h3 className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${subTextColor}`}>
             Technologies Favorites
           </h3>
           <div className="flex flex-wrap items-center gap-3">
@@ -95,7 +95,7 @@ export default function Card({ data }: CardProps) {
               return IconComponent ? (
                 <IconComponent 
                   key={lang} 
-                  className={`text-3xl transition-colors ${iconColor} hover:opacity-100 opacity-70`} 
+                  className={`text-2xl transition-colors ${favIconColor} hover:opacity-100 opacity-80`} 
                   title={lang} 
                 />
               ) : null;
