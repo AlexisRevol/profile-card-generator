@@ -74,17 +74,25 @@ return (
             {data.bio}
           </h2>
 
-          {/* === NOUVELLE SECTION : DÉPÔTS MIS EN AVANT === */}
-          <div className="space-y-2 @[22rem]:space-y-3">
-            {data.highlightedRepos?.map((repo) => (
+          {/* === SECTION DÉPÔTS MIS EN AVANT - CORRIGÉE === */}
+          <div className="space-y-1.5 @[22rem]:space-y-3">
+            {data.highlightedRepos?.slice(0, 3).map((repo) => (
               <div key={repo.id}>
-                <h3 className={`text-[9px] @[22rem]:text-[12px] font-bold truncate ${mainTextColor} ${textFloatEffect}`}>
+                {/* NOM DU DÉPÔT : on le tronque s'il est trop long */}
+                <h3 className={`text-[9px] @[22rem]:text-[12px] font-bold ${mainTextColor} ${textFloatEffect} truncate`}>
                   {repo.name}
                 </h3>
-                <p className={`text-[8px] @[22rem]:text-[11px] mt-0 @[22rem]:mt-0.5 text-ellipsis overflow-hidden h-6 @[22rem]:h-auto ${subTextColor}`}>
+                {/* 
+                  DESCRIPTION : On limite la hauteur pour éviter le débordement.
+                  - `h-6` -> Hauteur fixe pour environ 2 lignes de texte.
+                  - `@[22rem]:h-auto` -> La hauteur redevient automatique quand la carte est plus grande.
+                  - `overflow-hidden` -> Cache tout ce qui dépasse de cette hauteur.
+                */}
+                <p className={`text-[8px] @[22rem]:text-[11px] mt-0 @[22rem]:mt-0.5 ${subTextColor} h-6 @[22rem]:h-auto overflow-hidden`}>
                   {repo.description || "Aucune description."}
                 </p>
-                <div className={`flex items-center gap-2 @[22rem]:gap-3 mt-1 ${subTextColor} text-[8px] @[22rem]:text-[10px]`}>
+                {/* STATS : On réduit l'espace quand c'est petit */}
+                <div className={`flex items-center gap-1.5 @[22rem]:gap-3 mt-1 ${subTextColor} text-[8px] @[22rem]:text-[10px]`}>
                   <span className="flex items-center gap-0.5">
                     <GoStar /> {repo.stars}
                   </span>

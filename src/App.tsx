@@ -61,35 +61,26 @@ function App() {
 
 
         {/* COLONNE DE DROITE : LA CARTE */}
-        {/*
-          - C'est un conteneur Flexbox.
-          - `justify-center` et `items-center`: Il va centrer parfaitement son contenu (la carte).
-          - `p-8`: Il donne de l'air autour de la carte.
-          - `overflow-hidden`: Empêche tout dépassement accidentel.
-        */}
         <main className="hidden lg:flex justify-center items-center p-8 overflow-hidden">
-          
-          {/* 
-            === LE CONTRÔLE FINAL DE LA TAILLE ===
-            C'est ce div qui détermine la taille EXACTE de la carte.
-            - `w-[384px]`: On fixe sa largeur à 384px (la largeur de base de votre aspect-ratio).
-            - Vous pouvez ajuster cette valeur, par exemple `w-[420px]` ou `w-[500px]`.
-            - `max-w-full`: S'assure qu'elle ne dépasse pas la colonne sur des écrans plus petits.
-            Votre composant Card à l'intérieur s'adaptera parfaitement à cette largeur.
-          */}
-          <div ref={cardRef} className="w-[384px] max-w-full">
-            <Card data={cardData} />
-          </div>
-
-        </main>
-        
-        {/* LA CARTE SUR MOBILE : Elle doit être visible aussi sur mobile ! */}
-        {/* On la met dans la colonne du formulaire pour les petits écrans. */}
-        <div className="lg:hidden p-4">
-           <div ref={cardRef} className="w-full max-w-md mx-auto">
-               <Card data={cardData} />
-           </div>
+        {/* 
+          === LA MODIFICATION CLÉ POUR LE PC ===
+          On augmente la largeur de l'aperçu pour un meilleur confort visuel.
+          On passe de w-[384px] à w-[512px] (ou la taille que tu préfères).
+          Le `max-w-full` garantit qu'il ne débordera jamais de sa colonne.
+        */}
+        <div ref={cardRef} className="w-[512px] max-w-full">
+          <Card data={cardData} />
         </div>
+
+      </main>
+
+      {/* LA CARTE SUR MOBILE : On garde le même comportement flexible */}
+      <div className="lg:hidden p-4">
+        {/* Ce `ref` est dupliqué, on peut le gérer différemment mais pour l'instant c'est ok */}
+        <div className="w-full max-w-md mx-auto">
+            <Card data={cardData} />
+        </div>
+      </div>
 
 
       </div>
