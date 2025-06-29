@@ -30,60 +30,66 @@ function App() {
 
   // const handleDownloadImage = () => { /* ... */ };
 
-  return (
-    // CORRECTION 1: On enlève le flexbox de centrage. 
-    // On met juste un fond et on s'assure qu'il prend tout l'écran.
-    <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+ return (
+    // Ce conteneur a juste un fond et prend toute la hauteur.
+    <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-900">
 
-      {/* CORRECTION 2: On crée un conteneur principal pour le contenu.
-          - `max-w-screen-xl`: Limite la largeur sur les très grands écrans pour que ça ne soit pas démesuré.
-          - `mx-auto`: Centre ce conteneur horizontalement.
-          - `p-4 sm:p-8`: Garde des marges intérieures confortables.
+      {/* 
+        On utilise Grid pour créer deux colonnes qui s'étirent sur toute la hauteur.
+        - `lg:grid-cols-2`: On divise l'écran en 2 colonnes sur PC.
+        - `h-screen`: On force la grille à prendre 100% de la hauteur de l'écran.
       */}
-      <div className="w-full max-w-screen-xl mx-auto p-4 sm:p-8">
+      <div className="w-full h-screen grid grid-cols-1 lg:grid-cols-2">
 
-        {/* CORRECTION 3: Le layout principal passe en CSS Grid sur grand écran.
-            - `grid grid-cols-1 lg:grid-cols-5`: Sur mobile, une seule colonne. Sur grand écran (lg), une grille de 5 colonnes.
-            - `gap-8 lg:gap-12`: Gère l'espacement entre le formulaire et la carte.
+        {/* COLONNE DE GAUCHE : LE FORMULAIRE */}
+        {/* 
+          - On lui donne un padding.
+          - `overflow-y-auto`: TRÈS IMPORTANT. Si le formulaire est trop long (sur un petit écran),
+            SEULE CETTE COLONNE aura une barre de scroll, pas la page entière.
         */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
-          
-          {/* Colonne 1: Formulaire */}
-          {/* CORRECTION 4: Le formulaire prend 2 colonnes sur 5.
-              - `lg:col-span-2`: Le formulaire occupe 2 des 5 colonnes de la grille.
-          */}
-          <aside className="lg:col-span-2">
-            <CardForm 
+        <aside className="p-4 sm:p-8 overflow-y-auto">
+          <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Personnalisez votre Carte</h1>
+          <CardForm 
               cardData={cardData}
               setCardData={setCardData} 
               setIsLoading={setIsLoading}
               isLoading={isLoading}
-            />
-          </aside>
+          />
+        </aside>
 
-          {/* Colonne 2: Carte */}
-          {/* CORRECTION 5: La carte prend les 3 colonnes restantes.
-              - `lg:col-span-3`: La carte a plus d'espace (3/5 de la largeur), elle sera donc naturellement plus grande.
-              - `flex flex-col gap-6`: On garde flexbox ici pour organiser la carte et son bouton.
+
+        {/* COLONNE DE DROITE : LA CARTE */}
+        {/*
+          - C'est un conteneur Flexbox.
+          - `justify-center` et `items-center`: Il va centrer parfaitement son contenu (la carte).
+          - `p-8`: Il donne de l'air autour de la carte.
+          - `overflow-hidden`: Empêche tout dépassement accidentel.
+        */}
+        <main className="hidden lg:flex justify-center items-center p-8 overflow-hidden">
+          
+          {/* 
+            === LE CONTRÔLE FINAL DE LA TAILLE ===
+            C'est ce div qui détermine la taille EXACTE de la carte.
+            - `w-[384px]`: On fixe sa largeur à 384px (la largeur de base de votre aspect-ratio).
+            - Vous pouvez ajuster cette valeur, par exemple `w-[420px]` ou `w-[500px]`.
+            - `max-w-full`: S'assure qu'elle ne dépasse pas la colonne sur des écrans plus petits.
+            Votre composant Card à l'intérieur s'adaptera parfaitement à cette largeur.
           */}
-          <main className="lg:col-span-3 flex flex-col gap-6">
-            
-            {/* 
-              Ce conteneur est important. Il permet de centrer la carte sur mobile 
-              et de la positionner au début sur PC, tout en la laissant s'agrandir.
-            */}
-            <div ref={cardRef} className="w-full">
-              <Card data={cardData} />
-            </div>
+          <div ref={cardRef} className="w-[384px] max-w-full">
+            <Card data={cardData} />
+          </div>
 
-            <button 
-              className="w-full max-w-xs mx-auto lg:mx-0 bg-indigo-600 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-indigo-700 transition-transform transform hover:scale-105"
-            >
-              Télécharger la Carte
-            </button>
-          </main>
-
+        </main>
+        
+        {/* LA CARTE SUR MOBILE : Elle doit être visible aussi sur mobile ! */}
+        {/* On la met dans la colonne du formulaire pour les petits écrans. */}
+        <div className="lg:hidden p-4">
+           <div ref={cardRef} className="w-full max-w-md mx-auto">
+               <Card data={cardData} />
+           </div>
         </div>
+
+
       </div>
     </div>
   );
