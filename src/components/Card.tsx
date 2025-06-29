@@ -5,7 +5,8 @@ import { TEMPLATES } from '../config/templates'; // On importe nos modèles
 import { FaReact, FaNodeJs, FaFigma, FaGitAlt, FaPython, FaJava, FaHtml5, FaCss3Alt, FaJs } from 'react-icons/fa';
 import { SiTypescript, SiVite, SiTailwindcss, SiCplusplus, SiSharp, SiGo, SiGithub } from 'react-icons/si';
 import { GoRepo, GoStar, GoPerson, GoLocation, GoGitBranch } from 'react-icons/go';
-
+import { getProjectTypeIcon } from '../utils/projectTypeHelper';
+import { FaFire } from 'react-icons/fa';
 
 // Enrichissons notre dictionnaire d'icônes
 const iconMap: { [key: string]: React.ComponentType<any> } = {
@@ -37,6 +38,7 @@ export default function Card({ data }: CardProps) {
   const iconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-800';
   const favIconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-900';
   const accentColor = isDarkTheme ? 'text-indigo-400' : 'text-indigo-600';
+  const fireColor = 'text-orange-500 dark:text-orange-400';
 
 return (
     <div 
@@ -93,34 +95,60 @@ return (
     La section des dépôts est déjà bien, les changements ci-dessus lui donneront
     plus d'espace pour respirer. L'espacement interne est juste légèrement ajusté.
   */}
-  <div className="space-y-2 @[22rem]:space-y-3">
-    {data.highlightedRepos?.slice(0, 3).map((repo) => (
-      <div key={repo.id}>
-        <div className="flex justify-between items-start gap-2">
-          <div className="flex-1 min-w-0">
-            <h3 className={`text-[9px] @[22rem]:text-[12px] font-bold ${mainTextColor} ${textFloatEffect} truncate`}>
-              {repo.name}
-            </h3>
-            <p className={`text-[8px] @[22rem]:text-[11px] mt-0 @[22rem]:mt-0.5 ${subTextColor} h-6 @[22rem]:h-auto overflow-hidden`}>
-              {repo.description || "Aucune description."}
-            </p>
-          </div>
-          <div className="flex-shrink-0">
-            <div className="flex flex-col items-end gap-1 mt-0.5">
-              <div className={`flex items-center gap-1 text-[8px] @[22rem]:text-[10px] font-medium rounded-full px-1.5 @[22rem]:px-2 py-0.5 ${isDarkTheme ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>
-                <GoStar />
-                <span>{repo.stars}</span>
-              </div>
-              <div className={`flex items-center gap-1 text-[8px] @[22rem]:text-[10px] font-medium rounded-full px-1.5 @[22rem]:px-2 py-0.5 ${isDarkTheme ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`}>
-                <GoGitBranch />
-                <span>{repo.forks}</span>
-              </div>
+   <div className="space-y-2 @[22rem]:space-y-3">
+              {/* On utilise l'index du map pour la flamme ! */}
+              {data.highlightedRepos?.slice(0, 3).map((repo, index) => {
+                // On appelle notre fonction magique ici !
+                const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
+                
+                return (
+                  // On englobe chaque item dans un conteneur flex pour l'icône
+                  <div key={repo.id} className="flex items-start gap-2 @[22rem]:gap-3">
+                    
+                    {/* Colonne de l'icône de projet */}
+                    <div className="mt-0.5 @[22rem]:mt-1">
+                      <ProjectIcon className={`text-sm @[22rem]:text-base ${subTextColor} transition-colors`} />
+                    </div>
+                    
+                    {/* Contenu du projet (le reste) */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          {/* 
+                            On ajoute la flamme sur le premier item (index === 0)
+                            C'est un flex container pour aligner le nom et la flamme
+                          */}
+                          <div className="flex items-center gap-1.5">
+                            <h3 className={`text-[9px] @[22rem]:text-[12px] font-bold ${mainTextColor} ${textFloatEffect} truncate`}>
+                              {repo.name}
+                            </h3>
+                            {index === 0 && (
+                              <FaFire className={`flex-shrink-0 text-xs @[22rem]:text-sm ${fireColor}`} />
+                            )}
+                          </div>
+                          <p className={`text-[8px] @[22rem]:text-[11px] mt-0 @[22rem]:mt-0.5 ${subTextColor} h-6 @[22rem]:h-auto overflow-hidden`}>
+                            {repo.description || "Aucune description."}
+                          </p>
+                        </div>
+                        <div className="flex-shrink-0">
+                          {/* ... la partie avec les badges de stats ne change pas ... */}
+                          <div className="flex flex-col items-end gap-1 mt-0.5">
+                            <div className={`flex items-center gap-1 text-[8px] @[22rem]:text-[10px] font-medium rounded-full px-1.5 @[22rem]:px-2 py-0.5 ${isDarkTheme ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>
+                              <GoStar />
+                              <span>{repo.stars}</span>
+                            </div>
+                            <div className={`flex items-center gap-1 text-[8px] @[22rem]:text-[10px] font-medium rounded-full px-1.5 @[22rem]:px-2 py-0.5 ${isDarkTheme ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`}>
+                              <GoGitBranch />
+                              <span>{repo.forks}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-          </div>
-        </div>
-      </div>
-    ))}
-  </div>
 </div>
         {/* --- TECHNOLOGIES FAVORITES --- */}
         <div className="absolute bottom-3 left-3 @[22rem]:bottom-6 @[22rem]:left-6 z-10">
