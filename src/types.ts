@@ -1,5 +1,5 @@
 // src/types.ts
-export type TemplateId = 'pokemon' | 'aurora' | 'dark' | 'minimalist' | 'holographic';
+export type TemplateId = 'classic' | 'aurora' | 'holographic' | 'silver' | 'dark' | 'blue';
 
 export interface CardData {
   // Informations de base

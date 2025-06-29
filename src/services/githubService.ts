@@ -59,7 +59,7 @@ export const fetchGithubUserData = async (username: string): Promise<CardData> =
     publicRepos: userData.public_repos,
     totalStars: totalStars,
     topLanguages: topLanguages,
-    template: 'pokemon', // Valeur par défaut
+    template: 'holographic', // Valeur par défaut
   };
 
   return formattedData;

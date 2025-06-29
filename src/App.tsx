@@ -18,7 +18,7 @@ const initialCardData: CardData = {
   publicRepos: 0,
   totalStars: 0,
   topLanguages: ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Python'],
-  template: 'pokemon',
+  template: 'holographic',
 };
 
 function App() {
