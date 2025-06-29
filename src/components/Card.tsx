@@ -36,82 +36,71 @@ export default function Card({ data }: CardProps) {
   const iconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-800';
   const favIconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-900';
 
-// NOTE : J'utilise un breakpoint de `24rem` (384px), qui est la taille maximale de notre carte.
-  // La syntaxe `@<breakpoint>:` signifie "applique ce style lorsque le conteneur est plus grand que <breakpoint>".
-  // Par défaut, nous aurons des valeurs plus petites pour les mobiles.
-
-  return (
+return (
     <div 
       className={`
-        @container/card w-full max-w-[384px] aspect-[384/536] 
+        @container w-full max-w-[384px] aspect-[384/536] 
         rounded-2xl shadow-lg font-sans transition-all duration-300 ${currentTemplate.outerClassName}
       `}
     >
       <div className={`relative w-full h-full rounded-xl overflow-hidden ${currentTemplate.innerClassName}`}>
 
-        {/* --- HEADER --- */}
-        {/* On réduit les marges et la taille du texte par défaut */}
-        <header className="absolute top-4 left-4 @[24rem]/card:top-6 @[24rem]/card:left-6 flex items-center gap-2 @[24rem]/card:gap-2.5 z-10">
-          <SiGithub className={`text-xl @[24rem]/card:text-2xl ${iconColor}`} />
-          <span className={`font-mono text-base @[24rem]/card:text-lg ${mainTextColor} ${textFloatEffect}`}>
+        {/* --- HEADER (inchangé) --- */}
+        <header className="absolute top-3 left-3 @[22rem]:top-6 @[22rem]:left-6 flex items-center gap-1.5 @[22rem]:gap-2.5 z-10">
+          <SiGithub className={`text-lg @[22rem]:text-2xl ${iconColor}`} />
+          <span className={`font-mono text-sm @[22rem]:text-lg ${mainTextColor} ${textFloatEffect}`}>
             @{data.githubUser || 'github-user'}
           </span>
         </header>
 
-        {/* --- AVATAR --- */}
-        {/* On réduit drastiquement la taille et le positionnement de l'avatar par défaut */}
+        {/* --- AVATAR (inchangé) --- */}
         <div 
-          className="absolute top-16 -right-6 w-48 h-48 @[24rem]/card:top-20 @[24rem]/card:-right-8 @[24rem]/card:w-64 @[24rem]/card:h-64"
+          className="absolute top-12 -right-4 w-36 h-36 @[22rem]:top-20 @[22rem]:-right-8 @[22rem]:w-64 @[22rem]:h-64"
           style={{ maskImage: 'linear-gradient(to bottom left, black 40%, transparent 80%)' }}
         >
           <img
             src={data.avatarUrl}
             alt="Avatar"
-            className="w-full h-full object-cover rounded-full border-4 @[24rem]/card:border-[6px] border-white/30"
+            className="w-full h-full object-cover rounded-full border-4 @[22rem]:border-[6px] border-white/30"
           />
         </div>
 
         {/* --- CORPS PRINCIPAL --- */}
-        {/* On ajuste le positionnement, la largeur, l'espacement et la taille du texte */}
-        <div className="absolute top-56 left-5 w-[60%] @[24rem]/card:top-64 @[24rem]/card:left-10 @[24rem]/card:w-3/5 flex flex-col gap-3 @[24rem]/card:gap-4 z-10 text-left">
+        <div className="absolute top-[48%] left-3 w-[65%] @[22rem]:top-64 @[22rem]:left-10 @[22rem]:w-3/5 flex flex-col gap-2 @[22rem]:gap-4 z-10 text-left">
         
-          {/* Titre du Job (Bio) */}
-          {/* text-sm par défaut, text-base sur les grandes cartes */}
-          <h2 className={`text-sm @[24rem]/card:text-base font-bold uppercase tracking-wider ${mainTextColor} ${textFloatEffect}`}>
+          {/* CORRECTION ICI: Texte de la bio plus petit et moins espacé sur mobile */}
+          <h2 className={`text-[10px] tracking-wide @[22rem]:text-base @[22rem]:tracking-wider font-bold uppercase ${mainTextColor} ${textFloatEffect}`}>
             {data.bio}
           </h2>
 
-          {/* Compétences personnalisées */}
-          <div className="space-y-1.5 @[24rem]/card:space-y-2">
+          <div className="space-y-1 @[22rem]:space-y-2">
             {data.customSkills.map((item) => (
               <div key={item.id}>
-                {/* On utilise text-[9px] au lieu de text-[10px] pour une meilleure échelle */}
-                <h3 className={`text-[9px] @[24rem]/card:text-[10px] font-bold uppercase tracking-wider ${subTextColor}`}>
+                <h3 className={`text-[8px] @[22rem]:text-[10px] font-bold uppercase tracking-wider ${subTextColor}`}>
                   {item.category}
                 </h3>
-                {/* text-[11px] par défaut, text-xs (12px) sur les grandes cartes */}
-                <p className={`text-[11px] @[24rem]/card:text-xs mt-0.5 ${mainTextColor} ${textFloatEffect}`}>
+                {/* CORRECTION ICI: Marge verticale supprimée sur mobile */}
+                <p className={`text-[10px] @[22rem]:text-xs mt-0 @[22rem]:mt-0.5 ${mainTextColor} ${textFloatEffect}`}>
                   {item.skills}
                 </p>
               </div>
             ))}
           </div>
-
         </div>
 
         {/* --- TECHNOLOGIES FAVORITES --- */}
-        {/* On ajuste tout : position, marges, espacement, taille des icônes */}
-        <div className="absolute bottom-4 left-4 @[24rem]/card:bottom-6 @[24rem]/card:left-6 z-10">
-          <h3 className={`text-[9px] @[24rem]/card:text-[10px] font-bold uppercase tracking-wider mb-1.5 @[24rem]/card:mb-2 ${subTextColor}`}>
+        <div className="absolute bottom-3 left-3 @[22rem]:bottom-6 @[22rem]:left-6 z-10">
+          {/* CORRECTION ICI: Titre encore plus petit sur mobile */}
+          <h3 className={`text-[7px] @[22rem]:text-[10px] font-bold uppercase tracking-wider mb-1 @[22rem]:mb-2 ${subTextColor}`}>
             Technologies Favorites
           </h3>
-          <div className="flex flex-wrap items-center gap-2 @[24rem]/card:gap-3">
+          <div className="flex flex-wrap items-center gap-1.5 @[22rem]:gap-3">
             {data.topLanguages.map((lang) => {
               const IconComponent = iconMap[lang.toLowerCase()];
               return IconComponent ? (
                 <IconComponent 
                   key={lang} 
-                  className={`text-xl @[24rem]/card:text-2xl transition-colors ${favIconColor} hover:opacity-100 opacity-80`} 
+                  className={`text-lg @[22rem]:text-2xl transition-colors ${favIconColor} hover:opacity-100 opacity-80`} 
                   title={lang} 
                 />
               ) : null;

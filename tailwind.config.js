@@ -1,6 +1,7 @@
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js
 
-import textStroke from 'tailwindcss-text-stroke'; // Importe le plugin
+import textStroke from 'tailwindcss-text-stroke';
+import containerQueries from '@tailwindcss/container-queries'; // Importez le plugin
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -10,15 +11,13 @@ export default {
   ],
   theme: {
     extend: {
-      // On ajoute des ombres de texte personnalisées pour l'effet de "flottement"
       textShadow: {
         'float': '0 4px 15px rgba(0, 0, 0, 0.5)',
       },
     },
   },
   plugins: [
-    textStroke, // Ajoute le plugin ici
-    // Plugin pour utiliser les ombres de texte avec une classe utilitaire
+    textStroke,
     function ({ theme, e, addUtilities }) {
       const textShadows = theme('textShadow');
       const utilities = Object.entries(textShadows).map(([key, value]) => ({
@@ -26,6 +25,6 @@ export default {
       }));
       addUtilities(utilities);
     },
-    require('@tailwindcss/container-queries'),
+    containerQueries, // Utilisez la variable importée ici
   ],
 }
