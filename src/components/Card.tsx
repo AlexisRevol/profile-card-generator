@@ -36,46 +36,61 @@ export default function Card({ data }: CardProps) {
   const iconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-800';
   const favIconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-900';
 
+// NOTE : J'utilise un breakpoint de `24rem` (384px), qui est la taille maximale de notre carte.
+  // La syntaxe `@<breakpoint>:` signifie "applique ce style lorsque le conteneur est plus grand que <breakpoint>".
+  // Par défaut, nous aurons des valeurs plus petites pour les mobiles.
+
   return (
-    <div className={`w-[384px] h-[536px] rounded-2xl shadow-lg font-sans transition-all duration-300 ${currentTemplate.outerClassName}`}>
+    <div 
+      className={`
+        @container/card w-full max-w-[384px] aspect-[384/536] 
+        rounded-2xl shadow-lg font-sans transition-all duration-300 ${currentTemplate.outerClassName}
+      `}
+    >
       <div className={`relative w-full h-full rounded-xl overflow-hidden ${currentTemplate.innerClassName}`}>
 
-        {/* Header et Avatar ne changent pas */}
-        <header className="absolute top-6 left-6 flex items-center gap-2.5 z-10">
-          <SiGithub className={`text-2xl ${iconColor}`} />
-          <span className={`font-mono text-lg ${mainTextColor} ${textFloatEffect}`}>
+        {/* --- HEADER --- */}
+        {/* On réduit les marges et la taille du texte par défaut */}
+        <header className="absolute top-4 left-4 @[24rem]/card:top-6 @[24rem]/card:left-6 flex items-center gap-2 @[24rem]/card:gap-2.5 z-10">
+          <SiGithub className={`text-xl @[24rem]/card:text-2xl ${iconColor}`} />
+          <span className={`font-mono text-base @[24rem]/card:text-lg ${mainTextColor} ${textFloatEffect}`}>
             @{data.githubUser || 'github-user'}
           </span>
         </header>
 
+        {/* --- AVATAR --- */}
+        {/* On réduit drastiquement la taille et le positionnement de l'avatar par défaut */}
         <div 
-          className="absolute top-20 -right-8 w-64 h-64"
+          className="absolute top-16 -right-6 w-48 h-48 @[24rem]/card:top-20 @[24rem]/card:-right-8 @[24rem]/card:w-64 @[24rem]/card:h-64"
           style={{ maskImage: 'linear-gradient(to bottom left, black 40%, transparent 80%)' }}
         >
           <img
             src={data.avatarUrl}
             alt="Avatar"
-            className="w-full h-full object-cover rounded-full border-[6px] border-white/30"
+            className="w-full h-full object-cover rounded-full border-4 @[24rem]/card:border-[6px] border-white/30"
           />
         </div>
 
-        {/* --- CORRECTION ICI --- */}
-        {/* On ajoute text-left pour forcer l'alignement */}
-        <div className="absolute top-64 left-10 w-3/5 flex flex-col gap-4 z-10 text-left">
+        {/* --- CORPS PRINCIPAL --- */}
+        {/* On ajuste le positionnement, la largeur, l'espacement et la taille du texte */}
+        <div className="absolute top-56 left-5 w-[60%] @[24rem]/card:top-64 @[24rem]/card:left-10 @[24rem]/card:w-3/5 flex flex-col gap-3 @[24rem]/card:gap-4 z-10 text-left">
         
           {/* Titre du Job (Bio) */}
-          <h2 className={`text-base font-bold uppercase tracking-wider ${mainTextColor} ${textFloatEffect}`}>
+          {/* text-sm par défaut, text-base sur les grandes cartes */}
+          <h2 className={`text-sm @[24rem]/card:text-base font-bold uppercase tracking-wider ${mainTextColor} ${textFloatEffect}`}>
             {data.bio}
           </h2>
 
-          {/* Compétences personnalisées (maintenant alignées à gauche) */}
-          <div className="space-y-2">
+          {/* Compétences personnalisées */}
+          <div className="space-y-1.5 @[24rem]/card:space-y-2">
             {data.customSkills.map((item) => (
               <div key={item.id}>
-                <h3 className={`text-[10px] font-bold uppercase tracking-wider ${subTextColor}`}>
+                {/* On utilise text-[9px] au lieu de text-[10px] pour une meilleure échelle */}
+                <h3 className={`text-[9px] @[24rem]/card:text-[10px] font-bold uppercase tracking-wider ${subTextColor}`}>
                   {item.category}
                 </h3>
-                <p className={`text-xs mt-0.5 ${mainTextColor} ${textFloatEffect}`}>
+                {/* text-[11px] par défaut, text-xs (12px) sur les grandes cartes */}
+                <p className={`text-[11px] @[24rem]/card:text-xs mt-0.5 ${mainTextColor} ${textFloatEffect}`}>
                   {item.skills}
                 </p>
               </div>
@@ -84,18 +99,19 @@ export default function Card({ data }: CardProps) {
 
         </div>
 
-        {/* Technologies favorites ne change pas */}
-        <div className="absolute bottom-6 left-6 z-10">
-          <h3 className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${subTextColor}`}>
+        {/* --- TECHNOLOGIES FAVORITES --- */}
+        {/* On ajuste tout : position, marges, espacement, taille des icônes */}
+        <div className="absolute bottom-4 left-4 @[24rem]/card:bottom-6 @[24rem]/card:left-6 z-10">
+          <h3 className={`text-[9px] @[24rem]/card:text-[10px] font-bold uppercase tracking-wider mb-1.5 @[24rem]/card:mb-2 ${subTextColor}`}>
             Technologies Favorites
           </h3>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 @[24rem]/card:gap-3">
             {data.topLanguages.map((lang) => {
               const IconComponent = iconMap[lang.toLowerCase()];
               return IconComponent ? (
                 <IconComponent 
                   key={lang} 
-                  className={`text-2xl transition-colors ${favIconColor} hover:opacity-100 opacity-80`} 
+                  className={`text-xl @[24rem]/card:text-2xl transition-colors ${favIconColor} hover:opacity-100 opacity-80`} 
                   title={lang} 
                 />
               ) : null;

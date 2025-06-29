@@ -26,5 +26,6 @@ export default {
       }));
       addUtilities(utilities);
     },
+    require('@tailwindcss/container-queries'),
   ],
 }
