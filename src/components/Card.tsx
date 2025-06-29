@@ -29,7 +29,7 @@ export default function Card({ data }: CardProps) {
 
   const textFloatEffect = isDarkTheme 
     ? 'text-shadow-float stroke-black/50 stroke-1' 
-    : 'text-shadow-[0_2px_8px_rgba(0,0,0,0.2)] stroke-black/20 stroke-1'; // J'ai ajusté l'ombre claire pour un meilleur rendu sur fond clair
+    : 'text-shadow-[0_2px_8px_rgba(0,0,0,0.2)] stroke-black/20 stroke-1';
 
   const mainTextColor = isDarkTheme ? 'text-gray-100' : 'text-gray-900';
   const subTextColor = isDarkTheme ? 'text-gray-400' : 'text-gray-600';
@@ -40,7 +40,7 @@ export default function Card({ data }: CardProps) {
     <div className={`w-[384px] h-[536px] rounded-2xl shadow-lg font-sans transition-all duration-300 ${currentTemplate.outerClassName}`}>
       <div className={`relative w-full h-full rounded-xl overflow-hidden ${currentTemplate.innerClassName}`}>
 
-        {/* 1. Header: Icône + @username */}
+        {/* Header et Avatar ne changent pas */}
         <header className="absolute top-6 left-6 flex items-center gap-2.5 z-10">
           <SiGithub className={`text-2xl ${iconColor}`} />
           <span className={`font-mono text-lg ${mainTextColor} ${textFloatEffect}`}>
@@ -48,7 +48,6 @@ export default function Card({ data }: CardProps) {
           </span>
         </header>
 
-        {/* 2. Avatar avec masque et bordures (masque renforcé) */}
         <div 
           className="absolute top-20 -right-8 w-64 h-64"
           style={{ maskImage: 'linear-gradient(to bottom left, black 40%, transparent 80%)' }}
@@ -60,22 +59,23 @@ export default function Card({ data }: CardProps) {
           />
         </div>
 
-        {/* Conteneur de texte (nettement plus bas) */}
-        <div className="absolute top-64 left-6 w-3/5 flex flex-col gap-5 z-10">
+        {/* --- CORRECTION ICI --- */}
+        {/* On ajoute text-left pour forcer l'alignement */}
+        <div className="absolute top-64 left-10 w-3/5 flex flex-col gap-4 z-10 text-left">
         
-          {/* 3. Titre du Job (Bio) */}
+          {/* Titre du Job (Bio) */}
           <h2 className={`text-base font-bold uppercase tracking-wider ${mainTextColor} ${textFloatEffect}`}>
             {data.bio}
           </h2>
 
-          {/* 4. Compétences personnalisées */}
-          <div className="space-y-4">
+          {/* Compétences personnalisées (maintenant alignées à gauche) */}
+          <div className="space-y-2">
             {data.customSkills.map((item) => (
               <div key={item.id}>
-                <h3 className={`text-xs font-bold uppercase tracking-wider ${subTextColor}`}>
+                <h3 className={`text-[10px] font-bold uppercase tracking-wider ${subTextColor}`}>
                   {item.category}
                 </h3>
-                <p className={`text-sm mt-0.5 ${mainTextColor} ${textFloatEffect}`}>
+                <p className={`text-xs mt-0.5 ${mainTextColor} ${textFloatEffect}`}>
                   {item.skills}
                 </p>
               </div>
@@ -84,7 +84,7 @@ export default function Card({ data }: CardProps) {
 
         </div>
 
-        {/* 5. Technologies favorites */}
+        {/* Technologies favorites ne change pas */}
         <div className="absolute bottom-6 left-6 z-10">
           <h3 className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${subTextColor}`}>
             Technologies Favorites
