@@ -1,56 +1,72 @@
 // src/components/Card.tsx
 
-import type { CardData } from '../types'; // On importe le type depuis le fichier central
-import { FaReact, FaNodeJs, FaFigma, FaGitAlt } from 'react-icons/fa'; // Exemple avec react-icons
-import { SiTypescript, SiVite, SiTailwindcss } from 'react-icons/si';
+import type { CardData } from '../types';
+import { FaReact, FaNodeJs, FaFigma, FaGitAlt, FaPython, FaJava, FaHtml5, FaCss3Alt, FaJs } from 'react-icons/fa';
+import { SiTypescript, SiVite, SiTailwindcss, SiCplusplus, SiSharp, SiGo } from 'react-icons/si';
+import { GoRepo, GoStar, GoPerson, GoLocation } from 'react-icons/go';
 
-// Pour installer les icônes: npm install react-icons
-
-// On définit les props que le composant attend
-interface CardProps {
-  data: CardData;
-}
-
-// Un dictionnaire pour mapper les noms de techno à des composants d'icône
+// Enrichissons notre dictionnaire d'icônes
 const iconMap: { [key: string]: React.ComponentType<any> } = {
-  react: FaReact,
-  typescript: SiTypescript,
-  node: FaNodeJs,
-  figma: FaFigma,
-  vite: SiVite,
-  tailwind: SiTailwindcss,
-  git: FaGitAlt,
+  react: FaReact, typescript: SiTypescript, javascript: FaJs,
+  node: FaNodeJs, figma: FaFigma, vite: SiVite, tailwind: SiTailwindcss, git: FaGitAlt,
+  python: FaPython, java: FaJava, html: FaHtml5, css: FaCss3Alt,
+  'c++': SiCplusplus, 'c#': SiSharp, go: SiGo,
 };
 
-// Utilise les classes Tailwind pour le style, c'est plus propre !
+interface CardProps { data: CardData; }
+
 export default function Card({ data }: CardProps) {
   return (
-    <div className="w-[384px] h-[536px] p-2 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-2xl shadow-lg">
-      <div className="w-full h-full bg-slate-50 rounded-xl p-4 flex flex-col items-center">
-        <div className="w-full h-40 bg-gray-200 rounded-lg flex justify-center items-center overflow-hidden">
-          {/* Tu pourrais mettre une image de fond ici */}
+    <div className="w-[384px] h-[536px] p-2 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-2xl shadow-lg font-sans">
+      <div className="w-full h-full bg-slate-50 rounded-xl p-4 flex flex-col">
+        {/* Header avec avatar et nom */}
+        <div className="flex items-center space-x-4">
           <img
             src={data.avatarUrl}
             alt={`Avatar de ${data.name}`}
-            className="w-32 h-32 rounded-full border-4 border-white shadow-md object-cover"
+            className="w-20 h-20 rounded-full border-4 border-white shadow-md object-cover"
           />
-        </div>
-        <h2 className="mt-4 text-3xl font-bold text-gray-800 tracking-wide">
-          {data.name}
-        </h2>
-        <p className="mt-1 text-sm text-indigo-500 font-semibold">
-          {data.skills}
-        </p>
-
-        <div className="mt-6 flex flex-wrap justify-center gap-4">
-          {data.technologies.map((tech) => {
-            const IconComponent = iconMap[tech.toLowerCase()];
-            return IconComponent ? <IconComponent key={tech} className="text-4xl text-gray-600" title={tech} /> : null;
-          })}
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 tracking-wide">{data.name}</h2>
+            {data.location && (
+              <div className="flex items-center mt-1 text-sm text-gray-500">
+                <GoLocation className="mr-1" />
+                <span>{data.location}</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="mt-auto text-xs text-gray-400">
-          Généré avec le Card Generator
+        {/* Bio */}
+        <p className="mt-4 text-sm text-gray-700 h-16">{data.bio}</p>
+
+        {/* Statistiques */}
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          <div className="bg-gray-100 p-2 rounded-lg">
+            <div className="flex items-center justify-center text-lg font-bold text-indigo-600"><GoPerson className="mr-1.5" /> {data.followers}</div>
+            <div className="text-xs text-gray-500">Followers</div>
+          </div>
+          <div className="bg-gray-100 p-2 rounded-lg">
+            <div className="flex items-center justify-center text-lg font-bold text-indigo-600"><GoRepo className="mr-1.5" /> {data.publicRepos}</div>
+            <div className="text-xs text-gray-500">Dépôts</div>
+          </div>
+          <div className="bg-gray-100 p-2 rounded-lg">
+            <div className="flex items-center justify-center text-lg font-bold text-indigo-600"><GoStar className="mr-1.5" /> {data.totalStars}</div>
+            <div className="text-xs text-gray-500">Étoiles</div>
+          </div>
+        </div>
+        
+        {/* Technologies */}
+        <div className="mt-auto">
+          <h3 className="text-sm font-semibold text-gray-600 mb-2">Technologies Principales</h3>
+          <div className="flex flex-wrap justify-center gap-4">
+            {data.topLanguages.map((lang) => {
+              const IconComponent = iconMap[lang.toLowerCase()];
+              return IconComponent ? 
+                <IconComponent key={lang} className="text-4xl text-gray-700 hover:text-indigo-500 transition-colors" title={lang} /> 
+                : <span key={lang} className="text-sm bg-gray-200 px-2 py-1 rounded">{lang}</span>;
+            })}
+          </div>
         </div>
       </div>
     </div>
