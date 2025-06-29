@@ -1,6 +1,12 @@
 // src/types.ts
 export type TemplateId = 'classic' | 'aurora' | 'holographic' | 'silver' | 'dark' | 'blue';
 
+export interface SkillCategory {
+  id: string; // Pour les keys React, un ID unique
+  category: string;
+  skills: string;
+}
+
 export interface CardData {
   // Informations de base
   name: string;
@@ -17,6 +23,7 @@ export interface CardData {
   // Données calculées
   topLanguages: string[];
 
+  customSkills: SkillCategory[];
   // Personnalisation
   template: TemplateId;
 }

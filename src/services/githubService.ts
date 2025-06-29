@@ -60,6 +60,10 @@ export const fetchGithubUserData = async (username: string): Promise<CardData> =
     totalStars: totalStars,
     topLanguages: topLanguages,
     template: 'holographic', // Valeur par défaut
+    customSkills: [
+        { id: '1', category: 'Développement Web', skills: 'React, TypeScript, Node.js' },
+        { id: '2', category: 'Outils & Design', skills: 'Figma, Git, Tailwind CSS' },
+    ],
   };
 
   return formattedData;

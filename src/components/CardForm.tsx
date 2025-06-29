@@ -1,9 +1,10 @@
 // src/components/CardForm.tsx
 
 import React, { useState } from 'react';
-import type { CardData } from '../types';
+import type { CardData, SkillCategory  } from '../types';
 import { fetchGithubUserData } from '../services/githubService';
 import { TEMPLATES } from '../config/templates';
+import { FaPlus, FaTrash } from 'react-icons/fa'; // Icônes pour l'UI
 
 interface CardFormProps {
   cardData: CardData; 
@@ -30,6 +31,27 @@ export default function CardForm({ cardData, setCardData, setIsLoading, isLoadin
       setIsLoading(false);
     }
   };
+
+   // --- Fonctions de gestion des compétences ---
+  const handleSkillChange = (index: number, field: keyof SkillCategory, value: string) => {
+    const newSkills = [...cardData.customSkills];
+    newSkills[index] = { ...newSkills[index], [field]: value };
+    setCardData(prev => ({ ...prev, customSkills: newSkills }));
+  };
+
+  const addSkillCategory = () => {
+    const newSkills: SkillCategory[] = [
+      ...cardData.customSkills,
+      { id: Date.now().toString(), category: 'Nouvelle Catégorie', skills: 'Compétence 1, Compétence 2' }
+    ];
+    setCardData(prev => ({ ...prev, customSkills: newSkills }));
+  };
+
+  const removeSkillCategory = (index: number) => {
+    const newSkills = cardData.customSkills.filter((_, i) => i !== index);
+    setCardData(prev => ({ ...prev, customSkills: newSkills }));
+  };
+
 
   return (
     <div className="space-y-6"> {/* Ajout d'un conteneur principal */}
@@ -60,6 +82,46 @@ export default function CardForm({ cardData, setCardData, setIsLoading, isLoadin
         </div>
         {/* On peut enlever les autres champs, car tout est auto-généré maintenant ! */}
         </form>
+
+        {/* --- NOUVEAU FORMULAIRE DE COMPÉTENCES DYNAMIQUE --- */}
+        <div>
+            <label className="block text-sm font-medium text-gray-700">
+            Domaines de Compétences
+            </label>
+            <div className="mt-2 space-y-3">
+            {cardData.customSkills.map((skill, index) => (
+                <div key={skill.id} className="p-2 border rounded-md bg-gray-50 space-y-1 relative">
+                <input
+                    type="text"
+                    placeholder="Catégorie (ex: Web)"
+                    className="w-full text-sm font-semibold border-b bg-transparent focus:outline-none"
+                    value={skill.category}
+                    onChange={(e) => handleSkillChange(index, 'category', e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Compétences (ex: React, Node.js)"
+                    className="w-full text-sm bg-transparent focus:outline-none"
+                    value={skill.skills}
+                    onChange={(e) => handleSkillChange(index, 'skills', e.target.value)}
+                />
+                <button
+                    onClick={() => removeSkillCategory(index)}
+                    className="absolute top-1 right-1 text-gray-400 hover:text-red-500"
+                    aria-label="Supprimer la catégorie"
+                >
+                    <FaTrash />
+                </button>
+                </div>
+            ))}
+            <button
+                onClick={addSkillCategory}
+                className="w-full flex items-center justify-center gap-2 text-sm py-2 border-2 border-dashed rounded-md text-gray-500 hover:bg-gray-100 hover:border-gray-400"
+            >
+                <FaPlus /> Ajouter une catégorie
+            </button>
+            </div>
+        </div>
 
          {/* --- NOUVEAU: Sélecteur de Modèle --- */}
          <div>

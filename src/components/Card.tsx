@@ -1,9 +1,9 @@
 // src/components/Card.tsx
 
-import type { CardData } from '../types';
+import type { CardData, SkillCategory  } from '../types';
 import { TEMPLATES } from '../config/templates'; // On importe nos modèles
 import { FaReact, FaNodeJs, FaFigma, FaGitAlt, FaPython, FaJava, FaHtml5, FaCss3Alt, FaJs } from 'react-icons/fa';
-import { SiTypescript, SiVite, SiTailwindcss, SiCplusplus, SiSharp, SiGo } from 'react-icons/si';
+import { SiTypescript, SiVite, SiTailwindcss, SiCplusplus, SiSharp, SiGo, SiGithub } from 'react-icons/si';
 import { GoRepo, GoStar, GoPerson, GoLocation } from 'react-icons/go';
 
 // Enrichissons notre dictionnaire d'icônes
@@ -11,7 +11,7 @@ const iconMap: { [key: string]: React.ComponentType<any> } = {
   react: FaReact, typescript: SiTypescript, javascript: FaJs,
   node: FaNodeJs, figma: FaFigma, vite: SiVite, tailwind: SiTailwindcss, git: FaGitAlt,
   python: FaPython, java: FaJava, html: FaHtml5, css: FaCss3Alt,
-  'c++': SiCplusplus, 'c#': SiSharp, go: SiGo,
+  'c++': SiCplusplus, 'c#': SiSharp, go: SiGo, 'github': SiGithub,
 };
 
 const getIconColor = (templateId: CardData['template']): string => {
@@ -24,68 +24,85 @@ const getIconColor = (templateId: CardData['template']): string => {
 interface CardProps { data: CardData; }
 
 export default function Card({ data }: CardProps) {
-  // On trouve le modèle actuel à partir de son ID
   const currentTemplate = TEMPLATES.find(t => t.id === data.template) || TEMPLATES[0];
-  const iconColor = getIconColor(data.template);
 
-  // Style conditionnel pour le texte, pour qu'il soit lisible sur tous les fonds
-  const textColor = currentTemplate.id === 'dark' ? 'text-gray-200' : 'text-gray-800';
-  const subTextColor = currentTemplate.id === 'dark' ? 'text-gray-400' : 'text-gray-500';
-
+  // Définir des classes de texte ici pour éviter la répétition
+  const textFloatEffect = 'text-shadow-float stroke-black/50 stroke-1';
+  
+  // Styles conditionnels pour la couleur de base du texte
+  const mainTextColor = currentTemplate.id === 'dark' ? 'text-gray-100' : 'text-white';
+  const subTextColor = currentTemplate.id === 'dark' ? 'text-gray-400' : 'text-gray-300';
+  const iconColor = currentTemplate.id === 'dark' ? 'text-gray-300' : 'text-gray-200';
 
   return (
     <div className={`w-[384px] h-[536px] rounded-2xl shadow-lg font-sans transition-all duration-300 ${currentTemplate.outerClassName}`}>
-      <div className={`w-full h-full rounded-xl p-4 flex flex-col transition-all duration-300 ${currentTemplate.innerClassName}`}>
-        {/* Header avec avatar et nom */}
-        <div className="flex items-center space-x-4">
+      {/* Le conteneur intérieur est le référent absolu. On enlève le padding par défaut pour un contrôle total. */}
+      <div className={`relative w-full h-full rounded-xl overflow-hidden ${currentTemplate.innerClassName}`}>
+
+        {/* 1. Header: Icône + @username (positionné en haut à gauche) */}
+        <header className="absolute top-6 left-6 flex items-center gap-2.5 z-10">
+          <SiGithub className={`text-2xl ${iconColor}`} />
+          <span className={`font-mono text-lg ${mainTextColor} ${textFloatEffect}`}>
+            @{data.githubUser || 'github-user'}
+          </span>
+        </header>
+
+        {/* 2. Avatar avec masque et bordures (positionné à droite) */}
+        <div 
+          className="absolute top-20 -right-8 w-64 h-64"
+          style={{ maskImage: 'linear-gradient(to bottom left, black 50%, transparent 95%)' }}
+        >
           <img
             src={data.avatarUrl}
-            alt={`Avatar de ${data.name}`}
-            className="w-20 h-20 rounded-full border-4 border-white shadow-md object-cover"
+            alt="Avatar"
+            // Bordures semi-transparentes pour l'effet "smooth"
+            className="w-full h-full object-cover rounded-full border-[10px] border-white/20"
           />
-          <div>
-            <h2 className={`text-2xl font-bold tracking-wide ${textColor}`}>{data.name}</h2>
-            {data.location && (
-              <div className={`flex items-center mt-1 text-sm ${subTextColor}`}>
-                {/* ... (icône location) ... */}
-                <span>{data.location}</span>
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* Bio */}
-        <p className={`mt-4 text-sm h-16 ${currentTemplate.id === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{data.bio}</p>
-
-        {/* Statistiques */}
-        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-          <div className="bg-gray-100 p-2 rounded-lg">
-            <div className="flex items-center justify-center text-lg font-bold text-indigo-600"><GoPerson className="mr-1.5" /> {data.followers}</div>
-            <div className="text-xs text-gray-500">Followers</div>
-          </div>
-          <div className="bg-gray-100 p-2 rounded-lg">
-            <div className="flex items-center justify-center text-lg font-bold text-indigo-600"><GoRepo className="mr-1.5" /> {data.publicRepos}</div>
-            <div className="text-xs text-gray-500">Dépôts</div>
-          </div>
-          <div className="bg-gray-100 p-2 rounded-lg">
-            <div className="flex items-center justify-center text-lg font-bold text-indigo-600"><GoStar className="mr-1.5" /> {data.totalStars}</div>
-            <div className="text-xs text-gray-500">Étoiles</div>
-          </div>
-        </div>
+        {/* Conteneur pour tout le texte de gauche, pour l'alignement */}
+        <div className="absolute top-48 left-6 w-3/5 flex flex-col gap-5 z-10">
         
-         {/* Technologies */}
-        <div className="mt-auto">
-          <h3 className={`text-sm font-semibold mb-2 ${subTextColor}`}>Technologies Principales</h3>
-          <div className="flex flex-wrap justify-center gap-4">
+          {/* 3. Titre du Job (Bio) */}
+          <h2 className={`text-base font-bold uppercase tracking-wider ${mainTextColor} ${textFloatEffect}`}>
+            {data.bio}
+          </h2>
+
+          {/* 4. Compétences personnalisées */}
+          <div className="space-y-4">
+            {data.customSkills.map((item) => (
+              <div key={item.id}>
+                <h3 className={`text-xs font-bold uppercase tracking-wider ${subTextColor}`}>
+                  {item.category}
+                </h3>
+                <p className={`text-sm mt-0.5 ${mainTextColor} ${textFloatEffect}`}>
+                  {item.skills}
+                </p>
+              </div>
+            ))}
+          </div>
+
+        </div>
+
+        {/* 5. Technologies favorites (positionné en bas à gauche) */}
+        <div className="absolute bottom-6 left-6 z-10">
+          <h3 className={`text-xs font-bold uppercase tracking-wider mb-2 ${subTextColor}`}>
+            Technologies Favorites
+          </h3>
+          <div className="flex flex-wrap items-center gap-3">
             {data.topLanguages.map((lang) => {
               const IconComponent = iconMap[lang.toLowerCase()];
-              {/* ... (logique des icônes) ... */}
-              return IconComponent ? 
-                <IconComponent key={lang} className={`text-4xl transition-colors ${iconColor}`} title={lang} /> 
-                : <span key={lang} className="text-xs bg-gray-200 text-gray-800 px-2 py-1 rounded-full">{lang}</span>;
+              return IconComponent ? (
+                <IconComponent 
+                  key={lang} 
+                  className={`text-3xl transition-colors ${iconColor} hover:opacity-100 opacity-70`} 
+                  title={lang} 
+                />
+              ) : null;
             })}
           </div>
         </div>
+
       </div>
     </div>
   );

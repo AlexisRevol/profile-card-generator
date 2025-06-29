@@ -18,6 +18,10 @@ const initialCardData: CardData = {
   publicRepos: 0,
   totalStars: 0,
   topLanguages: ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Python'],
+  customSkills: [
+    { id: '1', category: 'Développement Web', skills: 'React, TypeScript, Node.js' },
+    { id: '2', category: 'Outils & Design', skills: 'Figma, Git, Tailwind CSS' },
+  ],
   template: 'holographic',
 };
 
