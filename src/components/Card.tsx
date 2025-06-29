@@ -39,11 +39,10 @@ export default function Card({ data }: CardProps) {
 return (
     <div 
       className={`
-        @container w-full 
-        max-w-[384px] lg:max-w-[448px] xl:max-w-[512px] /* Tailles de carte par breakpoint */
-        aspect-[384/536] 
-        rounded-2xl shadow-lg font-sans transition-all duration-300 ${currentTemplate.outerClassName}
-      `}
+    @container w-full 
+    aspect-[384/536] 
+    rounded-2xl shadow-lg font-sans transition-all duration-300 ${currentTemplate.outerClassName}
+  `}
     >
       <div className={`relative w-full h-full rounded-xl overflow-hidden ${currentTemplate.innerClassName}`}>
 
