@@ -36,6 +36,7 @@ export default function Card({ data }: CardProps) {
   const subTextColor = isDarkTheme ? 'text-gray-400' : 'text-gray-600';
   const iconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-800';
   const favIconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-900';
+  const accentColor = isDarkTheme ? 'text-indigo-400' : 'text-indigo-600';
 
 return (
     <div 
@@ -74,31 +75,42 @@ return (
             {data.bio}
           </h2>
 
-          {/* === SECTION DÉPÔTS MIS EN AVANT - CORRIGÉE === */}
-          <div className="space-y-1.5 @[22rem]:space-y-3">
+          {/* === SECTION DÉPÔTS MIS EN AVANT - MULTI-OPTIONS === */}
+          <div className="space-y-3 @[22rem]:space-y-4">
             {data.highlightedRepos?.slice(0, 3).map((repo) => (
               <div key={repo.id}>
-                {/* NOM DU DÉPÔT : on le tronque s'il est trop long */}
-                <h3 className={`text-[9px] @[22rem]:text-[12px] font-bold ${mainTextColor} ${textFloatEffect} truncate`}>
-                  {repo.name}
-                </h3>
-                {/* 
-                  DESCRIPTION : On limite la hauteur pour éviter le débordement.
-                  - `h-6` -> Hauteur fixe pour environ 2 lignes de texte.
-                  - `@[22rem]:h-auto` -> La hauteur redevient automatique quand la carte est plus grande.
-                  - `overflow-hidden` -> Cache tout ce qui dépasse de cette hauteur.
-                */}
-                <p className={`text-[8px] @[22rem]:text-[11px] mt-0 @[22rem]:mt-0.5 ${subTextColor} h-6 @[22rem]:h-auto overflow-hidden`}>
-                  {repo.description || "Aucune description."}
-                </p>
-                {/* STATS : On réduit l'espace quand c'est petit */}
-                <div className={`flex items-center gap-1.5 @[22rem]:gap-3 mt-1 ${subTextColor} text-[8px] @[22rem]:text-[10px]`}>
-                  <span className="flex items-center gap-0.5">
-                    <GoStar /> {repo.stars}
-                  </span>
-                  <span className="flex items-center gap-0.5">
-                    <GoGitBranch /> {repo.forks}
-                  </span>
+                
+                {/* --- Conteneur principal pour le nom et les stats --- */}
+                <div className="flex justify-between items-start gap-2">
+                  
+                  {/* --- Partie gauche : Nom et description --- */}
+                  <div className="flex-1 min-w-0"> {/* min-w-0 est crucial pour que truncate fonctionne bien dans un flexbox */}
+                    <h3 className={`text-[9px] @[22rem]:text-[12px] font-bold ${mainTextColor} ${textFloatEffect} truncate`}>
+                      {repo.name}
+                    </h3>
+                    <p className={`text-[8px] @[22rem]:text-[11px] mt-0 @[22rem]:mt-0.5 ${subTextColor} h-6 @[22rem]:h-auto overflow-hidden`}>
+                      {repo.description || "Aucune description."}
+                    </p>
+                  </div>
+
+                  {/* --- Partie droite : Stats (CHOISIS UNE DES OPTIONS CI-DESSOUS) --- */}
+                  <div className="flex-shrink-0">
+                    
+                    {/* =================================================================== */}
+                    {/* OPTION 1 : Badges Modernes (Mon préféré pour commencer) */}
+                    {/* Décommente ce bloc pour l'activer */}
+                    {/* =================================================================== */}
+                    <div className="flex flex-col items-end gap-1 mt-0.5">
+                      <div className={`flex items-center gap-1 text-[8px] @[22rem]:text-[10px] font-medium rounded-full px-1.5 @[22rem]:px-2 py-0.5 ${isDarkTheme ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>
+                        <GoStar />
+                        <span>{repo.stars}</span>
+                      </div>
+                      <div className={`flex items-center gap-1 text-[8px] @[22rem]:text-[10px] font-medium rounded-full px-1.5 @[22rem]:px-2 py-0.5 ${isDarkTheme ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`}>
+                        <GoGitBranch />
+                        <span>{repo.forks}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
