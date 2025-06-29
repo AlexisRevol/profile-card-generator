@@ -12,7 +12,7 @@ const initialCardData: CardData = {
   name: 'Ton Nom',
   githubUser: '',
   avatarUrl: 'https://github.com/github.png',
-  bio: 'Entre un pseudo GitHub et clique sur "Chercher" !',
+  bio: 'Pseudo',
   location: 'Planète Terre',
   followers: 0,
   publicRepos: 0,
@@ -32,12 +32,12 @@ function App() {
 
   const handleDownloadImage = () => { /* ... (pas de changement ici) ... */ };
 
- return (
+return (
+    // --- CORRECTION ICI : On donne plus d'espace à l'ensemble sur PC ---
     <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8">
+      {/* On revient à une largeur max plus raisonnable pour l'ensemble */}
       <div className="w-full max-w-7xl flex flex-col lg:flex-row gap-8 lg:gap-12">
-
-        {/* --- CORRECTION DU LAYOUT DU FORMULAIRE --- */}
-        {/* On donne une largeur plus contrôlée au formulaire sur desktop */}
+        {/* Le reste du fichier App.tsx ne change pas par rapport à la version précédente */}
         <aside className="w-full lg:w-full lg:min-w-[384px] lg:max-w-md">
           <CardForm 
             cardData={cardData}
@@ -47,7 +47,7 @@ function App() {
           />
         </aside>
 
-        {/* Colonne 2 : La carte */}
+        {/* La colonne de la carte va maintenant pouvoir s'agrandir beaucoup plus */}
         <main className="w-full flex flex-col items-center lg:items-start gap-6">
           <div ref={cardRef} className="w-full flex justify-center lg:justify-start">
             <Card data={cardData} />
@@ -63,7 +63,6 @@ function App() {
     </div>
   );
 }
-
 
 
 export default App;

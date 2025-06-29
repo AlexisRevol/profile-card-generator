@@ -9,7 +9,8 @@ import { FaPlus, FaTrash, FaSearch , FaGithub} from 'react-icons/fa'; // Icônes
 // --- Classes CSS adaptatives pour nos champs ---
 // Contient des styles par défaut (light mode) et des styles pour le dark mode (préfixe `dark:`)
 const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-300";
-const inputClasses = "block w-full rounded-md border-0 py-2 px-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm";
+// CORRECTION : On rend le padding et la taille du texte responsifs
+const inputClasses = "block w-full rounded-md border-0 py-1.5 sm:py-2 px-2.5 sm:px-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-xs sm:text-sm";
 
 interface CardFormProps {
   cardData: CardData;
@@ -111,47 +112,53 @@ return (
         </div>
       </div>
       
-      {/* === NOUVEL ORDRE - SECTION 3: COMPÉTENCES (COMPACT & CLAIR) === */}
+       {/* === SECTION COMPÉTENCES - AVEC BOUTONS TEXTE === */}
       <div>
-        <label className={labelClasses}>
-          Domaines de Compétences
-        </label>
-        <div className="mt-1 space-y-2">
+        <div className="flex justify-between items-center mb-1">
+          <label className={labelClasses}>
+            Domaines de Compétences
+          </label>
+          
+          {/* CORRECTION : Bouton "+" avec du texte */}
+          <button
+            type="button"
+            onClick={addSkillCategory}
+            className="h-7 w-7 flex items-center justify-center rounded-full bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 font-bold text-lg"
+            aria-label="Ajouter une catégorie"
+          >
+            +
+          </button>
+        </div>
+
+        <div className="space-y-3">
           {cardData.customSkills.map((skill, index) => (
-            <div key={skill.id} className="group flex items-center gap-2">
-              {/* Le champ Catégorie prend moins de place */}
+            <div key={skill.id} className="group relative p-2 sm:p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
               <input
                 type="text"
-                placeholder="Catégorie"
-                className={`${inputClasses} w-1/3 flex-shrink-0`}
+                placeholder="Catégorie (ex: Web)"
+                className={`${inputClasses} mb-2 font-medium`}
                 value={skill.category}
                 onChange={(e) => handleSkillChange(index, 'category', e.target.value)}
               />
-              {/* Le champ Compétences prend le reste de la place */}
               <input
                 type="text"
                 placeholder="Compétences (ex: React, Node.js)"
-                className={`${inputClasses} flex-grow`}
+                className={inputClasses}
                 value={skill.skills}
                 onChange={(e) => handleSkillChange(index, 'skills', e.target.value)}
               />
-              {/* Bouton supprimer, visible au survol et corrigé pour le dark mode */}
+              
+              {/* CORRECTION : Bouton "supprimer" avec du texte (une croix "×") */}
               <button
+                type="button"
                 onClick={() => removeSkillCategory(index)}
-                className="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-full text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-500 transition-all"
+                className="absolute top-1.5 right-1.5 h-7 w-7 flex items-center justify-center rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 dark:text-red-400 font-mono text-xl leading-none opacity-0 group-hover:opacity-100 hover:!opacity-100 transition-all"
                 aria-label="Supprimer la catégorie"
               >
-                <FaTrash className="h-3.5 w-3.5" />
+                ×
               </button>
             </div>
           ))}
-           {/* Bouton "Ajouter" minimaliste */}
-           <button
-            onClick={addSkillCategory}
-            className="w-full flex items-center justify-center text-sm py-1.5 border-2 border-dashed rounded-md text-gray-400 dark:text-gray-500 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-400 dark:hover:border-gray-500 transition"
-           >
-            <FaPlus />
-           </button>
         </div>
       </div>
 

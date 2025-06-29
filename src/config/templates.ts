@@ -22,7 +22,7 @@ export const TEMPLATES: Template[] = [
   },
   {
     id: 'holographic',
-    name: 'Holographic',
+    name: 'Holo',
     // On utilise la syntaxe `bg-[url(...)]` de Tailwind pour les images de fond !
     outerClassName: "p-2 bg-cover bg-center bg-[url('/templates/holographic.jpg')]",
     innerClassName: 'bg-white/70 backdrop-blur-sm', // Fond blanc semi-transparent avec un effet de flou
@@ -30,7 +30,7 @@ export const TEMPLATES: Template[] = [
   },
   {
     id: 'blue',
-    name: 'Blue',
+    name: 'Silver',
     // On utilise la syntaxe `bg-[url(...)]` de Tailwind pour les images de fond !
     outerClassName: "p-2 bg-cover bg-center bg-[url('/templates/blue.jpg')]",
     innerClassName: 'bg-white/90 backdrop-blur-sm', // Fond blanc semi-transparent avec un effet de flou
@@ -38,7 +38,7 @@ export const TEMPLATES: Template[] = [
   },
   {
     id: 'dark',
-    name: 'Sombre',
+    name: 'Dark',
     outerClassName: "p-2 bg-cover bg-center bg-[url('/templates/dark.jpg')]",
     innerClassName: 'bg-gray-800/85 backdrop-blur-sm',
      theme: 'dark',
