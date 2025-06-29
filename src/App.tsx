@@ -32,17 +32,13 @@ function App() {
 
   const handleDownloadImage = () => { /* ... (pas de changement ici) ... */ };
 
-return (
-    // J'ai enlevé la couleur de fond ici pour que le thème de votre système s'applique
-    // Vous pouvez la remettre si besoin (ex: `bg-gray-100 dark:bg-gray-900`)
+ return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8">
-      {/* On revient au max-w-6xl pour un layout plus centré */}
-      <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-8 lg:gap-12">
+      <div className="w-full max-w-7xl flex flex-col lg:flex-row gap-8 lg:gap-12">
 
-        {/* --- CORRECTION DU LAYOUT --- */}
-        {/* Colonne 1 : Le formulaire redevient une sidebar discrète */}
-        {/* On retire bg-white et shadow-lg pour qu'il se fonde dans le décor */}
-        <aside className="w-full lg:w-1/3 lg:max-w-md">
+        {/* --- CORRECTION DU LAYOUT DU FORMULAIRE --- */}
+        {/* On donne une largeur plus contrôlée au formulaire sur desktop */}
+        <aside className="w-full lg:w-full lg:min-w-[384px] lg:max-w-md">
           <CardForm 
             cardData={cardData}
             setCardData={setCardData} 
@@ -51,8 +47,8 @@ return (
           />
         </aside>
 
-        {/* Colonne 2 : La carte reste l'élément principal */}
-        <main className="w-full lg:w-2/3 flex flex-col items-center lg:items-start gap-6">
+        {/* Colonne 2 : La carte */}
+        <main className="w-full flex flex-col items-center lg:items-start gap-6">
           <div ref={cardRef} className="w-full flex justify-center lg:justify-start">
             <Card data={cardData} />
           </div>
@@ -63,7 +59,6 @@ return (
             Télécharger la Carte
           </button>
         </main>
-
       </div>
     </div>
   );

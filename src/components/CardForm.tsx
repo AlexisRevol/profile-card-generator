@@ -60,9 +60,10 @@ export default function CardForm({ cardData, setCardData, setIsLoading, isLoadin
 
 
 return (
+    // On augmente l'espace global pour une meilleure séparation visuelle
     <div className="space-y-6">
       
-      {/* === SECTION 1: RECHERCHE GITHUB (MODERNISÉE) === */}
+      {/* === SECTION 1: RECHERCHE GITHUB (inchangée) === */}
       <form onSubmit={(e) => { e.preventDefault(); handleFetchGithub(); }}>
         <label htmlFor="githubUser" className={labelClasses}>
           Pseudo GitHub
@@ -71,7 +72,7 @@ return (
           <input
             type="text"
             id="githubUser"
-            className={`${inputClasses} rounded-r-none`} // On enlève le coin arrondi à droite
+            className={`${inputClasses} rounded-r-none`}
             placeholder="octocat"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -79,7 +80,7 @@ return (
           />
           <button
             type="submit"
-            className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+            className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
             disabled={isLoading}
           >
             {isLoading ? '...' : <FaSearch className="h-4 w-4 text-gray-500 dark:text-gray-400" />}
@@ -87,57 +88,17 @@ return (
         </div>
       </form>
 
-      {/* === SECTION 2: COMPÉTENCES (ADAPTATIVES) === */}
-      <div>
-        <label className={labelClasses}>
-          Domaines de Compétences
-        </label>
-        <div className="mt-1 space-y-2">
-          {cardData.customSkills.map((skill, index) => (
-            <div key={skill.id} className="group relative">
-              <input
-                type="text"
-                placeholder="Catégorie (ex: Web)"
-                className={`${inputClasses} mb-1 text-xs sm:text-sm font-medium`}
-                value={skill.category}
-                onChange={(e) => handleSkillChange(index, 'category', e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Compétences (ex: React, Node.js)"
-                className={`${inputClasses} text-xs sm:text-sm`}
-                value={skill.skills}
-                onChange={(e) => handleSkillChange(index, 'skills', e.target.value)}
-              />
-              <button
-                onClick={() => removeSkillCategory(index)}
-                className="absolute top-1/2 -right-3 -translate-y-1/2 h-6 w-6 flex items-center justify-center rounded-full text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 hover:text-red-500 dark:hover:text-red-500 transition-opacity"
-                aria-label="Supprimer la catégorie"
-              >
-                <FaTrash className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
-          <button
-            onClick={addSkillCategory}
-            className="w-full flex items-center justify-center gap-2 text-xs sm:text-sm py-2 border-2 border-dashed rounded-md text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-400 dark:hover:border-gray-500 transition"
-          >
-            <FaPlus /> Ajouter une catégorie
-          </button>
-        </div>
-      </div>
-
-      {/* === SECTION 3: SÉLECTEUR DE MODÈLE (ADAPTATIF) === */}
+      {/* === NOUVEL ORDRE - SECTION 2: CHOIX DU MODÈLE === */}
       <div>
         <label className={labelClasses}>
           Choix du modèle
         </label>
-        <div className="mt-1 grid grid-cols-2 gap-2">
+        <div className="mt-1 grid grid-cols-2 sm:grid-cols-4 gap-2">
           {TEMPLATES.map((template) => (
             <button
               key={template.id}
               type="button"
-              className={`text-xs sm:text-sm py-2 rounded-md transition-all ${
+              className={`text-xs py-2 rounded-md transition-all ${
                 cardData.template === template.id
                   ? 'bg-indigo-600 text-white font-semibold ring-2 ring-offset-2 ring-indigo-500 ring-offset-gray-100 dark:ring-offset-gray-900'
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
@@ -149,6 +110,51 @@ return (
           ))}
         </div>
       </div>
+      
+      {/* === NOUVEL ORDRE - SECTION 3: COMPÉTENCES (COMPACT & CLAIR) === */}
+      <div>
+        <label className={labelClasses}>
+          Domaines de Compétences
+        </label>
+        <div className="mt-1 space-y-2">
+          {cardData.customSkills.map((skill, index) => (
+            <div key={skill.id} className="group flex items-center gap-2">
+              {/* Le champ Catégorie prend moins de place */}
+              <input
+                type="text"
+                placeholder="Catégorie"
+                className={`${inputClasses} w-1/3 flex-shrink-0`}
+                value={skill.category}
+                onChange={(e) => handleSkillChange(index, 'category', e.target.value)}
+              />
+              {/* Le champ Compétences prend le reste de la place */}
+              <input
+                type="text"
+                placeholder="Compétences (ex: React, Node.js)"
+                className={`${inputClasses} flex-grow`}
+                value={skill.skills}
+                onChange={(e) => handleSkillChange(index, 'skills', e.target.value)}
+              />
+              {/* Bouton supprimer, visible au survol et corrigé pour le dark mode */}
+              <button
+                onClick={() => removeSkillCategory(index)}
+                className="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-full text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-500 transition-all"
+                aria-label="Supprimer la catégorie"
+              >
+                <FaTrash className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+           {/* Bouton "Ajouter" minimaliste */}
+           <button
+            onClick={addSkillCategory}
+            className="w-full flex items-center justify-center text-sm py-1.5 border-2 border-dashed rounded-md text-gray-400 dark:text-gray-500 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-400 dark:hover:border-gray-500 transition"
+           >
+            <FaPlus />
+           </button>
+        </div>
+      </div>
+
     </div>
   );
 }
