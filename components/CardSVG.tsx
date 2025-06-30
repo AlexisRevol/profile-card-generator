@@ -132,8 +132,9 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         </mask>
 
         {/* Chemin de découpe pour rendre l'avatar rond AVANT d'appliquer le masque */}
-        <clipPath id="avatarClip">
-          <circle cx="128" cy="128" r="128" />
+        <clipPath id="card-border-clip">
+          {/* C'est un rectangle qui correspond exactement à la bordure intérieure */}
+          <rect x="8" y="8" width="368" height="520" rx="12" />
         </clipPath>
       </defs>
 
@@ -175,112 +176,119 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         />
       </g>
       
-      {/* --- Header --- */}
-      <g transform="translate(24, 32)">
-        <SiGithub size="24" fill={iconColor} />
-        <text
-          x="34"
-          y="12" // Alignement vertical du texte avec l'icône
-          dominantBaseline="middle"
-          fontFamily="monospace, 'Courier New', Courier"
-          fontSize="18"
-          fill={mainTextColor}
-        >
-          @{data.githubUser}
-        </text>
-      </g>
 
-      {/* --- Avatar --- */}
-      <g transform="translate(180, 80)">
-        <g clipPath="url(#avatarClip)">
-          <image
-            href={avatarBase64}
-            width="256"
-            height="256"
-            mask="url(#avatarMask)"
-          />
-        </g>
-      </g>
-      
-      {/* --- Corps Principal --- */}
-      <g transform="translate(24, 160)">
-        {/* Bio */}
-        <text 
-            y="10" 
-            fontFamily="sans-serif"
-            fontSize="14"
-            fontWeight="bold"
+      {/* --- GROUPE PRINCIPAL AVEC DÉCOUPE --- */}
+      {/* Tous les éléments intérieurs seront "coupés" s'ils dépassent de ce chemin */}
+      <g clipPath="url(#card-border-clip)">
+
+
+        {/* --- Header --- */}
+        <g transform="translate(24, 32)">
+          <SiGithub size="24" fill={iconColor} />
+          <text
+            x="34"
+            y="12" // Alignement vertical du texte avec l'icône
+            dominantBaseline="middle"
+            fontFamily="monospace, 'Courier New', Courier"
+            fontSize="18"
             fill={mainTextColor}
-            letterSpacing="0.05em" // L'attribut letter-spacing, lui, est valide en SVG
-            >
-            {/* On applique la transformation directement ici */}
-            {data.bio?.toUpperCase()} 
-        </text>
-                
-        {/* Liste des dépôts mis en avant */}
-        <g transform="translate(0, 40)">
-          {data.highlightedRepos?.slice(0, 3).map((repo, index) => {
-            const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
-            const yPos = index * 65; // Espacement vertical entre les dépôts
-            
-            return (
-              <g key={repo.id} transform={`translate(0, ${yPos})`}>
-                <ProjectIcon x="0" y="4" size="16" fill={subTextColor} />
-
-                {/* Nom du projet et flamme */}
-                <text x="24" y="8" fontFamily="sans-serif" fontSize="12" fontWeight="bold" fill={mainTextColor}>
-                  {truncateText(repo.name, 20)}
-                </text>
-                {index === 0 && <FaFire x={24 + truncateText(repo.name, 20).length * 6.5} y="-2" size="14" fill={fireColor} />}
-
-                {/* Description du projet */}
-                <MultilineText 
-                    text={repo.description} 
-                    x={24} 
-                    y={26} 
-                    width={180} // Largeur maximale autorisée pour le texte avant de couper
-                    fontSize={11} 
-                    fill={subTextColor} 
-                  />
-                
-                {/* Badges de stats (Stars & Forks) */}
-                <g transform="translate(220, 0)">
-                  <rect x="0" y="0" width="50" height="18" rx="9" fill={starBadge.bg} />
-                  <GoStar x="8" y="3" size="12" fill={starBadge.text} />
-                  <text x="24" y="13" fontFamily="sans-serif" fontSize="10" fontWeight="500" fill={starBadge.text}>{repo.stars}</text>
-
-                  <rect x="0" y="22" width="50" height="18" rx="9" fill={forkBadge.bg} />
-                  <GoGitBranch x="8" y="25" size="12" fill={forkBadge.text} />
-                  <text x="24" y="36" fontFamily="sans-serif" fontSize="10" fontWeight="500" fill={forkBadge.text}>{repo.forks}</text>
-                </g>
-              </g>
-            )
-          })}
+          >
+            @{data.githubUser}
+          </text>
         </g>
-      </g>
-      
-      {/* --- Technologies Favorites (Footer) --- */}
-      <g transform="translate(24, 480)">
-        <text
-          y="0"
-          fontFamily="sans-serif"
-          fontSize="10"
-          fontWeight="bold"
-          fill={subTextColor}
-          letterSpacing="0.05em"
-        >
-          {'Technologies Favorites'.toUpperCase()}
-        </text>
-        <g transform="translate(0, 15)">
-            {data.topLanguages.slice(0, 7).map((lang, index) => {
-                const IconComponent = iconMap[lang.toLowerCase()];
-                if (!IconComponent) return null;
 
-                const xPos = index * 32; // Espacement horizontal entre les icônes
-                return (
-                    <IconComponent key={lang} x={xPos} y={0} size="24" fill={iconColor} />
-                );
+        {/* --- Avatar --- */}
+        <g transform="translate(180, 80)">
+          <g clipPath="url(#avatarClip)">
+            <image
+              href={avatarBase64}
+              width="256"
+              height="256"
+              mask="url(#avatarMask)"
+            />
+          </g>
+        </g>
+        
+        {/* --- Corps Principal --- */}
+        <g transform="translate(24, 175)">
+          {/* Bio */}
+          <text 
+              y="10" 
+              fontFamily="sans-serif"
+              fontSize="14"
+              fontWeight="bold"
+              fill={mainTextColor}
+              letterSpacing="0.05em" // L'attribut letter-spacing, lui, est valide en SVG
+              >
+              {/* On applique la transformation directement ici */}
+              {data.bio?.toUpperCase()} 
+          </text>
+                  
+          {/* Liste des dépôts mis en avant */}
+          <g transform="translate(0, 40)">
+            {data.highlightedRepos?.slice(0, 3).map((repo, index) => {
+              const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
+              const yPos = index * 65; // Espacement vertical entre les dépôts
+              
+              return (
+                <g key={repo.id} transform={`translate(0, ${yPos})`}>
+                  <ProjectIcon x="0" y="4" size="16" fill={subTextColor} />
+
+                  {/* Nom du projet et flamme */}
+                  <text x="24" y="8" fontFamily="sans-serif" fontSize="12" fontWeight="bold" fill={mainTextColor}>
+                    {truncateText(repo.name, 20)}
+                  </text>
+                  {index === 0 && <FaFire x={24 + truncateText(repo.name, 20).length * 6.5} y="-2" size="14" fill={fireColor} />}
+
+                  {/* Description du projet */}
+                  <MultilineText 
+                      text={repo.description} 
+                      x={24} 
+                      y={26} 
+                      width={180} // Largeur maximale autorisée pour le texte avant de couper
+                      fontSize={11} 
+                      fill={subTextColor} 
+                    />
+                  
+                  {/* Badges de stats (Stars & Forks) */}
+                  <g transform="translate(220, 0)">
+                    <rect x="0" y="0" width="50" height="18" rx="9" fill={starBadge.bg} />
+                    <GoStar x="8" y="3" size="12" fill={starBadge.text} />
+                    <text x="24" y="13" fontFamily="sans-serif" fontSize="10" fontWeight="500" fill={starBadge.text}>{repo.stars}</text>
+
+                    <rect x="0" y="22" width="50" height="18" rx="9" fill={forkBadge.bg} />
+                    <GoGitBranch x="8" y="25" size="12" fill={forkBadge.text} />
+                    <text x="24" y="36" fontFamily="sans-serif" fontSize="10" fontWeight="500" fill={forkBadge.text}>{repo.forks}</text>
+                  </g>
+                </g>
+              )
             })}
+          </g>
+        </g>
+        
+        {/* --- Technologies Favorites (Footer) --- */}
+        <g transform="translate(24, 480)">
+          <text
+            y="0"
+            fontFamily="sans-serif"
+            fontSize="10"
+            fontWeight="bold"
+            fill={subTextColor}
+            letterSpacing="0.05em"
+          >
+            {'Technologies Favorites'.toUpperCase()}
+          </text>
+          <g transform="translate(0, 15)">
+              {data.topLanguages.slice(0, 7).map((lang, index) => {
+                  const IconComponent = iconMap[lang.toLowerCase()];
+                  if (!IconComponent) return null;
+
+                  const xPos = index * 32; // Espacement horizontal entre les icônes
+                  return (
+                      <IconComponent key={lang} x={xPos} y={0} size="24" fill={iconColor} />
+                  );
+              })}
+          </g>
         </g>
       </g>
     </svg>
