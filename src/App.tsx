@@ -6,6 +6,8 @@ import Card from './components/Card';
 import CardForm from './components/CardForm';
 import CardSkeleton from './components/CardSkeleton';
 import './App.css';
+import html2canvas from 'html2canvas'; 
+import { FaDownload } from 'react-icons/fa'; 
 
 const initialCardData: CardData = {
   name: 'Ton Nom',
@@ -33,57 +35,70 @@ function App() {
   // On n'a plus besoin de deux refs, une seule suffit car il n'y a plus qu'une seule vue.
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // const handleDownloadImage = () => { ... };
+   const handleDownloadImage = () => {
+    if (!cardRef.current) return;
 
-  return (
-    // ÉTAPE 1 : Conteneur principal de la page
-    // - `min-h-screen`: Prend au moins toute la hauteur de l'écran.
-    // - `flex items-center`: Centre verticalement le contenu s'il est plus petit que l'écran.
-    // - `justify-center`: Centre horizontalement.
-    // - `p-4 sm:p-8`: Ajoute de l'espace sur les bords.
-    <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 sm:p-8">
+    // Pour un meilleur rendu, on retire temporairement la transformation `scale`
+    // car html2canvas peut mal l'interpréter.
+    const cardContainer = cardRef.current.parentElement;
+    const originalTransform = cardContainer ? cardContainer.style.transform : '';
+    if (cardContainer) {
+      cardContainer.style.transform = 'scale(1)';
+    }
+
+    html2canvas(cardRef.current, {
+      useCORS: true,
+      backgroundColor: null,
+      scale: 3,
+    }).then((canvas) => {
+      // On remet la transformation `scale` en place après la capture
+      if (cardContainer) {
+        cardContainer.style.transform = originalTransform;
+      }
       
-      {/* ÉTAPE 2 : Conteneur du contenu avec une largeur maximale */}
-      {/* - `w-full`: Prend toute la largeur disponible.
-          - `max-w-xl`: Limite la largeur à `xl` (environ 768px) sur les grands écrans.
-            Tu peux changer cette valeur (ex: max-w-lg, max-w-2xl).
-          - `space-y-8`: Ajoute un espace vertical entre le formulaire et la carte.
-      */}
-      <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+      const image = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `carte-github-${cardData.githubUser || 'utilisateur'}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  };
+
+return (
+    <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 sm:p-8 overflow-x-hidden">
+      <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         
-        {/* ÉLÉMENT 1 : Le formulaire */}
+        {/* COLONNE 1 : Le formulaire */}
         <section>
-          <h1 className="text-1xl sm:text-4xl font-bold mb-6 text-gray-800 dark:text-gray-200 text-center lg:text-left">
-            Personnalisez votre Carte
-          </h1>
-          <CardForm 
-              cardData={cardData}
-              setCardData={setCardData} 
-              setIsLoading={setIsLoading}
-              isLoading={isLoading}
-          />
+          <div className="relative"> {/* Ajout d'un conteneur `relative` pour l'icône flottante */}
+            <h1 className="text-1xl lg:text-4xl font-bold mb-6 text-gray-800 dark:text-gray-200 text-center lg:text-left">
+              Personnalisez votre Carte
+            </h1>
+            <CardForm 
+                cardData={cardData}
+                setCardData={setCardData} 
+                setIsLoading={setIsLoading}
+                isLoading={isLoading}
+                // On passe la fonction de téléchargement en prop
+                onDownload={handleDownloadImage}
+            />
+          </div>
         </section>
 
-         {/* COLONNE 2 : L'aperçu de la carte */}
+        {/* COLONNE 2 : L'aperçu de la carte */}
         <section>
-            {/* 
-              MODIFICATION ICI : On ajoute un conteneur pour le scale
-              - `scale-90` : Sur mobile, on réduit la carte à 90% de sa taille.
-              - `lg:scale-100` : Sur grand écran (quand on passe à 2 colonnes), on la remet à 100%.
-              - `origin-top` : Fait en sorte que la réduction se fasse depuis le haut.
-              - `transition-transform`: Pour une transition douce.
-            */}
             <div className="w-full transition-transform duration-300 ease-in-out origin-top scale-90 lg:scale-100">
-              {isLoading ? (
-                <CardSkeleton templateId={cardData.template} />
-              ) : (
-                <div ref={cardRef}>
+              <div ref={cardRef}>
+                {isLoading ? (
+                  <CardSkeleton templateId={cardData.template} />
+                ) : (
                   <Card data={cardData} />
-                </div>
-              )}
+                )}
+              </div>
             </div>
         </section>
-
 
       </div>
     </div>

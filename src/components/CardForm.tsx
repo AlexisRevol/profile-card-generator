@@ -1,96 +1,85 @@
 // src/components/CardForm.tsx
 
 import React, { useState } from 'react';
-import type { CardData, SkillCategory  } from '../types';
+import type { CardData } from '../types';
 import { fetchGithubUserData } from '../services/githubService';
 import { TEMPLATES } from '../config/templates';
-import { FaPlus, FaTrash, FaSearch , FaGithub, FaExclamationCircle } from 'react-icons/fa'; // Icônes pour l'UI
+import { FaSearch, FaExclamationCircle, FaDownload } from 'react-icons/fa';
 
-// --- Classes CSS adaptatives pour nos champs ---
-// Contient des styles par défaut (light mode) et des styles pour le dark mode (préfixe `dark:`)
 const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-300";
-// CORRECTION : On rend le padding et la taille du texte responsifs
-const inputClasses = "block w-full rounded-md border-0 py-1.5 sm:py-2 px-2.5 sm:px-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-xs sm:text-sm";
+// On ajuste un peu le padding pour que ça respire mieux avec 3 éléments
+const inputClasses = "block w-full rounded-md border-0 py-2 px-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-500 text-sm";
 
 interface CardFormProps {
   cardData: CardData;
   setCardData: React.Dispatch<React.SetStateAction<CardData>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   isLoading: boolean;
+  onDownload: () => void;
 }
 
-export default function CardForm({ cardData, setCardData, setIsLoading, isLoading }: CardFormProps) {
+export default function CardForm({ cardData, setCardData, setIsLoading, isLoading, onDownload }: CardFormProps) {
   const [username, setUsername] = useState('');
   const [error, setError] = useState<string | null>(null);
+  
+  const handleFetchGithub = async () => { /* ... */ };
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => { /* ... */ };
 
-  const handleFetchGithub = async () => {
-    if (!username) {
-      setError('Veuillez entrer un pseudo GitHub.');
-      return;
-    }
-    setIsLoading(true);
-    setError(null); // On réinitialise l'erreur au début de chaque requête
-
-    try {
-      const fetchedData = await fetchGithubUserData(username);
-      setCardData(prevData => ({ 
-        ...prevData,
-        ...fetchedData,
-        template: prevData.template
-      }));
-    } catch (err) {
-      // On affiche le message d'erreur de manière contrôlée
-      const errorMessage = (err as Error).message;
-      console.error(errorMessage);
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(e.target.value);
-    // On efface l'erreur dès que l'utilisateur tape
-    if (error) {
-      setError(null);
-    }
-  }
-
-
-return (
+  return (
     <div className="space-y-6">
       
-      {/* === SECTION 1: RECHERCHE GITHUB - AMÉLIORÉE === */}
+      {/* === SECTION 1: RECHERCHE GITHUB - MODIFIÉE === */}
       <form onSubmit={(e) => { e.preventDefault(); handleFetchGithub(); }}>
         <label htmlFor="githubUser" className={labelClasses}>
           Pseudo GitHub
         </label>
-        <div className="mt-1 flex rounded-md shadow-sm">
+        {/* 
+          Le conteneur principal des actions.
+          - `flex items-center gap-2` : aligne tout horizontalement.
+        */}
+        <div className="mt-1 flex items-center gap-2">
+          
+          {/* L'input prendra tout l'espace restant */}
           <input
             type="text"
             id="githubUser"
-            // On ajoute une bordure rouge si une erreur est présente
-            className={`${inputClasses} rounded-r-none ${error ? 'ring-red-500 dark:ring-red-500 focus:ring-red-500' : ''}`}
+            className={`${inputClasses} ${error ? 'ring-red-500 dark:ring-red-500 focus:ring-red-500' : ''}`}
             placeholder="octocat"
             value={username}
             onChange={handleUsernameChange}
             disabled={isLoading}
           />
+
+          {/* Bouton de recherche */}
           <button
             type="submit"
-            className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+            className="flex-shrink-0 inline-flex items-center justify-center p-2 rounded-md ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
             disabled={isLoading}
+            aria-label="Rechercher"
           >
             {isLoading ? (
-              // Petite animation de points pendant le chargement
-              <span className="animate-pulse">...</span>
+              <span className="animate-pulse h-5 w-5">...</span>
             ) : (
-              <FaSearch className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <FaSearch className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             )}
           </button>
+          
+          {/* 
+            BOUTON DE TÉLÉCHARGEMENT - VERSION MOBILE
+            - `lg:hidden`: Il n'est visible que sur mobile/tablette.
+          */}
+          <button
+            type="button"
+            onClick={onDownload}
+            disabled={isLoading}
+            className="flex-shrink-0 lg:hidden inline-flex items-center justify-center p-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
+            aria-label="Télécharger la carte"
+          >
+            <FaDownload className="h-5 w-5" />
+          </button>
+
         </div>
         
-        {/* === NOUVEL ÉLÉMENT : AFFICHAGE DE L'ERREUR === */}
         {error && (
           <div className="mt-2 flex items-center gap-2 text-sm text-red-600 dark:text-red-400" role="alert">
             <FaExclamationCircle className="flex-shrink-0"/>
@@ -124,6 +113,23 @@ return (
           ))}
         </div>
       </div>
+      
+      {/* 
+        BOUTON DE TÉLÉCHARGEMENT - VERSION DESKTOP
+        - `hidden lg:block`: Caché sur mobile, visible sur desktop.
+      */}
+      <div className="hidden lg:block pt-4">
+        <button
+          type="button"
+          onClick={onDownload}
+          disabled={isLoading}
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all"
+        >
+          <FaDownload />
+          <span>Télécharger la carte</span>
+        </button>
+      </div>
+
     </div>
   );
 }
