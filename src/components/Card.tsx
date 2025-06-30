@@ -97,7 +97,8 @@ return (
   */}
    <div className="space-y-2 @[22rem]:space-y-3">
               {/* On utilise l'index du map pour la flamme ! */}
-              {data.highlightedRepos?.slice(0, 3).map((repo, index) => {
+              {/* ON AJOUTE UN FILTRE POUR IGNORER LES DÉPÔTS INCOMPLETS */}
+              {data.highlightedRepos?.filter(repo => repo && repo.id).slice(0, 3).map((repo, index) => {
                 // On appelle notre fonction magique ici !
                 const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
                 

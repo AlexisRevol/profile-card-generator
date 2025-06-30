@@ -25,6 +25,10 @@ const projectTypeIcons: { [key: string]: IconType } = {
 };
 
 export const getProjectTypeIcon = (repoName: string, description: string | null): IconType => {
+  if (!repoName) {
+      return FaCode;
+    }
+
   const searchText = `${repoName.toLowerCase()} ${description?.toLowerCase() || ''}`;
 
   for (const type in projectTypeKeywords) {

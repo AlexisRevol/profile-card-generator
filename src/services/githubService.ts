@@ -19,44 +19,76 @@ interface GitHubUserResponse {
 }
 
 // La requête GraphQL qui va tout chercher d'un coup !
-const GITHUB_USER_QUERY = `
-  query GetUser($username: String!) {
-    user(login: $username) {
-      name
-      login
-      avatarUrl
-      bio
-      location
-      followers {
-        totalCount
-      }
-      repositories(first: 100, ownerAffiliations: OWNER, isFork: false, orderBy: {field: STARGAZERS, direction: DESC}) {
-        totalCount
-        nodes {
-          stargazers {
-            totalCount
+
+// ON CHANGE la query pour utiliser "repositoryOwner" qui marche pour les users ET les orgs
+const GITHUB_OWNER_QUERY = `
+  query GetOwner($username: String!) {
+    repositoryOwner(login: $username) {
+      __typename
+      ... on User {
+        name
+        login
+        avatarUrl
+        bio
+        location
+        followers {
+          totalCount
+        }
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
           }
-          languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
-            nodes {
+        }
+        pinnedItems(first: 3, types: REPOSITORY) {
+          nodes {
+            ... on Repository {
+              id
               name
+              description
+              url
+              stargazerCount
+              forkCount
             }
           }
         }
       }
-      contributionsCollection {
-        contributionCalendar {
-          totalContributions
+      ... on Organization {
+        name
+        login
+        avatarUrl
+        description
+        location
+        membersWithRole {
+            totalCount
+        }
+        pinnedItems(first: 3, types: REPOSITORY) {
+          nodes {
+            ... on Repository {
+              id
+              name
+              description
+              url
+              stargazerCount
+              forkCount
+            }
+          }
         }
       }
-      pinnedItems(first: 3, types: REPOSITORY) {
+      repositories(first: 100, ownerAffiliations: OWNER, isFork: false, orderBy: {field: STARGAZERS, direction: DESC}) {
+        totalCount
         nodes {
-          ... on Repository {
-            id
-            name
-            description
-            url
-            stargazerCount
-            forkCount
+          id # Ajout de l'ID ici pour le fallback
+          name
+          description
+          url
+          stargazerCount:stargazers {
+            totalCount
+          }
+          forkCount
+          languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
+            nodes {
+              name
+            }
           }
         }
       }
@@ -72,28 +104,25 @@ export async function fetchGithubUserData(username: string): Promise<CardData> {
       Authorization: `Bearer ${GITHUB_TOKEN}`,
     },
     body: JSON.stringify({
-      query: GITHUB_USER_QUERY,
+      query: GITHUB_OWNER_QUERY,
       variables: { username },
     }),
   });
 
   const { data, errors } = await response.json();
 
-  if (errors) {
-    console.error('Erreurs GraphQL:', errors);
-    throw new Error('Utilisateur GitHub non trouvé ou erreur API.');
+  if (errors || !data?.repositoryOwner) {
+    console.error('Erreurs GraphQL ou propriétaire non trouvé:', errors || 'Propriétaire non trouvé');
+    throw new Error(`Impossible de trouver l'utilisateur ou l'organisation '${username}'.`);
   }
 
-  const user = data.user;
-  if (!user) {
-    throw new Error('Utilisateur GitHub non trouvé.');
-  }
+  const owner = data.repositoryOwner;
 
   // Calcul du total des étoiles et des langages
   let totalStars = 0;
   const langMap = new Map<string, number>();
-  user.repositories.nodes.forEach((repo: any) => {
-    totalStars += repo.stargazers.totalCount;
+  owner.repositories.nodes.forEach((repo: any) => {
+    totalStars += repo.stargazerCount.totalCount; // Attention, la structure a changé ici
     repo.languages.nodes.forEach((lang: any) => {
       langMap.set(lang.name, (langMap.get(lang.name) || 0) + 1);
     });
@@ -104,7 +133,7 @@ export async function fetchGithubUserData(username: string): Promise<CardData> {
     .map(entry => entry[0]);
 
   // Traitement des dépôts mis en avant
-  let highlightedRepos: HighlightedRepo[] = user.pinnedItems.nodes.map((repo: any) => ({
+  let highlightedRepos: HighlightedRepo[] = owner.pinnedItems.nodes.map((repo: any) => ({
     id: repo.id,
     name: repo.name,
     description: repo.description,
@@ -112,33 +141,34 @@ export async function fetchGithubUserData(username: string): Promise<CardData> {
     stars: repo.stargazerCount,
     forks: repo.forkCount,
   }));
-  
-  // FALLBACK: Si l'utilisateur n'a pas de dépôts épinglés, on prend ses 3 plus populaires
+
+  // FALLBACK
   if (highlightedRepos.length === 0) {
-      const topStarredRepos = user.repositories.nodes.slice(0, 3);
-      highlightedRepos = topStarredRepos.map((repo: any) => ({
-        id: repo.id, // Assure-toi que l'ID est bien récupéré dans la query principale
-        name: repo.name,
-        description: repo.description,
-        url: repo.url,
-        stars: repo.stargazers.totalCount,
-        forks: repo.forkCount
-      }));
+    const topStarredRepos = owner.repositories.nodes.slice(0, 3);
+    highlightedRepos = topStarredRepos.map((repo: any) => ({
+      id: repo.id,
+      name: repo.name,
+      description: repo.description,
+      url: repo.url,
+      stars: repo.stargazerCount.totalCount, // La structure est différente ici aussi
+      forks: repo.forkCount,
+    }));
   }
 
+  // On adapte les données retournées en fonction du type (User ou Organization)
+  const isUser = owner.__typename === 'User';
 
   return {
-    name: user.name || user.login,
-    githubUser: user.login,
-    avatarUrl: user.avatarUrl,
-    bio: user.bio || 'Développeur passionné',
-    location: user.location || 'Quelque part dans le code',
-    followers: user.followers.totalCount,
-    publicRepos: user.repositories.totalCount,
+    name: owner.name || owner.login,
+    githubUser: owner.login,
+    avatarUrl: owner.avatarUrl,
+    bio: (isUser ? owner.bio : owner.description) || 'GitHub Profile',
+    location: owner.location || 'Sur GitHub',
+    followers: isUser ? owner.followers.totalCount : owner.membersWithRole.totalCount,
+    publicRepos: owner.repositories.totalCount,
     totalStars,
     topLanguages,
     highlightedRepos,
-    contributionsLastYear: user.contributionsCollection.contributionCalendar.totalContributions,
-    // On ne touche pas au template ici, il sera géré par App.tsx
+    contributionsLastYear: isUser ? owner.contributionsCollection.contributionCalendar.totalContributions : 0,
   } as CardData;
 }
