@@ -1,5 +1,5 @@
 // src/utils/projectTypeHelper.ts
-import { FaReact, FaDatabase, FaGlobe, FaMobileAlt, FaCode, FaRobot, FaGamepad, FaCogs } from 'react-icons/fa';
+import { FaDatabase, FaGlobe, FaMobileAlt, FaCode, FaRobot, FaGamepad, FaCogs } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 
 // On définit les mots-clés qui vont nous aider à classifier les projets
