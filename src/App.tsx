@@ -7,7 +7,6 @@ import CardForm from './components/CardForm';
 import CardSkeleton from './components/CardSkeleton';
 import './App.css';
 import html2canvas from 'html2canvas'; 
-import { FaDownload } from 'react-icons/fa'; 
 
 const initialCardData: CardData = {
   name: 'Ton Nom',

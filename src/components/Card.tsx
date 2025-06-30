@@ -1,27 +1,21 @@
 // src/components/Card.tsx
 
-import type { CardData, SkillCategory  } from '../types';
+import type { CardData  } from '../types';
 import { TEMPLATES } from '../config/templates'; // On importe nos modèles
 import { FaReact, FaNodeJs, FaFigma, FaGitAlt, FaPython, FaJava, FaHtml5, FaCss3Alt, FaJs } from 'react-icons/fa';
 import { SiTypescript, SiVite, SiTailwindcss, SiCplusplus, SiSharp, SiGo, SiGithub } from 'react-icons/si';
-import { GoRepo, GoStar, GoPerson, GoLocation, GoGitBranch } from 'react-icons/go';
+import { GoStar, GoGitBranch } from 'react-icons/go';
 import { getProjectTypeIcon } from '../utils/projectTypeHelper';
 import { FaFire } from 'react-icons/fa';
 
 // Enrichissons notre dictionnaire d'icônes
-const iconMap: { [key: string]: React.ComponentType<any> } = {
+export const iconMap: { [key: string]: React.ComponentType<any> } = {
   react: FaReact, typescript: SiTypescript, javascript: FaJs,
   node: FaNodeJs, figma: FaFigma, vite: SiVite, tailwind: SiTailwindcss, git: FaGitAlt,
   python: FaPython, java: FaJava, html: FaHtml5, css: FaCss3Alt,
   'c++': SiCplusplus, 'c#': SiSharp, go: SiGo, 'github': SiGithub,
 };
 
-const getIconColor = (templateId: CardData['template']): string => {
-  if (templateId === 'dark') {
-    return 'text-gray-300 hover:text-white';
-  }
-  return 'text-gray-700 hover:text-indigo-500';
-};
 
 interface CardProps { data: CardData; }
 
@@ -37,7 +31,6 @@ export default function Card({ data }: CardProps) {
   const subTextColor = isDarkTheme ? 'text-gray-400' : 'text-gray-600';
   const iconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-800';
   const favIconColor = isDarkTheme ? 'text-gray-300' : 'text-gray-900';
-  const accentColor = isDarkTheme ? 'text-indigo-400' : 'text-indigo-600';
   const fireColor = 'text-orange-500 dark:text-orange-400';
 
 return (

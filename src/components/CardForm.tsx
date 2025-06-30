@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import type { CardData } from '../types';
-import { fetchGithubUserData } from '../services/githubService';
 import { TEMPLATES } from '../config/templates';
 import { FaSearch, FaExclamationCircle, FaDownload } from 'react-icons/fa';
 
@@ -18,12 +17,20 @@ interface CardFormProps {
   onDownload: () => void;
 }
 
-export default function CardForm({ cardData, setCardData, setIsLoading, isLoading, onDownload }: CardFormProps) {
-  const [username, setUsername] = useState('');
-  const [error, setError] = useState<string | null>(null);
+export default function CardForm({ cardData, setCardData, isLoading, onDownload }: CardFormProps) {
+  const [username] = useState('');
+  const [error] = useState<string | null>(null);
+  const [generatedUrl, setGeneratedUrl] = useState('');
   
   const handleFetchGithub = async () => { /* ... */ };
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => { /* ... */ };
+  const handleUsernameChange = () => { /* ... */ };
+
+   const handleGenerateUrl = () => {
+    const baseUrl = window.location.origin;
+    const url = `${baseUrl}/api/card?user=${cardData.githubUser}&template=${cardData.template}`;
+    const markdown = `![GitHub Card](${url})`;
+    setGeneratedUrl(markdown);
+  };
 
   return (
     <div className="space-y-6">
@@ -64,19 +71,32 @@ export default function CardForm({ cardData, setCardData, setIsLoading, isLoadin
             )}
           </button>
           
-          {/* 
-            BOUTON DE TÉLÉCHARGEMENT - VERSION MOBILE
-            - `lg:hidden`: Il n'est visible que sur mobile/tablette.
-          */}
-          <button
-            type="button"
-            onClick={onDownload}
-            disabled={isLoading}
-            className="flex-shrink-0 lg:hidden inline-flex items-center justify-center p-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
-            aria-label="Télécharger la carte"
-          >
-            <FaDownload className="h-5 w-5" />
-          </button>
+          {/* Le nouveau bouton de génération */}
+          <div className="pt-4">
+            <button
+              type="button"
+              onClick={handleGenerateUrl}
+              // ... classes du bouton
+            >
+              Générer le lien Markdown
+            </button>
+          </div>
+ 
+          {/* Le champ pour afficher le résultat */}
+          {generatedUrl && (
+            <div className="mt-4">
+              <label htmlFor="markdown-output" className={labelClasses}>
+                Copiez ce lien dans votre README GitHub :
+              </label>
+              <textarea
+                id="markdown-output"
+                readOnly
+                value={generatedUrl}
+                className={`${inputClasses} mt-1 h-24 font-mono text-xs`}
+                onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+              />
+            </div>
+          )}
 
         </div>
         

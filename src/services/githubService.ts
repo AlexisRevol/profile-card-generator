@@ -1,22 +1,13 @@
 // src/services/githubService.ts
 
-import type { CardData, GitHubRepo, HighlightedRepo } from '../types';
+import type { CardData, HighlightedRepo } from '../types';
 
 const GITHUB_API_URL = 'https://api.github.com/graphql';
 const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
 
 // Un type pour la réponse de l'API /users/{username}
 // On ne type que ce dont on a besoin
-interface GitHubUserResponse {
-  name: string;
-  login: string;
-  avatar_url: string;
-  bio: string | null;
-  location: string | null;
-  followers: number;
-  public_repos: number;
-  repos_url: string;
-}
+
 
 // La requête GraphQL qui va tout chercher d'un coup !
 
