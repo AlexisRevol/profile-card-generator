@@ -112,13 +112,13 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
         {/* Motifs pour les templates avec image de fond */}
         <pattern id="bg-holo" patternUnits="userSpaceOnUse" width="384" height="536">
-          <image href={templateImages.holographic} width="384" height="536" />
+          <image href={templateImages.holographic} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
         <pattern id="bg-blue" patternUnits="userSpaceOnUse" width="384" height="536">
-          <image href={templateImages.blue} width="384" height="536" />
+          <image href={templateImages.blue} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
         <pattern id="bg-dark" patternUnits="userSpaceOnUse" width="384" height="536">
-          <image href={templateImages.dark} width="384" height="536" />
+          <image href={templateImages.dark} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
         
         {/* Masque pour l'avatar */}
@@ -139,14 +139,27 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
       {/* --- Arrière-plan de la carte --- */}
       <g>
-        {/* 1. On dessine d'abord le fond COMPLET de la carte (384x536) */}
-        {data.template === 'classic' && <rect width="384" height="536" rx="20" fill="url(#classic-gradient)" />}
-        {data.template === 'holographic' && <rect width="384" height="536" rx="20" fill="url(#bg-holo)" />}
-        {data.template === 'blue' && <rect width="384" height="536" rx="20" fill="url(#bg-blue)" />}
-        {data.template === 'dark' && <rect width="384" height="536" rx="20" fill="url(#bg-dark)" />}
-
-        {/* 2. On dessine le fond intérieur par-dessus, en simulant le padding */}
-        {/* x="8" y="8" simule un padding de 8px. width/height sont réduits de 16px (2*8) */}
+        {/* 
+          On dessine le fond de la carte EN UNE SEULE FOIS.
+          Le "fill" de ce rectangle détermine tout l'arrière-plan extérieur.
+        */}
+        <rect 
+          width="384" 
+          height="536" 
+          rx="20" 
+          fill={
+            currentTemplate.id === 'classic' ? 'url(#classic-gradient)'
+          : currentTemplate.id === 'holographic' ? 'url(#bg-holo)'
+          : currentTemplate.id === 'blue' ? 'url(#bg-blue)'
+          : currentTemplate.id === 'dark' ? 'url(#bg-dark)'
+          : '#FFF' // Un fond par défaut au cas où
+          } 
+        />
+        
+        {/* 
+          On dessine le fond intérieur par-dessus, en simulant leAh padding.
+          x="8" y="8" simule un padding de 8px. width/height sont réduits de 16px (2*8)
+        */}
         <rect 
           x="8" 
           y="8" 
@@ -154,10 +167,10 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           height="520" 
           rx="12" 
           fill={
-              currentTemplate.id === 'classic' ? '#F8FAFC' // bg-slate-50
-            : currentTemplate.id === 'holographic' ? 'rgba(255, 255, 255, 0.70)' // bg-white/70
-            : currentTemplate.id === 'blue' ? 'rgba(255, 255, 255, 0.90)' // bg-white/90
-            : 'rgba(31, 41, 55, 0.85)' // bg-gray-800/85
+            currentTemplate.id === 'classic' ? '#F8FAFC' // bg-slate-50
+          : currentTemplate.id === 'holographic' ? 'rgba(255, 255, 255, 0.70)' // bg-white/70
+          : currentTemplate.id === 'blue' ? 'rgba(255, 255, 255, 0.90)' // bg-white/90
+          : 'rgba(31, 41, 55, 0.85)' // bg-gray-800/85
           }
         />
       </g>
