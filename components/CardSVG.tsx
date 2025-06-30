@@ -197,31 +197,52 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           </text>
         </g>
 
-        {/* --- Avatar --- */}
+         {/* --- Avatar --- */}
+        {/*
+          On crée un groupe pour positionner l'ensemble de l'avatar.
+          Tout ce qui est à l'intérieur de ce groupe sera décalé de (180, 80).
+        */}
         <g transform="translate(180, 80)">
-          
-          {/* 1. On dessine la bordure BLANCHE en premier. C'est un cercle sans remplissage (fill="none") mais avec un contour (stroke). */}
-          <circle 
-            cx="128" // Centre X du cercle
-            cy="128" // Centre Y du cercle
-            r="125" // Rayon (légèrement plus petit que l'image pour que la bordure soit visible)
-            fill="none"
-            stroke="rgba(255, 255, 255, 0.3)" // Équivalent de 'border-white/30'
-            strokeWidth="6" // Équivalent de 'border-[6px]'
-          />
 
-          {/* 2. On applique la découpe RONDE à l'image. */}
-          {/* Ce groupe imbriqué garantit que la découpe ronde est appliquée en premier. */}
+          {/* 
+            Groupe de découpe. Ce groupe applique le clipPath rond.
+            Les coordonnées (cx, cy) des éléments à l'intérieur sont maintenant
+            relatives à ce groupe.
+          */}
           <g clipPath="url(#avatarClip)">
+            {/* 
+              L'image est placée à (0,0) à l'intérieur de ce groupe.
+              Le clipPath va la découper en un cercle centré sur (128,128)
+              car c'est ainsi que avatarClip est défini dans <defs>.
+            */}
             <image
               href={avatarBase64}
+              x="0" 
+              y="0"
               width="256"
               height="256"
               mask="url(#avatarMask)"
             />
           </g>
+          
+          {/* 
+            La bordure est dessinée APRÈS la découpe de l'image.
+            Elle est positionnée exactement au même endroit que le cercle
+            de découpe dans les <defs> pour s'aligner parfaitement.
+            Comme elle n'est pas dans le groupe de découpe, elle n'est pas
+            affectée par celui-ci.
+          */}
+          <circle 
+            cx="128" 
+            cy="128" 
+            r="125" 
+            fill="none"
+            stroke="rgba(255, 255, 255, 0.3)"
+            strokeWidth="6"
+          />
         </g>
-        
+
+
         {/* --- Corps Principal --- */}
         <g transform="translate(24, 195)">
           {/* Bio */}
