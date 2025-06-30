@@ -5,7 +5,7 @@ import type { CardData } from '@/types';
 import Card from '@/components/Card';
 import CardForm from '@/components/CardForm';
 import CardSkeleton from '@/components/CardSkeleton';
-import '@/App.css';
+import '@/global.css';
 import html2canvas from 'html2canvas'; 
 
 const initialCardData: CardData = {
