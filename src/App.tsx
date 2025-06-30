@@ -64,21 +64,26 @@ function App() {
           />
         </section>
 
-        {/* ÉLÉMENT 2 : L'aperçu de la carte */}
+         {/* COLONNE 2 : L'aperçu de la carte */}
         <section>
-          {/* 
-            RENDU CONDITIONNEL :
-            La logique reste la même, on affiche le squelette ou la carte.
-          */}
-          {isLoading ? (
-            <CardSkeleton templateId={cardData.template} />
-          ) : (
-            // On attache la seule et unique ref ici.
-            <div ref={cardRef}>
-              <Card data={cardData} />
+            {/* 
+              MODIFICATION ICI : On ajoute un conteneur pour le scale
+              - `scale-90` : Sur mobile, on réduit la carte à 90% de sa taille.
+              - `lg:scale-100` : Sur grand écran (quand on passe à 2 colonnes), on la remet à 100%.
+              - `origin-top` : Fait en sorte que la réduction se fasse depuis le haut.
+              - `transition-transform`: Pour une transition douce.
+            */}
+            <div className="w-full transition-transform duration-300 ease-in-out origin-top scale-90 lg:scale-100">
+              {isLoading ? (
+                <CardSkeleton templateId={cardData.template} />
+              ) : (
+                <div ref={cardRef}>
+                  <Card data={cardData} />
+                </div>
+              )}
             </div>
-          )}
         </section>
+
 
       </div>
     </div>

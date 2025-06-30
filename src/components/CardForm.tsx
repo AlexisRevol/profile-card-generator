@@ -104,12 +104,15 @@ return (
         <label className={labelClasses}>
           Choix du modèle
         </label>
-        <div className="mt-1 grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="mt-2 flex flex-wrap justify-center sm:justify-start gap-2">
           {TEMPLATES.map((template) => (
             <button
               key={template.id}
               type="button"
-              className={`text-xs py-2 rounded-md transition-all ${
+              className={`text-xs py-2 rounded-md transition-all 
+                py-1.5 px-3 text-xs 
+                sm:py-2 sm:px-4 sm:text-sm
+                ${
                 cardData.template === template.id
                   ? 'bg-indigo-600 text-white font-semibold ring-2 ring-offset-2 ring-indigo-500 ring-offset-gray-100 dark:ring-offset-gray-900'
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
