@@ -1,8 +1,8 @@
 // src/components/CardForm.tsx
 
 import React, { useState } from 'react';
-import type { CardData } from '../types';
-import { TEMPLATES } from '../config/templates';
+import type { CardData } from '@/types';
+import { TEMPLATES } from '@/config/templates';
 import { FaSearch, FaExclamationCircle, FaDownload } from 'react-icons/fa';
 
 const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-300";

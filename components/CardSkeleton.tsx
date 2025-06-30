@@ -1,7 +1,7 @@
 // src/components/CardSkeleton.tsx
 
 // On utilise les mêmes dépendances que la carte pour avoir la même structure de base
-import { TEMPLATES } from '../config/templates';
+import { TEMPLATES } from '@/config/templates';
 import { SiGithub } from 'react-icons/si';
 
 // Une fonction pour générer des barres de squelette, pour éviter la répétition

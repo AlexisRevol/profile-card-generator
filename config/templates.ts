@@ -1,6 +1,6 @@
 // src/config/templates.ts
 
-import type { TemplateId } from '../types';
+import type { TemplateId } from '@/types';
 
 export interface Template {
   id: TemplateId;

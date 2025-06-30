@@ -1,11 +1,11 @@
 // src/components/Card.tsx
 
-import type { CardData  } from '../types';
-import { TEMPLATES } from '../config/templates'; // On importe nos modèles
+import type { CardData  } from '@/types';
+import { TEMPLATES } from '@/config/templates'; // On importe nos modèles
 import { FaReact, FaNodeJs, FaFigma, FaGitAlt, FaPython, FaJava, FaHtml5, FaCss3Alt, FaJs } from 'react-icons/fa';
 import { SiTypescript, SiVite, SiTailwindcss, SiCplusplus, SiSharp, SiGo, SiGithub } from 'react-icons/si';
 import { GoStar, GoGitBranch } from 'react-icons/go';
-import { getProjectTypeIcon } from '../utils/projectTypeHelper';
+import { getProjectTypeIcon } from '@/utils/projectTypeHelper';
 import { FaFire } from 'react-icons/fa';
 
 // Enrichissons notre dictionnaire d'icônes

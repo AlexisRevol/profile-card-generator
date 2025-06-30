@@ -1,13 +1,13 @@
 // src/components/CardSVG.tsx
 
 // On réutilise les mêmes types et configurations, c'est parfait !
-import type { CardData } from '../types';
-import { TEMPLATES } from '../config/templates';
+import type { CardData } from '@/types';
+import { TEMPLATES } from '@/config/templates';
 
 // On importe les icônes qu'on va utiliser
 import { SiGithub } from 'react-icons/si';
 import { GoStar, GoGitBranch } from 'react-icons/go';
-import { getProjectTypeIcon } from '../utils/projectTypeHelper';
+import { getProjectTypeIcon } from '@/utils/projectTypeHelper';
 import { FaFire } from 'react-icons/fa';
 // On a toujours besoin du dictionnaire d'icônes pour les technologies
 import { iconMap } from './Card'; // Assurez-vous d'exporter 'iconMap' depuis Card.tsx ou de le déplacer dans un fichier partagé

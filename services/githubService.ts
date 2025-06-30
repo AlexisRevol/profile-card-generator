@@ -1,6 +1,6 @@
 // src/services/githubService.ts
 
-import type { CardData, HighlightedRepo } from '../types';
+import type { CardData, HighlightedRepo } from '@/types';
 
 const GITHUB_API_URL = 'https://api.github.com/graphql';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN
