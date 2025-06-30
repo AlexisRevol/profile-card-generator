@@ -21,6 +21,41 @@ const templateImages = {
 };
 // ------------------------------------------------
 
+// Nouveau composant pour gérer le retour à la ligne en SVG
+const MultilineText = ({ text, x, y, width, fontSize, fill }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string }) => {
+  const safeText = text || "Aucune description.";
+  const words = safeText.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+
+  words.forEach(word => {
+    // Cette estimation de la largeur est très approximative (largeur = nb lettres * taille police * 0.6)
+    // C'est le point le plus difficile à simuler par rapport au HTML.
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const testWidth = testLine.length * fontSize * 0.6; 
+    
+    if (testWidth > width && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  });
+  lines.push(currentLine);
+
+  // On ne garde que les 2 premières lignes
+  return (
+    <text x={x} y={y} fontFamily="sans-serif" fontSize={fontSize} fill={fill}>
+      {lines.slice(0, 2).map((line, index) => (
+        // dy = décalage vertical pour chaque nouvelle ligne
+        <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * 1.2}>
+          {line}
+        </tspan>
+      ))}
+    </text>
+  );
+};
+
 interface CardSVGProps {
   data: CardData;
   avatarBase64: string; // L'avatar sera fourni en Base64 par l'API
@@ -89,7 +124,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/* Masque pour l'avatar */}
         <mask id="avatarMask">
             {/* Le masque est un dégradé de blanc (visible) à noir (invisible) */}
-            <linearGradient id="mask-gradient" x1="0" y1="1" x2="1" y2="0">
+            <linearGradient id="mask-gradient" x1="1" y1="0" x2="0" y2="1">
                 <stop offset="0.4" stopColor="white" />
                 <stop offset="0.8" stopColor="black" />
             </linearGradient>
@@ -104,15 +139,27 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
       {/* --- Arrière-plan de la carte --- */}
       <g>
-        {/* Bordure extérieure (simule le `p-2`) */}
+        {/* 1. On dessine d'abord le fond COMPLET de la carte (384x536) */}
         {data.template === 'classic' && <rect width="384" height="536" rx="20" fill="url(#classic-gradient)" />}
         {data.template === 'holographic' && <rect width="384" height="536" rx="20" fill="url(#bg-holo)" />}
         {data.template === 'blue' && <rect width="384" height="536" rx="20" fill="url(#bg-blue)" />}
         {data.template === 'dark' && <rect width="384" height="536" rx="20" fill="url(#bg-dark)" />}
-        
-        {/* Fond intérieur (simule `innerClassName`) */}
-        {/* backdrop-blur n'est pas supporté en SVG, on utilise une couleur semi-transparente */}
-        <rect x="8" y="8" width="368" height="520" rx="12" fill={currentTemplate.innerClassName.includes("white") ? "rgba(255, 255, 255, 0.7)" : "rgba(31, 41, 55, 0.85)"} />
+
+        {/* 2. On dessine le fond intérieur par-dessus, en simulant le padding */}
+        {/* x="8" y="8" simule un padding de 8px. width/height sont réduits de 16px (2*8) */}
+        <rect 
+          x="8" 
+          y="8" 
+          width="368" 
+          height="520" 
+          rx="12" 
+          fill={
+              currentTemplate.id === 'classic' ? '#F8FAFC' // bg-slate-50
+            : currentTemplate.id === 'holographic' ? 'rgba(255, 255, 255, 0.70)' // bg-white/70
+            : currentTemplate.id === 'blue' ? 'rgba(255, 255, 255, 0.90)' // bg-white/90
+            : 'rgba(31, 41, 55, 0.85)' // bg-gray-800/85
+          }
+        />
       </g>
       
       {/* --- Header --- */}
@@ -174,9 +221,14 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                 {index === 0 && <FaFire x={24 + truncateText(repo.name, 20).length * 6.5} y="-2" size="14" fill={fireColor} />}
 
                 {/* Description du projet */}
-                <text x="24" y="26" fontFamily="sans-serif" fontSize="11" fill={subTextColor}>
-                  {truncateText(repo.description, 35)}
-                </text>
+                <MultilineText 
+                    text={repo.description} 
+                    x={24} 
+                    y={26} 
+                    width={180} // Largeur maximale autorisée pour le texte avant de couper
+                    fontSize={11} 
+                    fill={subTextColor} 
+                  />
                 
                 {/* Badges de stats (Stars & Forks) */}
                 <g transform="translate(220, 0)">
