@@ -62,7 +62,7 @@ return (
           <img
             src={data.avatarUrl}
             alt="Avatar"
-            className="w-full h-full object-cover rounded-full border-4 @[22rem]:border-[6px] border-white/30"
+            className="w-full h-full object-cover rounded-full border-4 @[22rem]:border-[6px]"
           />
         </div>
 

@@ -199,6 +199,19 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
         {/* --- Avatar --- */}
         <g transform="translate(180, 80)">
+          
+          {/* 1. On dessine la bordure BLANCHE en premier. C'est un cercle sans remplissage (fill="none") mais avec un contour (stroke). */}
+          <circle 
+            cx="128" // Centre X du cercle
+            cy="128" // Centre Y du cercle
+            r="125" // Rayon (légèrement plus petit que l'image pour que la bordure soit visible)
+            fill="none"
+            stroke="rgba(255, 255, 255, 0.3)" // Équivalent de 'border-white/30'
+            strokeWidth="6" // Équivalent de 'border-[6px]'
+          />
+
+          {/* 2. On applique la découpe RONDE à l'image. */}
+          {/* Ce groupe imbriqué garantit que la découpe ronde est appliquée en premier. */}
           <g clipPath="url(#avatarClip)">
             <image
               href={avatarBase64}
@@ -210,7 +223,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         </g>
         
         {/* --- Corps Principal --- */}
-        <g transform="translate(24, 175)">
+        <g transform="translate(24, 195)">
           {/* Bio */}
           <text 
               y="10" 
