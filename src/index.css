@@ -4,18 +4,3 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 
-  SOLUTION NUCLEAIRE CONTRE LES MARGES
-  Ceci force la réinitialisation de la marge et du padding sur tous les éléments,
-  et s'assure que leur taille inclut la bordure et le padding.
-*/
-html, body {
-  padding: 0;
-  margin: 0;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-   padding: 0;
-}

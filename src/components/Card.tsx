@@ -42,11 +42,14 @@ export default function Card({ data }: CardProps) {
 
 return (
     <div 
-      className={`
-    @container w-full 
-    aspect-[384/536] 
-    rounded-2xl shadow-lg font-sans transition-all duration-300 ${currentTemplate.outerClassName}
-  `}
+        className={`
+          @container 
+          w-full max-w-[300px]  // 🔥 Ajoute cette limite
+          mx-auto
+          aspect-[384/536] 
+          rounded-2xl shadow-lg 
+          font-sans transition-all duration-300 ${currentTemplate.outerClassName}
+        `}
     >
       <div className={`relative w-full h-full rounded-xl overflow-hidden ${currentTemplate.innerClassName}`}>
 

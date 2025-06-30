@@ -49,11 +49,11 @@ function App() {
             Tu peux changer cette valeur (ex: max-w-lg, max-w-2xl).
           - `space-y-8`: Ajoute un espace vertical entre le formulaire et la carte.
       */}
-      <div className="w-full max-w-xl space-y-8">
+      <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
         
         {/* ÉLÉMENT 1 : Le formulaire */}
         <section>
-          <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">
+          <h1 className="text-1xl sm:text-4xl font-bold mb-6 text-gray-800 dark:text-gray-200 text-center lg:text-left">
             Personnalisez votre Carte
           </h1>
           <CardForm 
