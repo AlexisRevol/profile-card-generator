@@ -90,7 +90,7 @@ return (
 <div className="absolute top-[160px] left-4 w-[70%] @[22rem]:top-64 @[22rem]:left-6 @[22rem]:w-[65%] flex flex-col gap-3 @[22rem]:gap-4 z-10 text-left">
 
   {/* La bio reste la même, elle s'adapte bien */}
-  <h2 className={`text-[10px] tracking-wide @[22rem]:text-base @[22rem]:tracking-wider font-bold uppercase ${mainTextColor} ${textFloatEffect}`}>
+  <h2 className={`text-[14px] tracking-wide @[22rem]:text-base @[22rem]:tracking-wider font-bold uppercase ${mainTextColor} ${textFloatEffect}`}>
     {data.bio}
   </h2>
 
@@ -123,14 +123,14 @@ return (
                             C'est un flex container pour aligner le nom et la flamme
                           */}
                           <div className="flex items-center gap-1.5">
-                            <h3 className={`text-[9px] @[22rem]:text-[12px] font-bold ${mainTextColor} ${textFloatEffect} truncate`}>
+                            <h3 className={`text-[10px] @[22rem]:text-[12px] font-bold ${mainTextColor} ${textFloatEffect} truncate`}>
                               {repo.name}
                             </h3>
                             {index === 0 && (
                               <FaFire className={`flex-shrink-0 text-xs @[22rem]:text-sm ${fireColor}`} />
                             )}
                           </div>
-                          <p className={`text-[8px] @[22rem]:text-[11px] mt-0 @[22rem]:mt-0.5 ${subTextColor} h-6 @[22rem]:h-auto overflow-hidden`}>
+                          <p className={`text-[8.5px] @[22rem]:text-[11px] mt-0 @[22rem]:mt-0.5 ${subTextColor} h-6 @[22rem]:h-auto overflow-hidden`}>
                             {repo.description || "Aucune description."}
                           </p>
                         </div>

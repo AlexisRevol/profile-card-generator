@@ -23,8 +23,9 @@ export default function CardSkeleton({ templateId }: CardSkeletonProps) {
     // On garde EXACTEMENT le même conteneur principal que Card.tsx
     <div
       className={`
-        @container w-full 
-        aspect-[384/536] 
+          w-full max-w-[300px]  // 🔥 Ajoute cette limite
+          mx-auto
+          aspect-[384/536] 
         rounded-2xl shadow-lg font-sans ${currentTemplate.outerClassName}
       `}
     >
