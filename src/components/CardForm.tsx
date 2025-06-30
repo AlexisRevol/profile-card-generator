@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import type { CardData, SkillCategory  } from '../types';
 import { fetchGithubUserData } from '../services/githubService';
 import { TEMPLATES } from '../config/templates';
-import { FaPlus, FaTrash, FaSearch , FaGithub} from 'react-icons/fa'; // Icônes pour l'UI
+import { FaPlus, FaTrash, FaSearch , FaGithub, FaExclamationCircle } from 'react-icons/fa'; // Icônes pour l'UI
 
 // --- Classes CSS adaptatives pour nos champs ---
 // Contient des styles par défaut (light mode) et des styles pour le dark mode (préfixe `dark:`)
@@ -21,35 +21,46 @@ interface CardFormProps {
 
 export default function CardForm({ cardData, setCardData, setIsLoading, isLoading }: CardFormProps) {
   const [username, setUsername] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const handleFetchGithub = async () => {
-     if (!username) {
-      alert('Veuillez entrer un pseudo GitHub.');
+    if (!username) {
+      setError('Veuillez entrer un pseudo GitHub.');
       return;
     }
     setIsLoading(true);
+    setError(null); // On réinitialise l'erreur au début de chaque requête
+
     try {
       const fetchedData = await fetchGithubUserData(username);
-      // On fusionne les données de l'API avec le template actuel
       setCardData(prevData => ({ 
-        ...prevData, // Garde les anciennes données au cas où
-        ...fetchedData, // Écrase avec les nouvelles données de l'API
-        template: prevData.template // Conserve le template choisi par l'utilisateur
+        ...prevData,
+        ...fetchedData,
+        template: prevData.template
       }));
-    } catch (error) {
-      console.error(error);
-      alert((error as Error).message);
+    } catch (err) {
+      // On affiche le message d'erreur de manière contrôlée
+      const errorMessage = (err as Error).message;
+      console.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+    // On efface l'erreur dès que l'utilisateur tape
+    if (error) {
+      setError(null);
+    }
+  }
+
 
 return (
-    // On augmente l'espace global pour une meilleure séparation visuelle
     <div className="space-y-6">
       
-      {/* === SECTION 1: RECHERCHE GITHUB (inchangée) === */}
+      {/* === SECTION 1: RECHERCHE GITHUB - AMÉLIORÉE === */}
       <form onSubmit={(e) => { e.preventDefault(); handleFetchGithub(); }}>
         <label htmlFor="githubUser" className={labelClasses}>
           Pseudo GitHub
@@ -58,10 +69,11 @@ return (
           <input
             type="text"
             id="githubUser"
-            className={`${inputClasses} rounded-r-none`}
+            // On ajoute une bordure rouge si une erreur est présente
+            className={`${inputClasses} rounded-r-none ${error ? 'ring-red-500 dark:ring-red-500 focus:ring-red-500' : ''}`}
             placeholder="octocat"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={handleUsernameChange}
             disabled={isLoading}
           />
           <button
@@ -69,9 +81,22 @@ return (
             className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
             disabled={isLoading}
           >
-            {isLoading ? '...' : <FaSearch className="h-4 w-4 text-gray-500 dark:text-gray-400" />}
+            {isLoading ? (
+              // Petite animation de points pendant le chargement
+              <span className="animate-pulse">...</span>
+            ) : (
+              <FaSearch className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+            )}
           </button>
         </div>
+        
+        {/* === NOUVEL ÉLÉMENT : AFFICHAGE DE L'ERREUR === */}
+        {error && (
+          <div className="mt-2 flex items-center gap-2 text-sm text-red-600 dark:text-red-400" role="alert">
+            <FaExclamationCircle className="flex-shrink-0"/>
+            <p>{error}</p>
+          </div>
+        )}
       </form>
 
       {/* === NOUVEL ORDRE - SECTION 2: CHOIX DU MODÈLE === */}

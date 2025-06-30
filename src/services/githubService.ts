@@ -21,7 +21,7 @@ interface GitHubUserResponse {
 // La requête GraphQL qui va tout chercher d'un coup !
 
 // ON CHANGE la query pour utiliser "repositoryOwner" qui marche pour les users ET les orgs
-const GITHUB_OWNER_QUERY = `
+const GITHUB_OWNER_QUERY_OPTIMIZED = `
   query GetOwner($username: String!) {
     repositoryOwner(login: $username) {
       __typename
@@ -74,18 +74,20 @@ const GITHUB_OWNER_QUERY = `
           }
         }
       }
-      repositories(first: 100, ownerAffiliations: OWNER, isFork: false, orderBy: {field: STARGAZERS, direction: DESC}) {
+      # === OPTIMISATION MAJEURE ICI ===
+      # On ne demande que les 10 dépôts les plus étoilés au lieu de 100.
+      # C'est souvent suffisant pour calculer les top langages et les étoiles.
+      repositories(first: 10, ownerAffiliations: OWNER, isFork: false, orderBy: {field: STARGAZERS, direction: DESC}) {
         totalCount
         nodes {
-          id # Ajout de l'ID ici pour le fallback
+          id
           name
           description
           url
-          stargazerCount:stargazers {
-            totalCount
-          }
+          stargazerCount
           forkCount
-          languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
+          # On ne demande les langages que pour ces 10 dépôts.
+          languages(first: 5, orderBy: {field: SIZE, direction: DESC}) {
             nodes {
               name
             }
@@ -104,7 +106,7 @@ export async function fetchGithubUserData(username: string): Promise<CardData> {
       Authorization: `Bearer ${GITHUB_TOKEN}`,
     },
     body: JSON.stringify({
-      query: GITHUB_OWNER_QUERY,
+      query: GITHUB_OWNER_QUERY_OPTIMIZED,
       variables: { username },
     }),
   });
