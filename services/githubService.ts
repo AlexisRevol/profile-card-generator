@@ -3,7 +3,7 @@
 import type { CardData, HighlightedRepo } from '../types';
 
 const GITHUB_API_URL = 'https://api.github.com/graphql';
-const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN
 
 // Un type pour la réponse de l'API /users/{username}
 // On ne type que ce dont on a besoin

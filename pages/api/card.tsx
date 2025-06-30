@@ -2,9 +2,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { fetchGithubUserData } from '../src/services/githubService';
-import CardSVG from '../src/components/CardSVG';
-import { fetchImageAsBase64 } from '../src/utils/imageUtils'; // Le chemin peut varier
+import { fetchGithubUserData } from '../../services/githubService';
+import CardSVG from '../../components/CardSVG';
+import { fetchImageAsBase64 } from '../../utils/imageUtils'; // Le chemin peut varier
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
