@@ -1,13 +1,16 @@
 // src/components/CardSVG.tsx
 
-
-import type { CardData } from '@/types'; // Assurez-vous d'ajouter `totalContributions` à ce type !
+// On réutilise les mêmes types et configurations, c'est parfait !
+import type { CardData } from '@/types';
 import { TEMPLATES } from '@/config/templates';
-import { SiGithub, SiJavascript, SiPython, SiTypescript, SiRust, SiGo } from 'react-icons/si';
+
+// On importe les icônes qu'on va utiliser
+import { SiGithub } from 'react-icons/si';
 import { GoStar, GoGitBranch } from 'react-icons/go';
 import { getProjectTypeIcon } from '@/utils/projectTypeHelper';
 import { FaFire } from 'react-icons/fa';
-
+// On a toujours besoin du dictionnaire d'icônes pour les technologies
+import { iconMap } from './Card'; // Assurez-vous d'exporter 'iconMap' depuis Card.tsx ou de le déplacer dans un fichier partagé
 
 // --- DONNÉES BASE64 POUR LES IMAGES DE FOND ---
 // IMPORTANT : Remplacez les chaînes vides ci-dessous par les données Base64 de vos images.
@@ -18,61 +21,16 @@ const templateImages = {
 };
 // ------------------------------------------------
 
-// --- NOUVEAU : Composant pour le texte stylisé (votre idée de "stroke") ---
-// Ce composant utilise la technique de la "fausse ombre" pour un meilleur rendu.
-const StyledText = ({ 
-  children, 
-  x, y, 
-  fontSize, 
-  fill, 
-  fontFamily = "'Inter', sans-serif", 
-  fontWeight = "normal",
-  textAnchor = "start"
-}: { 
-  children: React.ReactNode, 
-  x: number, y: number, 
-  fontSize: number, 
-  fill: string,
-  fontFamily?: string,
-  fontWeight?: string,
-  textAnchor?: "start" | "middle" | "end"
-}) => (
-  <g>
-    {/* 1. L'ombre/contour : texte noir dessiné en dessous et légèrement décalé */}
-    <text
-      x={x}
-      y={y + 1} // Décalage de 1px vers le bas
-      fontFamily={fontFamily}
-      fontSize={fontSize}
-      fontWeight={fontWeight}
-      fill="rgba(0,0,0,0.4)" // Ombre semi-transparente
-      textAnchor={textAnchor}
-    >
-      {children}
-    </text>
-    {/* 2. Le texte principal, dessiné par-dessus */}
-    <text
-      x={x}
-      y={y}
-      fontFamily={fontFamily}
-      fontSize={fontSize}
-      fontWeight={fontWeight}
-      fill={fill}
-      textAnchor={textAnchor}
-    >
-      {children}
-    </text>
-  </g>
-);
-
-
-const MultilineText = ({ text, x, y, width, fontSize, fill, lineHeight = 1.2 }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string, lineHeight?: number }) => {
+// Nouveau composant pour gérer le retour à la ligne en SVG
+const MultilineText = ({ text, x, y, width, fontSize, fill }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string }) => {
   const safeText = text || "Aucune description.";
   const words = safeText.split(' ');
   const lines: string[] = [];
   let currentLine = '';
 
   words.forEach(word => {
+    // Cette estimation de la largeur est très approximative (largeur = nb lettres * taille police * 0.6)
+    // C'est le point le plus difficile à simuler par rapport au HTML.
     const testLine = currentLine ? `${currentLine} ${word}` : word;
     const testWidth = testLine.length * fontSize * 0.6; 
     
@@ -85,50 +43,24 @@ const MultilineText = ({ text, x, y, width, fontSize, fill, lineHeight = 1.2 }: 
   });
   lines.push(currentLine);
 
+  // On ne garde que les 2 premières lignes
   return (
-    <text x={x} y={y} fontFamily="'Inter', sans-serif" fontSize={fontSize} fill={fill}>
+    <text x={x} y={y} fontFamily="sans-serif" fontSize={fontSize} fill={fill}>
       {lines.slice(0, 2).map((line, index) => (
-        <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * lineHeight}>
-          {line}{index === 1 && lines.length > 2 ? '...' : ''}
+        // dy = décalage vertical pour chaque nouvelle ligne
+        <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * 1.2}>
+          {line}
         </tspan>
       ))}
     </text>
   );
 };
 
-// --- NOUVEAU : Icône de "Type" du Développeur ---
-const TypeIcon = ({ lang, x, y }: { lang: string, x: number, y: number }) => {
-    const langIcons: { [key: string]: React.ElementType } = {
-        'JavaScript': SiJavascript,
-        'TypeScript': SiTypescript,
-        'Python': SiPython,
-        'Rust': SiRust,
-        'Go': SiGo,
-    };
-    const Icon = langIcons[lang] || SiGithub; // Icône par défaut
-    const colors: { [key: string]: string } = {
-        'JavaScript': '#F7DF1E',
-        'TypeScript': '#3178C6',
-        'Python': '#3776AB',
-        'Rust': '#DEA584',
-        'Go': '#00ADD8',
-        'Java': '#f89820',
-    }
-    const color = colors[lang] || '#FFFFFF';
-
-    return (
-        <g transform={`translate(${x}, ${y})`}>
-            <circle cx="16" cy="16" r="16" fill="rgba(0,0,0,0.3)" />
-            <circle cx="16" cy="16" r="15" fill={color} />
-            <Icon x="8" y="8" size="16" fill="#000" />
-        </g>
-    )
-}
-
 interface CardSVGProps {
   data: CardData;
   avatarBase64: string; // L'avatar sera fourni en Base64 par l'API
 }
+
 
 // Fonction pour formater les grands nombres (ex: 12500 -> 12.5k)
 const formatStatNumber = (num: number): string => {
@@ -144,17 +76,31 @@ const formatStatNumber = (num: number): string => {
 // AJOUT : Composant pour un badge de stat dynamique
 const StatBadge = ({ icon: Icon, value, x, y, colors }: { icon: React.ElementType, value: number, x: number, y: number, colors: { bg: string, text: string } }) => {
   const FONT_SIZE = 10;
-  const PADDING_X = 8;
+  const PADDING_X = 8; // Espace à gauche et à droite du contenu
   const ICON_SIZE = 12;
   const ICON_MARGIN_RIGHT = 4;
+
   const formattedValue = formatStatNumber(value);
+  
+  // Estimation de la largeur du texte (très approximative, ajuster le facteur 0.6 si besoin)
   const textWidth = formattedValue.length * FONT_SIZE * 0.6;
+  
   const badgeWidth = PADDING_X + ICON_SIZE + ICON_MARGIN_RIGHT + textWidth + PADDING_X;
+
   return (
     <g transform={`translate(${x}, ${y})`}>
       <rect x="0" y="0" width={badgeWidth} height="18" rx="9" fill={colors.bg} />
       <Icon x={PADDING_X} y="3" size={ICON_SIZE} fill={colors.text} />
-      <text x={PADDING_X + ICON_SIZE + ICON_MARGIN_RIGHT} y="13" fontFamily="'Inter', sans-serif" fontSize={FONT_SIZE} fontWeight="500" fill={colors.text}>{formattedValue}</text>
+      <text 
+        x={PADDING_X + ICON_SIZE + ICON_MARGIN_RIGHT} 
+        y="13" 
+        fontFamily="sans-serif" 
+        fontSize={FONT_SIZE} 
+        fontWeight="500" 
+        fill={colors.text}
+      >
+        {formattedValue}
+      </text>
     </g>
   );
 };
@@ -165,14 +111,21 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
   // --- Définition des couleurs ---
   // On traduit les classes Tailwind en codes de couleur hexadécimaux.
-  const mainTextColor = isDarkTheme ? '#F9FAFB' : '#11182C';
-  const subTextColor = isDarkTheme ? '#9CA3AF' : '#4B5563';
-  const cardBgColor = isDarkTheme ? '#1F2937' : '#FFFFFF'; // bg-gray-800 ou white
-  const topLanguage = data.topLanguages[0] || 'Code';
+  const mainTextColor = isDarkTheme ? '#F9FAFB' : '#11182C'; // text-gray-50 ou text-gray-900
+  const subTextColor = isDarkTheme ? '#9CA3AF' : '#4B5563';  // text-gray-400 ou text-gray-600
+  const iconColor = isDarkTheme ? '#D1D5DB' : '#374151';    // text-gray-300 ou text-gray-800
+  const fireColor = '#F97316'; // text-orange-500
+  const avatarBorderColor = isDarkTheme 
+  ? 'rgba(255, 255, 255, 0.2)' 
+  : 'rgba(0, 0, 0, 0.1)';
+  const footerBgColor = isDarkTheme ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.03)';
+  // Définition des couleurs pour le dégradé du badge
+  const holoColors = {
+    start: isDarkTheme ? 'rgba(80, 70, 120, 0.4)' : 'rgba(230, 240, 255, 0.6)',
+    mid: isDarkTheme ? 'rgba(120, 110, 180, 0.7)' : 'rgba(255, 255, 255, 1)',
+    end: isDarkTheme ? 'rgba(70, 100, 120, 0.4)' : 'rgba(220, 230, 255, 0.6)',
+  };
 
-  // Couleurs pour les badges de stats
-  const starBadgeColors = { bg: isDarkTheme ? '#3730A3' : '#E0E7FF', text: isDarkTheme ? '#C7D2FE' : '#4338CA' };
-  const forkBadgeColors = { bg: isDarkTheme ? '#374151' : '#E5E7EB', text: isDarkTheme ? '#D1D5DB' : '#374151' };
   // Couleurs pour les badges de stats
   const starBadge = {
     bg: isDarkTheme ? 'rgba(99, 102, 241, 0.2)' : '#E0E7FF', // bg-indigo-500/20 ou bg-indigo-100
@@ -224,11 +177,11 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   return (
     <svg
       width="384"
-      height="560"
-      viewBox="0 0 384 560"
+      height="536"
+      viewBox="0 0 384 536"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
+      xmlnsXlink="http://www.w3.org/1999/xlink" // Nécessaire pour les href d'images
     >
       {/* 
         Définitions : C'est ici qu'on place les éléments réutilisables
@@ -290,101 +243,226 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         </linearGradient>
       </defs>
 
-       {/* --- Arrière-plan de la carte --- */}
-      <g clipPath="url(#card-clip)">
+      {/* --- Arrière-plan de la carte --- */}
+      <g>
+        {/* 
+          On dessine le fond de la carte EN UNE SEULE FOIS.
+          Le "fill" de ce rectangle détermine tout l'arrière-plan extérieur.
+        */}
         <rect 
           width="384" 
-          height="560" 
-          fill={currentTemplate.id === 'classic' ? 'url(#classic-gradient)' : 'url(#bg-holo)'} 
+          height="536" 
+          rx="20" 
+          fill={
+            currentTemplate.id === 'classic' ? 'url(#classic-gradient)'
+          : currentTemplate.id === 'holographic' ? 'url(#bg-holo)'
+          : currentTemplate.id === 'blue' ? 'url(#bg-blue)'
+          : currentTemplate.id === 'dark' ? 'url(#bg-dark)'
+          : '#FFF' // Un fond par défaut au cas où
+          } 
         />
-        {/* MODIFIÉ : Superposition pour assombrir/éclaircir le fond et améliorer le contraste */}
-        <rect width="384" height="560" fill={isDarkTheme ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.3)'} />
+        
+        {/* 
+          On dessine le fond intérieur par-dessus, en simulant leAh padding.
+          x="8" y="8" simule un padding de 8px. width/height sont réduits de 16px (2*8)
+        */}
+        <rect 
+          x="8" 
+          y="8" 
+          width="368" 
+          height="520" 
+          rx="12" 
+          fill={
+            currentTemplate.id === 'classic' ? '#F8FAFC' // bg-slate-50
+          : currentTemplate.id === 'holographic' ? 'rgba(255, 255, 255, 0.70)' // bg-white/70
+          : currentTemplate.id === 'blue' ? 'rgba(255, 255, 255, 0.90)' // bg-white/90
+          : 'rgba(31, 41, 55, 0.85)' // bg-gray-800/85
+          }
+        />
+      </g>
+      
 
-        {/* --- HEADER "LÉGENDAIRE" --- */}
-        <g transform="translate(20, 24)">
-            {/* Nom de l'utilisateur avec la police d'impact */}
-            <StyledText x={0} y={28} fontSize={32} fill={mainTextColor} fontFamily="'Bebas Neue', cursive" fontWeight="bold">
-                {data.githubUser}
-            </StyledText>
-            {/* "HP" et Type du Développeur */}
-            <g transform="translate(250, 4)">
-                <StyledText x={0} y={20} fontSize={14} fill={mainTextColor} fontWeight="bold">
-                    {`CONTRIBS `}
-                    <tspan fontFamily="'Bebas Neue', cursive" fontSize="24">{formatStatNumber(data.totalContributions || 0)}</tspan>
-                </StyledText>
-                <TypeIcon lang={topLanguage} x={52} y={-4}/>
-            </g>
+      {/* --- GROUPE PRINCIPAL AVEC DÉCOUPE --- */}
+      {/* Tous les éléments intérieurs seront "coupés" s'ils dépassent de ce chemin */}
+      <g clipPath="url(#card-border-clip)">
+
+
+        {/* --- Header --- */}
+        <g transform="translate(24, 32)">
+          <SiGithub size="24" fill={iconColor} />
+          <text
+            x="34"
+            y="12" // Alignement vertical du texte avec l'icône
+            dominantBaseline="middle"
+            fontFamily="monospace, 'Courier New', Courier"
+            fontSize="18"
+            fill={mainTextColor}
+          >
+            @{data.githubUser}
+          </text>
+        </g>
+
+        {/* --- Bio (avec le style corrigé) --- */}
+        {/* La bio est placée juste en dessous. */}
+        <g transform="translate(28, 75)"> {/* J'ai légèrement remonté à 65 pour resserrer l'espace */}
+          <MultilineText
+            // MODIFICATION 1 : On retire .toUpperCase() pour un style plus doux
+            text={data.bio || ""} 
+            x={0}
+            y={0} // Le y est maintenant géré par le transform du groupe parent
+            width={336}
+            // MODIFICATION 2 : La taille est déjà bonne, on la garde.
+            fontSize={11} 
+            // MODIFICATION 3 : On utilise la couleur de texte secondaire
+            fill={subTextColor} 
+          />
+        </g>
+
+         {/* --- Avatar --- */}
+        {/*
+          On crée un groupe pour positionner l'ensemble de l'avatar.
+          Tout ce qui est à l'intérieur de ce groupe sera décalé de (180, 80).
+        */}
+        <g transform="translate(180, 80)">
+
+          {/* 
+            Groupe de découpe. Ce groupe applique le clipPath rond.
+            Les coordonnées (cx, cy) des éléments à l'intérieur sont maintenant
+            relatives à ce groupe.
+          */}
+          <g clipPath="url(#avatarClip)">
+            {/* 
+              L'image est placée à (0,0) à l'intérieur de ce groupe.
+              Le clipPath va la découper en un cercle centré sur (128,128)
+              car c'est ainsi que avatarClip est défini dans <defs>.
+            */}
+            <image
+              href={avatarBase64}
+              x="0" 
+              y="0"
+              width="256"
+              height="256"
+              mask="url(#avatarMask)"
+            />
+          </g>
+          
+          {/* 
+            La bordure est dessinée APRÈS la découpe de l'image.
+            Elle est positionnée exactement au même endroit que le cercle
+            de découpe dans les <defs> pour s'aligner parfaitement.
+            Comme elle n'est pas dans le groupe de découpe, elle n'est pas
+            affectée par celui-ci.
+          */}
+          <circle 
+            cx="128" 
+            cy="128" 
+            r="125" 
+            fill="none"
+            stroke={isDarkTheme ? '#1F2937' : '#FFFFFF'}
+            strokeWidth="6"
+          />
+        </g>
+
+
+        {/* --- Corps Principal --- */}
+        <g transform="translate(24, 270)">
+          
+                  
+          {/* Liste des dépôts mis en avant */}
+          {/* --- SECTION DES DÉPÔTS MIS EN AVANT --- */}
+          <g transform="translate(0, 0)">
+              {data.highlightedRepos?.slice(0, 3).map((repo, index) => {
+                  const yPos = index * 55;
+                  const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
+                  return (
+                      <g key={repo.id} transform={`translate(0, ${yPos})`}>
+                          <ProjectIcon y="2" size="14" fill={mainTextColor}/>
+                          <MultilineText 
+                            text={repo.name} 
+                            x={22} 
+                            y={12} 
+                            width={220} // Largeur maximale autorisée pour le texte avant de couper
+                            fontSize={13} 
+                            fill={mainTextColor} 
+                          />
+                          
+                          {/* Description déplacée sous le nom pour plus de clarté */}
+                          <MultilineText 
+                            text={repo.description} 
+                            x={22} 
+                            y={30} 
+                            width={270} // Largeur maximale autorisée pour le texte avant de couper
+                            fontSize={11} 
+                            fill={subTextColor} 
+                          />
+                          
+                          {/* Badges à droite */}
+                          <g transform="translate(250, 0)">
+                              <StatBadge icon={GoStar} value={repo.stars} x={0} y={0} colors={starBadge} />
+                              <StatBadge icon={GoGitBranch} value={repo.forks} x={0} y={22} colors={forkBadge} />
+                          </g>
+                      </g>
+                  )
+              })}
+          </g>
         </g>
         
-        {/* --- IMAGE PRINCIPALE (AVATAR) --- */}
-        <g transform="translate(64, 80)">
-            {/* Cadre décoratif derrière l'avatar */}
-            <rect x="-8" y="-8" width="264" height="208" fill="rgba(0,0,0,0.1)" rx="8" />
-            <rect x="-7" y="-7" width="262" height="206" fill={cardBgColor} rx="7" />
-            <image href={avatarBase64} width="256" height="192" preserveAspectRatio="xMidYMid slice" />
-            {/* Effet de vignetage pour concentrer le regard */}
-            <rect width="256" height="192" fill="url(#vignette)" />
-        </g>
+        {/* --- PIED DE PAGE "SMOOTH" POUR LES TECHNOS --- */}
+        {/* --- SECTION TECHNOLOGIES AVEC BADGES DYNAMIQUES --- */}
+        <g transform="translate(28, 485)">
+            <text y="0" fontFamily="sans-serif" fontSize="10" fontWeight="bold" fill={subTextColor} letterSpacing="0.05em">
+                {'Technologies Favorites'.toUpperCase()}
+            </text>
 
-        {/* --- SECTION ATTAQUES (REPOS) --- */}
-        <g transform="translate(24, 290)">
-          {data.highlightedRepos?.slice(0, 2).map((repo, index) => {
-              const yPos = index * 70; // On espace plus les "attaques"
-              const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
-              return (
-                  <g key={repo.id} transform={`translate(0, ${yPos})`}>
-                      {/* Ligne de séparation stylisée */}
-                      <path d="M0,0 H336" stroke={isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} strokeWidth="1"/>
+            <g transform="translate(0, 12)">
+                {(() => {
+                    const badges: React.ReactNode[] = [];
+                    let currentX = 0;
+                    let currentY = 0;
+                    const cardWidth = 320; // Largeur disponible pour les badges (384 - padding*2 - marge)
+                    const gap = 6; // Espace entre les badges
+                    const lineHeight = 24; // Hauteur d'une ligne de badges
 
-                      <g transform="translate(8, 12)">
-                        {/* Nom du repo comme nom d'attaque */}
-                        <ProjectIcon y="2" size="16" fill={mainTextColor}/>
-                        <StyledText x={22} y={15} fontSize={16} fill={mainTextColor} fontWeight="bold">
-                            {repo.name}
-                        </StyledText>
-                        
-                        {/* Description de l'attaque */}
-                        <MultilineText 
-                          text={repo.description} 
-                          x={0} 
-                          y={35} 
-                          width={240}
-                          fontSize={11} 
-                          fill={subTextColor}
-                          lineHeight={1.4}
-                        />
-                        
-                        {/* "Dégâts" de l'attaque (Stats) */}
-                        <g transform="translate(240, 0)">
-                            <StatBadge icon={GoStar} value={repo.stars} x={0} y={0} colors={starBadgeColors} />
-                            <StatBadge icon={GoGitBranch} value={repo.forks} x={0} y={22} colors={forkBadgeColors} />
-                        </g>
-                      </g>
-                  </g>
-              )
-          })}
-        </g>
+                    // Couleurs pour les badges de techno
+                    const techBadgeColors = {
+                        bg: isDarkTheme ? 'rgba(55, 65, 81, 0.5)' : 'rgba(229, 231, 235, 1)', // gray-700/50 ou gray-200
+                        text: isDarkTheme ? '#D1D5DB' : '#374151' // gray-300 ou gray-700
+                    };
 
-        {/* --- SECTION "POKEDEX" (BIO & LANGUES) --- */}
-        <g transform="translate(24, 440)">
-            <rect x="0" y="0" width="336" height="100" fill={isDarkTheme ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'} rx="8"/>
-            <g transform="translate(12, 12)">
-                <MultilineText text={data.bio} x={0} y={10} width={312} fontSize={12} fill={mainTextColor} />
+                    data.topLanguages.slice(0, 8).forEach((lang, index) => {
+                        // Calcul de la largeur du badge à venir
+                        const FONT_SIZE = 10;
+                        const PADDING_X = 8;
+                        const textWidth = lang.length * FONT_SIZE * 0.6;
+                        const badgeWidth = textWidth + PADDING_X * 2;
 
-                {/* Séparateur pour les langages */}
-                <path d="M0,50 H312" stroke={isDarkTheme ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'} strokeWidth="1" />
-                
-                {/* On garde tes badges de technos, c'est une super idée ! */}
-                <g transform="translate(0, 62)">
-                    {data.topLanguages.slice(0, 5).map((lang, index) => (
-                        <g key={lang} transform={`translate(${index * 65}, 0)`}>
-                            <rect width="60" height="20" rx="10" fill="rgba(0,0,0,0.3)"/>
-                            <text x="30" y="14" textAnchor="middle" fontFamily="'Inter', sans-serif" fontSize="10" fontWeight="500" fill={mainTextColor}>
-                                {lang}
-                            </text>
-                        </g>
-                    ))}
-                </g>
+                        // Si le badge dépasse, on passe à la ligne suivante
+                        if (currentX + badgeWidth > cardWidth) {
+                            currentX = 0;
+                            currentY += lineHeight;
+                        }
+
+                        // Si on a plus de 2 lignes, on arrête
+                        if (currentY >= lineHeight * 2) {
+                            return;
+                        }
+
+                        badges.push(
+                            <TechBadge 
+                                key={lang} 
+                                label={lang} 
+                                x={currentX} 
+                                y={currentY} 
+                                colors={techBadgeColors} 
+                            />
+                        );
+
+                        // On met à jour la position pour le prochain badge
+                        currentX += badgeWidth + gap;
+                    });
+
+                    return badges;
+                })()}
             </g>
         </g>
       </g>
