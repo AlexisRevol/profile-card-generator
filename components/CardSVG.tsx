@@ -108,7 +108,6 @@ const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text
         strokeWidth={fontSize / 12} // Ajusté pour un look un peu plus fin
         strokeLinejoin="round"
         paintOrder="stroke"
-        filter="url(#text-shadow)"
         dominantBaseline="middle"
       >
         {children}
@@ -567,9 +566,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                           >
                             {/* On s'assure que le nom ne soit pas trop long */}
                             {repo.description
-                              ? (repo.description.length > 25
-                                ? `${repo.description.substring(0, 25)}...`
-                                : repo.description)
+                              ? repo.description
                               : "No description"}
                           </StyledText>
                           
