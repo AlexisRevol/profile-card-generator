@@ -310,10 +310,10 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
         {/* --- Bio (avec le style corrigé) --- */}
         {/* La bio est placée juste en dessous. */}
-        <g transform="translate(24, 65)"> {/* J'ai légèrement remonté à 65 pour resserrer l'espace */}
+        <g transform="translate(28, 75)"> {/* J'ai légèrement remonté à 65 pour resserrer l'espace */}
           <MultilineText
             // MODIFICATION 1 : On retire .toUpperCase() pour un style plus doux
-            text={data.bio || "Aucune biographie fournie."} 
+            text={data.bio || ""} 
             x={0}
             y={0} // Le y est maintenant géré par le transform du groupe parent
             width={336}
@@ -415,7 +415,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         
         {/* --- PIED DE PAGE "SMOOTH" POUR LES TECHNOS --- */}
         {/* --- SECTION TECHNOLOGIES AVEC BADGES DYNAMIQUES --- */}
-        <g transform="translate(32, 490)">
+        <g transform="translate(28, 485)">
             <text y="0" fontFamily="sans-serif" fontSize="10" fontWeight="bold" fill={subTextColor} letterSpacing="0.05em">
                 {'Technologies Favorites'.toUpperCase()}
             </text>
