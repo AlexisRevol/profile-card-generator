@@ -68,6 +68,49 @@ const truncateText = (text: string | null, maxLength: number, fallback = '') => 
   return safeText.length > maxLength ? `${safeText.substring(0, maxLength)}…` : safeText;
 };
 
+// Fonction pour formater les grands nombres (ex: 12500 -> 12.5k)
+const formatStatNumber = (num: number): string => {
+  if (num === null || num === undefined) return '0';
+  // Intl.NumberFormat est un moyen moderne et efficace de formater les nombres
+  return new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    compactDisplay: 'short',
+    maximumFractionDigits: 1
+  }).format(num);
+};
+
+// AJOUT : Composant pour un badge de stat dynamique
+const StatBadge = ({ icon: Icon, value, x, y, colors }: { icon: React.ElementType, value: number, x: number, y: number, colors: { bg: string, text: string } }) => {
+  const FONT_SIZE = 10;
+  const PADDING_X = 8; // Espace à gauche et à droite du contenu
+  const ICON_SIZE = 12;
+  const ICON_MARGIN_RIGHT = 4;
+
+  const formattedValue = formatStatNumber(value);
+  
+  // Estimation de la largeur du texte (très approximative, ajuster le facteur 0.6 si besoin)
+  const textWidth = formattedValue.length * FONT_SIZE * 0.6;
+  
+  const badgeWidth = PADDING_X + ICON_SIZE + ICON_MARGIN_RIGHT + textWidth + PADDING_X;
+
+  return (
+    <g transform={`translate(${x}, ${y})`}>
+      <rect x="0" y="0" width={badgeWidth} height="18" rx="9" fill={colors.bg} />
+      <Icon x={PADDING_X} y="3" size={ICON_SIZE} fill={colors.text} />
+      <text 
+        x={PADDING_X + ICON_SIZE + ICON_MARGIN_RIGHT} 
+        y="13" 
+        fontFamily="sans-serif" 
+        fontSize={FONT_SIZE} 
+        fontWeight="500" 
+        fill={colors.text}
+      >
+        {formattedValue}
+      </text>
+    </g>
+  );
+};
+
 export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const currentTemplate = TEMPLATES.find(t => t.id === data.template) || TEMPLATES[0];
   const isDarkTheme = currentTemplate.theme === 'dark';
@@ -135,6 +178,15 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         <clipPath id="card-border-clip">
           {/* C'est un rectangle qui correspond exactement à la bordure intérieure */}
           <rect x="8" y="8" width="368" height="520" rx="12" />
+        </clipPath>
+
+        {/* CORRECTION : Définition du clipPath circulaire pour l'avatar */}
+        <clipPath id="avatarClip">
+          {/* Ce cercle servira à découper l'image. 
+              Son centre (cx, cy) est à la moitié de la taille de l'image (256/2 = 128)
+              et son rayon (r) est de 128 pour couvrir toute l'image.
+          */}
+          <circle cx="128" cy="128" r="128" />
         </clipPath>
       </defs>
 
@@ -246,20 +298,17 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/* --- Corps Principal --- */}
         <g transform="translate(24, 195)">
           {/* Bio */}
-          <text 
-              y="10" 
-              fontFamily="sans-serif"
-              fontSize="14"
-              fontWeight="bold"
-              fill={mainTextColor}
-              letterSpacing="0.05em" // L'attribut letter-spacing, lui, est valide en SVG
-              >
-              {/* On applique la transformation directement ici */}
-              {data.bio?.toUpperCase()} 
-          </text>
+          <MultilineText
+            text={data.bio ? data.bio.toUpperCase() : "AUCUNE BIOGRAPHIE FOURNIE"}
+            x={0} // La bio commence au début du groupe
+            y={10}
+            width={336} // Largeur max de la carte (384) - padding (24*2)
+            fontSize={14}
+            fill={mainTextColor}
+          />
                   
           {/* Liste des dépôts mis en avant */}
-          <g transform="translate(0, 40)">
+          <g transform="translate(0, 80)">
             {data.highlightedRepos?.slice(0, 3).map((repo, index) => {
               const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
               const yPos = index * 65; // Espacement vertical entre les dépôts
@@ -285,14 +334,22 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                     />
                   
                   {/* Badges de stats (Stars & Forks) */}
+                  {/* CORRECTION : Utilisation du composant de badge dynamique */}
                   <g transform="translate(220, 0)">
-                    <rect x="0" y="0" width="50" height="18" rx="9" fill={starBadge.bg} />
-                    <GoStar x="8" y="3" size="12" fill={starBadge.text} />
-                    <text x="24" y="13" fontFamily="sans-serif" fontSize="10" fontWeight="500" fill={starBadge.text}>{repo.stars}</text>
-
-                    <rect x="0" y="22" width="50" height="18" rx="9" fill={forkBadge.bg} />
-                    <GoGitBranch x="8" y="25" size="12" fill={forkBadge.text} />
-                    <text x="24" y="36" fontFamily="sans-serif" fontSize="10" fontWeight="500" fill={forkBadge.text}>{repo.forks}</text>
+                    <StatBadge 
+                      icon={GoStar} 
+                      value={repo.stars} 
+                      x={0} 
+                      y={0} 
+                      colors={starBadge} 
+                    />
+                    <StatBadge 
+                      icon={GoGitBranch} 
+                      value={repo.forks} 
+                      x={0} 
+                      y={22} 
+                      colors={forkBadge} 
+                    />
                   </g>
                 </g>
               )
