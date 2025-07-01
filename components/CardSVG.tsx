@@ -316,7 +316,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                   
           {/* Liste des dépôts mis en avant */}
           {/* --- SECTION DES DÉPÔTS MIS EN AVANT --- */}
-          <g transform="translate(32, 320)">
+          <g transform="translate(24, 20)">
               {data.highlightedRepos?.slice(0, 2).map((repo, index) => {
                   const yPos = index * 55;
                   const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
