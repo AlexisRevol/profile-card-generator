@@ -111,6 +111,43 @@ const StatBadge = ({ icon: Icon, value, x, y, colors }: { icon: React.ElementTyp
   );
 };
 
+// AJOUT : Composant pour un badge de technologie
+// A placer avec vos autres composants utilitaires (StatBadge, etc.)
+
+const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
+  const FONT_SIZE = 10;
+  const PADDING_X = 8;
+  const PADDING_Y = 4;
+  const BADGE_HEIGHT = FONT_SIZE + PADDING_Y * 2;
+
+  // Estimation de la largeur du texte (le facteur 0.6 est un bon point de départ)
+  const textWidth = label.length * FONT_SIZE * 0.6;
+  const badgeWidth = textWidth + PADDING_X * 2;
+
+  return (
+    <g transform={`translate(${x}, ${y})`}>
+      <rect 
+        width={badgeWidth} 
+        height={BADGE_HEIGHT} 
+        rx="4" // Des bords moins arrondis pour un look plus "technique"
+        fill={colors.bg} 
+      />
+      <text 
+        x={badgeWidth / 2} // Centrer le texte
+        y={BADGE_HEIGHT / 2} 
+        textAnchor="middle" 
+        dominantBaseline="middle" // Alignement vertical parfait
+        fontFamily="sans-serif"
+        fontSize={FONT_SIZE}
+        fontWeight="500"
+        fill={colors.text}
+      >
+        {label}
+      </text>
+    </g>
+  );
+};
+
 export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const currentTemplate = TEMPLATES.find(t => t.id === data.template) || TEMPLATES[0];
   const isDarkTheme = currentTemplate.theme === 'dark';
@@ -355,34 +392,61 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         </g>
         
         {/* --- PIED DE PAGE "SMOOTH" POUR LES TECHNOS --- */}
-        <g>
-            {/* Le fond du footer */}
-            <rect 
-                x="8" y="460" 
-                width="368" height="60" 
-                // On arrondit seulement les coins du bas
-                rx="12" 
-                fill={footerBgColor} 
-            />
-            {/* On utilise un clipPath pour que les coins du rectangle soient bien ceux de la carte */}
-            <path d="M 8 460 h 368 v 52 a 12 12 0 0 1 -12 12 H 20 a 12 12 0 0 1 -12 -12 z" fill={footerBgColor}/>
+        {/* --- SECTION TECHNOLOGIES AVEC BADGES DYNAMIQUES --- */}
+        <g transform="translate(32, 460)">
+            <text y="0" fontFamily="sans-serif" fontSize="10" fontWeight="bold" fill={subTextColor} letterSpacing="0.05em">
+                {'Technologies Favorites'.toUpperCase()}
+            </text>
 
-            {/* Les icônes, centrées dans le footer */}
-            <g transform="translate(192, 485)" textAnchor="middle">
-                <text y="0" fontFamily="sans-serif" fontSize="10" fontWeight="bold" fill={subTextColor} letterSpacing="0.05em">
-                    {'Technologies'.toUpperCase()}
-                </text>
-                <g transform="translate(0, 15)">
-                    {data.topLanguages.slice(0, 7).map((lang, index) => {
-                        const IconComponent = iconMap[lang.toLowerCase()];
-                        if (!IconComponent) return null;
-                        // Calcul pour centrer le groupe d'icônes
-                        const totalWidth = 7 * 32;
-                        const startX = -(totalWidth / 2) + 16;
-                        const xPos = startX + index * 32;
-                        return <IconComponent key={lang} x={xPos} y={0} size="24" fill={iconColor} />;
-                    })}
-                </g>
+            <g transform="translate(0, 15)">
+                {(() => {
+                    const badges: React.ReactNode[] = [];
+                    let currentX = 0;
+                    let currentY = 0;
+                    const cardWidth = 320; // Largeur disponible pour les badges (384 - padding*2 - marge)
+                    const gap = 6; // Espace entre les badges
+                    const lineHeight = 24; // Hauteur d'une ligne de badges
+
+                    // Couleurs pour les badges de techno
+                    const techBadgeColors = {
+                        bg: isDarkTheme ? 'rgba(55, 65, 81, 0.5)' : 'rgba(229, 231, 235, 1)', // gray-700/50 ou gray-200
+                        text: isDarkTheme ? '#D1D5DB' : '#374151' // gray-300 ou gray-700
+                    };
+
+                    data.topLanguages.slice(0, 8).forEach((lang, index) => {
+                        // Calcul de la largeur du badge à venir
+                        const FONT_SIZE = 10;
+                        const PADDING_X = 8;
+                        const textWidth = lang.length * FONT_SIZE * 0.6;
+                        const badgeWidth = textWidth + PADDING_X * 2;
+
+                        // Si le badge dépasse, on passe à la ligne suivante
+                        if (currentX + badgeWidth > cardWidth) {
+                            currentX = 0;
+                            currentY += lineHeight;
+                        }
+
+                        // Si on a plus de 2 lignes, on arrête
+                        if (currentY >= lineHeight * 2) {
+                            return;
+                        }
+
+                        badges.push(
+                            <TechBadge 
+                                key={lang} 
+                                label={lang} 
+                                x={currentX} 
+                                y={currentY} 
+                                colors={techBadgeColors} 
+                            />
+                        );
+
+                        // On met à jour la position pour le prochain badge
+                        currentX += badgeWidth + gap;
+                    });
+
+                    return badges;
+                })()}
             </g>
         </g>
       </g>
