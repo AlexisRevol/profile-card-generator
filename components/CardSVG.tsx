@@ -198,32 +198,138 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
-      <defs>
-        {/* ... Toutes vos définitions existantes (gradients, fonts, etc.) restent ici ... */}
-        {/* NOTE : J'ai copié les définitions essentielles depuis votre code. Assurez-vous que tout y est. */}
+     <defs>
+        {/* NOUVEAU : Filtre pour l'effet d'ombre portée sur le texte */}
         <filter id="text-shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="1" dy="1.5" stdDeviation="1" floodColor={isDarkTheme ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)"} />
+          <feDropShadow 
+            dx="1" 
+            dy="1.5" 
+            stdDeviation="1" 
+            floodColor={isDarkTheme ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)"} 
+          />
         </filter>
+
+        {/* Dégradé pour le template "classic" */}
         <linearGradient id="classic-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FDE047" />
-          <stop offset="100%" stopColor="#F97316" />
+          <stop offset="0%" stopColor="#FDE047" /> {/* from-yellow-300 */}
+          <stop offset="100%" stopColor="#F97316" /> {/* to-orange-400 */}
         </linearGradient>
+
+        {/* Motifs pour les templates avec image de fond */}
         <pattern id="bg-holo" patternUnits="userSpaceOnUse" width="384" height="536">
           <image href={templateImages.holographic} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
+        </pattern>
+        <pattern id="bg-blue" patternUnits="userSpaceOnUse" width="384" height="536">
+          <image href={templateImages.blue} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
         <pattern id="bg-dark" patternUnits="userSpaceOnUse" width="384" height="536">
           <image href={templateImages.dark} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
+        
+        {/* Masque pour l'avatar */}
+        <mask id="avatarMask">
+            {/* Le masque est un dégradé de blanc (visible) à noir (invisible) */}
+            <linearGradient id="mask-gradient" x1="1" y1="0" x2="0" y2="1">
+                <stop offset="0.4" stopColor="white" />
+                <stop offset="0.8" stopColor="black" />
+            </linearGradient>
+            <rect width="256" height="256" fill="url(#mask-gradient)" />
+        </mask>
+
+        {/* Chemin de découpe pour rendre l'avatar rond AVANT d'appliquer le masque */}
         <clipPath id="card-border-clip">
+          {/* C'est un rectangle qui correspond exactement à la bordure intérieure */}
           <rect x="8" y="8" width="368" height="520" rx="12" />
         </clipPath>
-        <clipPath id="avatarClip"><circle cx="128" cy="128" r="128" /></clipPath>
+
+        {/* CORRECTION : Définition du clipPath circulaire pour l'avatar */}
+        <clipPath id="avatarClip">
+          {/* Ce cercle servira à découper l'image. 
+              Son centre (cx, cy) est à la moitié de la taille de l'image (256/2 = 128)
+              et son rayon (r) est de 128 pour couvrir toute l'image.
+          */}
+          <circle cx="128" cy="128" r="128" />
+        </clipPath>
+
+        {/* NOUVEAU: Dégradé pour l'effet brillant des badges */}
         <linearGradient id="holo-badge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          {/* On commence avec une couleur de base légèrement teintée */}
           <stop offset="0%" stopColor={isDarkTheme ? 'rgba(80, 70, 120, 0.4)' : 'rgba(230, 240, 255, 0.6)'} />
+          
+          {/* La "bande" brillante au milieu */}
           <stop offset="50%" stopColor={isDarkTheme ? 'rgba(120, 110, 180, 0.7)' : 'rgba(255, 255, 255, 1)'} />
+          
+          {/* On termine avec une autre teinte pour donner de la profondeur */}
           <stop offset="100%" stopColor={isDarkTheme ? 'rgba(70, 100, 120, 0.4)' : 'rgba(220, 230, 255, 0.6)'} />
         </linearGradient>
-        <style>{`/* ... VOS FONTS ICI ... */`}</style>
+
+        {/*
+          NOUVEAU : Intégration de la police en Base64.
+          Remplace le contenu de <style> par celui que tu as généré.
+        */}
+        <style>
+          {`
+           /* inter-regular - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 400;
+              src: url('../fonts/inter-v19-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-600 - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 600;
+              src: url('../fonts/inter-v19-latin-600.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-700 - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 700;
+              src: url('../fonts/inter-v19-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-800 - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 800;
+              src: url('../fonts/inter-v19-latin-800.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-900italic - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: italic;
+              font-weight: 900;
+              src: url('../fonts/inter-v19-latin-900italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+          `}
+        </style>
+
+        {/* 
+          NOUVEAU : Définition du filtre pour l'ombre portée.
+          On le met dans <defs> pour pouvoir le réutiliser avec un id.
+        */}
+        <filter id="text-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow 
+              dx="3"      // Décalage horizontal de l'ombre
+              dy="3"      // Décalage vertical
+              stdDeviation="2" // Flou de l'ombre (blur)
+              floodColor="#000000" // Couleur de l'ombre
+              floodOpacity="0.5"   // Opacité
+            />
+        </filter>
       </defs>
 
       {/* --- Arrière-plan de la carte (inchangé) --- */}
