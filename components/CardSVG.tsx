@@ -21,35 +21,6 @@ const templateImages = {
 };
 // ------------------------------------------------
 
-// NOUVEAU : Composant pour un texte avec un style "Légendaire"
-const LegendaryText = ({ children, x, y, fontSize }: { children: string, x: number, y: number, fontSize: number }) => {
-  const FONT_FAMILY = "'Bangers', cursive"; // On utilise notre police personnalisée
-  const TEXT_COLOR = "#FBBF24"; // Jaune/Or (text-amber-400)
-  const STROKE_COLOR = "#374151"; // Contour sombre (text-gray-700)
-  const STROKE_WIDTH = fontSize / 8; // Épaisseur du contour proportionnelle à la taille
-
-  return (
-    // On utilise un groupe pour appliquer un filtre d'ombre à tout le contenu
-    <g filter="url(#text-shadow)">
-      <text
-        x={x}
-        y={y}
-        fontFamily={FONT_FAMILY}
-        fontSize={fontSize}
-        fill={TEXT_COLOR}
-        stroke={STROKE_COLOR}
-        strokeWidth={STROKE_WIDTH}
-        // paint-order est LA propriété magique pour que le contour soit DESSINÉ DERRIÈRE le texte.
-        // Sans ça, le contour "mange" l'intérieur des lettres.
-        paintOrder="stroke fill"
-        dominantBaseline="middle"
-        textAnchor="start" // ou "middle" si tu veux centrer le texte sur le point x
-      >
-        {children}
-      </text>
-    </g>
-  );
-};
 
 // Nouveau composant pour gérer le retour à la ligne en SVG
 const MultilineText = ({ text, x, y, width, fontSize, fill }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string }) => {
@@ -91,41 +62,6 @@ interface CardSVGProps {
   avatarBase64: string; // L'avatar sera fourni en Base64 par l'API
 }
 
-// NOUVEAU : Composant pour un titre au style "Premium"
-const TitleText = ({ children, x, y, fontSize, colors }: { 
-  children: string, 
-  x: number, 
-  y: number, 
-  fontSize: number,
-  colors: { fill: string, stroke: string }
-}) => {
-  // Une police moderne et professionnelle avec un poids lourd pour l'impact
-  const FONT_FAMILY = "'Inter', sans-serif";
-  
-  // Le contour est beaucoup plus fin, juste pour détacher le texte
-  const STROKE_WIDTH = 0.75; 
-
-  return (
-    // On garde l'ombre portée, mais on la rendra plus douce dans les <defs>
-    <g filter="url(#title-shadow)">
-      <text
-        x={x}
-        y={y}
-        fontFamily={FONT_FAMILY}
-        fontSize={fontSize}
-        fontWeight="900" // On spécifie le poids "Black" pour être sûr
-        fill={colors.fill} // On utilisera un dégradé défini dans les <defs>
-        stroke={colors.stroke} // Le contour sera subtil
-        strokeWidth={STROKE_WIDTH}
-        paintOrder="stroke fill" // Toujours essentiel !
-        dominantBaseline="middle"
-        textAnchor="start"
-      >
-        {children}
-      </text>
-    </g>
-  );
-};
 
 // Fonction pour formater les grands nombres (ex: 12500 -> 12.5k)
 const formatStatNumber = (num: number): string => {
@@ -200,7 +136,13 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
     bg: isDarkTheme ? '#374151' : '#E5E7EB', // bg-gray-700 ou bg-gray-200
     text: isDarkTheme ? '#D1D5DB' : '#374151', // text-gray-300 ou text-gray-700
   };
-  
+
+  // Couleurs pour les badges de techno
+  const techBadgeColors = {
+        text: isDarkTheme ? '#E5E7EB' : '#1F2937', // Texte plus contrasté
+      shadow: isDarkTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)', // Ombre adaptée au thème
+  };
+
   // NOUVELLES couleurs pour le titre
   const titleColors = {
     // Le remplissage est maintenant une URL vers notre nouveau dégradé
@@ -210,43 +152,140 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   };
 
 
-  const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
-      const FONT_SIZE = 10;
-      const PADDING_X = 8;
-      const PADDING_Y = 4;
-      const BADGE_HEIGHT = FONT_SIZE + PADDING_Y * 2;
+  /**
+ * HeroText: Le "nom du Pokémon". Police impactante, dégradé, et ombre marquée.
+ * C'est la star de la carte.
+ */
+const HeroText = ({ children, x, y }: { children: string, x: number, y: number }) => {
+  const FONT_FAMILY = "'Bangers', cursive"; // Une police avec du caractère
+  const FONT_SIZE = 42;
+  const STROKE_COLOR = "rgba(0, 0, 0, 0.5)"; // Contour sombre et semi-transparent
+  const STROKE_WIDTH = 2;
 
-      // Estimation de la largeur du texte (le facteur 0.6 est un bon point de départ)
-      const textWidth = label.length * FONT_SIZE * 0.6;
-      const badgeWidth = textWidth + PADDING_X * 2;
+  return (
+    <g filter="url(#hero-shadow)">
+      <text
+        x={x}
+        y={y}
+        fontFamily={FONT_FAMILY}
+        fontSize={FONT_SIZE}
+        fill="url(#hero-gradient)" // On utilise un dégradé spécial pour le héros
+        stroke={STROKE_COLOR}
+        strokeWidth={STROKE_WIDTH}
+        paintOrder="stroke fill"
+        dominantBaseline="middle"
+        textAnchor="start"
+        letterSpacing="0.02em" // On espace un peu les lettres pour le style
+      >
+        {children}
+      </text>
+    </g>
+  );
+};
 
-      return (
-        <g transform={`translate(${x}, ${y})`}>
-          <rect 
-            width={badgeWidth} 
-            height={BADGE_HEIGHT} 
-            rx="4"
-            // MODIFICATION ICI: On utilise l'URL de notre dégradé
-            fill="url(#holo-badge-gradient)" 
-            // On peut ajouter une fine bordure pour mieux le délimiter
-            stroke={isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
-            strokeWidth="0.5"
-          />
-            <text 
-              x={badgeWidth / 2} // Centrer le texte
-              y={BADGE_HEIGHT / 2} 
-              textAnchor="middle" 
-              dominantBaseline="middle" // Alignement vertical parfait
-              fontFamily="sans-serif"
-              fontSize={FONT_SIZE}
-              fontWeight="500"
-              fill={colors.text}
-            >
-              {label}
-            </text>
-        </g>
-      );
-    };
+/**
+ * TitleText: Pour les titres de section, comme "Technologies Favorites".
+ * Propre, lisible, en majuscules.
+ */
+const TitleText = ({ children, x, y, fill }: { children: string, x: number, y: number, fill: string }) => {
+  return (
+    <text
+      x={x}
+      y={y}
+      fontFamily="'Inter', sans-serif"
+      fontSize="10"
+      fontWeight="700" // Bold
+      fill={fill}
+      letterSpacing="0.1em" // Très espacé pour un look "titre"
+      dominantBaseline="middle"
+    >
+      {children}
+    </text>
+  );
+};
+
+
+/**
+ * BodyText: Pour les textes courants comme les descriptions de repo ou la bio.
+ * Optimisé pour la lisibilité.
+ */
+const BodyText = ({ text, x, y, width, fontSize, fill, maxLines = 2 }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string, maxLines?: number }) => {
+  const safeText = text || "Aucune description.";
+  const words = safeText.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+
+  // Estimation simple de la largeur du texte (à ajuster si nécessaire)
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (context) {
+    context.font = `${fontSize}px 'Inter', sans-serif`;
+  }
+  
+  words.forEach(word => {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    // Utilise une mesure plus précise si possible, sinon fallback
+    const testWidth = context ? context.measureText(testLine).width : testLine.length * fontSize * 0.6;
+    
+    if (testWidth > width && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  });
+  lines.push(currentLine);
+
+  return (
+    <text x={x} y={y} fontFamily="'Inter', sans-serif" fontSize={fontSize} fill={fill} style={{ fontFeatureSettings: "'tnum' on, 'lnum' on" }}>
+      {lines.slice(0, maxLines).map((line, index) => (
+        <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * 1.3}>
+          {line}{lines.length > maxLines && index === maxLines - 1 ? '...' : ''}
+        </tspan>
+      ))}
+    </text>
+  );
+};
+
+// ... (garder les composants StatBadge, etc.)
+// On va juste améliorer le TechBadge
+const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { text: string, shadow: string } }) => {
+    const FONT_SIZE = 10;
+    const PADDING_X = 8;
+    const PADDING_Y = 4;
+    const BADGE_HEIGHT = FONT_SIZE + PADDING_Y * 2;
+
+    const textWidth = label.length * FONT_SIZE * 0.65; // Un peu plus large pour le gras
+    const badgeWidth = textWidth + PADDING_X * 2;
+
+    return (
+      <g transform={`translate(${x}, ${y})`}>
+        <rect 
+          width={badgeWidth} 
+          height={BADGE_HEIGHT} 
+          rx="4"
+          fill="url(#holo-badge-gradient)" 
+          stroke={isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
+          strokeWidth="0.5"
+        />
+        {/* On ajoute un filtre d'ombre subtil au texte pour le détacher */}
+        <text 
+          x={badgeWidth / 2}
+          y={BADGE_HEIGHT / 2} 
+          textAnchor="middle" 
+          dominantBaseline="middle"
+          fontFamily="'Inter', sans-serif"
+          fontSize={FONT_SIZE}
+          fontWeight="600" // Semibold pour plus de lisibilité
+          fill={colors.text}
+          filter="url(#badge-text-shadow)" // <-- LA MAGIE EST ICI
+        >
+          {label}
+        </text>
+      </g>
+    );
+  };
+
 
   return (
     <svg
@@ -323,6 +362,13 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         <style>
           {`
            /* inter-regular - latin */
+           @font-face {
+                    font-family: 'Bangers';
+                    font-style: normal;
+                    font-weight: 400;
+                    src: url(data:font/woff2;base64,...) format('woff2'); 
+            }
+
             @font-face {
               font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
               font-family: 'Inter';
@@ -369,6 +415,23 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
           `}
         </style>
+
+         {/* --- Dégradés de texte --- */}
+          <linearGradient id="hero-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#FBBF24" /> {/* Or brillant */}
+              <stop offset="100%" stopColor="#F59E0B" /> {/* Or plus sombre */}
+          </linearGradient>
+
+          {/* --- Filtres d'ombre --- */}
+          {/* Ombre marquée pour le titre principal */}
+          <filter id="hero-shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="2" dy="4" stdDeviation="3" floodColor="#000000" floodOpacity="0.4" />
+          </filter>
+          
+          {/* Ombre subtile pour le texte des badges */}
+          <filter id="badge-text-shadow">
+              <feDropShadow dx="0.5" dy="1" stdDeviation="0.5" floodColor={techBadgeColors.shadow} floodOpacity="1" />
+          </filter>
 
         {/* 
           NOUVEAU : Définition du filtre pour l'ombre portée.
@@ -432,32 +495,22 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/* --- Header --- */}
         <g transform="translate(24, 32)">
           <SiGithub size="24" fill={iconColor} />
-          <text
-            x="34"
-            y="12" // Alignement vertical du texte avec l'icône
-            dominantBaseline="middle"
-            fontFamily="monospace, 'Courier New', Courier"
-            fontSize="18"
-            fill={mainTextColor}
-          >
-            @{data.githubUser}
-          </text>
+          <HeroText x={140} y={60}>
+              {data.githubUser}
+          </HeroText>
         </g>
 
-        {/* --- Bio (avec le style corrigé) --- */}
-        {/* La bio est placée juste en dessous. */}
-        <g transform="translate(28, 75)"> {/* J'ai légèrement remonté à 65 pour resserrer l'espace */}
-          <MultilineText
-            // MODIFICATION 1 : On retire .toUpperCase() pour un style plus doux
-            text={data.bio || ""} 
-            x={0}
-            y={0} // Le y est maintenant géré par le transform du groupe parent
-            width={336}
-            // MODIFICATION 2 : La taille est déjà bonne, on la garde.
-            fontSize={11} 
-            // MODIFICATION 3 : On utilise la couleur de texte secondaire
-            fill={subTextColor} 
-          />
+        {/* Bio : Sous le nom, plus discrète */}
+        <g transform="translate(140, 90)">
+            <BodyText 
+                text={data.bio}
+                x={0} 
+                y={0} 
+                width={220} // Largeur restante à droite de l'avatar
+                fontSize={12} 
+                fill={subTextColor}
+                maxLines={3}
+            />
         </g>
 
          {/* --- Avatar --- */}
@@ -506,57 +559,48 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         </g>
 
 
-        {/* --- Corps Principal --- */}
-        <g transform="translate(24, 270)">
-          
-                  
-          {/* Liste des dépôts mis en avant */}
-          {/* --- SECTION DES DÉPÔTS MIS EN AVANT --- */}
-          <g transform="translate(0, 0)">
-              {data.highlightedRepos?.slice(0, 3).map((repo, index) => {
-                  const yPos = index * 55;
-                  const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
-                  return (
-                      <g key={repo.id} transform={`translate(0, ${yPos})`}>
-                          <ProjectIcon y="2" size="14" fill={mainTextColor}/>
-                          <MultilineText 
-                            text={repo.name} 
-                            x={22} 
-                            y={12} 
-                            width={220} // Largeur maximale autorisée pour le texte avant de couper
-                            fontSize={13} 
-                            fill={mainTextColor} 
-                          />
-                          
-                          {/* Description déplacée sous le nom pour plus de clarté */}
-                          <MultilineText 
-                            text={repo.description} 
-                            x={22} 
-                            y={30} 
-                            width={270} // Largeur maximale autorisée pour le texte avant de couper
-                            fontSize={11} 
-                            fill={subTextColor} 
-                          />
-                          
-                          {/* Badges à droite */}
-                          <g transform="translate(250, 0)">
-                              <StatBadge icon={GoStar} value={repo.stars} x={0} y={0} colors={starBadge} />
-                              <StatBadge icon={GoGitBranch} value={repo.forks} x={0} y={22} colors={forkBadge} />
-                          </g>
-                      </g>
-                  )
-              })}
-          </g>
+        {/* --- SECTION CENTRALE : DÉPÔTS MIS EN AVANT --- */}
+        <g transform="translate(24, 180)">
+            {data.highlightedRepos?.slice(0, 3).map((repo, index) => {
+                const yPos = index * 65; // On espace un peu plus
+                const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
+                return (
+                    <g key={repo.id} transform={`translate(0, ${yPos})`}>
+                        <ProjectIcon y="2" size="16" fill={mainTextColor}/>
+                        
+                        {/* Repo Name : Plus important, en gras */}
+                        <text x={24} y={8} fontFamily="'Inter', sans-serif" fontSize={14} fontWeight="600" fill={mainTextColor}>
+                            {repo.name}
+                        </text>
+                        
+                        {/* Repo Description : Plus discrète */}
+                        <BodyText
+                            text={repo.description}
+                            x={24}
+                            y={28}
+                            width={220}
+                            fontSize={11}
+                            fill={subTextColor}
+                            maxLines={2}
+                        />
+                        
+                        <g transform="translate(260, 4)">
+                            <StatBadge icon={GoStar} value={repo.stars} x={0} y={0} colors={starBadge} />
+                            <StatBadge icon={GoGitBranch} value={repo.forks} x={0} y={22} colors={forkBadge} />
+                        </g>
+                    </g>
+                );
+            })}
         </g>
         
         {/* --- PIED DE PAGE "SMOOTH" POUR LES TECHNOS --- */}
         {/* --- SECTION TECHNOLOGIES AVEC BADGES DYNAMIQUES --- */}
-        <g transform="translate(28, 485)">
-            <text y="0" fontFamily="sans-serif" fontSize="10" fontWeight="bold" fill={subTextColor} letterSpacing="0.05em">
-                {'Technologies Favorites'.toUpperCase()}
-            </text>
+        <g transform="translate(28, 465)">
+                    <TitleText x={0} y={0} fill={subTextColor}>
+                        TECHNOLOGIES FAVORITES
+                    </TitleText>
 
-            <g transform="translate(0, 12)">
+            <g transform="translate(0, 18)">
                 {(() => {
                     const badges: React.ReactNode[] = [];
                     let currentX = 0;
@@ -564,12 +608,6 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                     const cardWidth = 320; // Largeur disponible pour les badges (384 - padding*2 - marge)
                     const gap = 6; // Espace entre les badges
                     const lineHeight = 24; // Hauteur d'une ligne de badges
-
-                    // Couleurs pour les badges de techno
-                    const techBadgeColors = {
-                        bg: isDarkTheme ? 'rgba(55, 65, 81, 0.5)' : 'rgba(229, 231, 235, 1)', // gray-700/50 ou gray-200
-                        text: isDarkTheme ? '#D1D5DB' : '#374151' // gray-300 ou gray-700
-                    };
 
                     data.topLanguages.slice(0, 8).forEach((lang, index) => {
                         // Calcul de la largeur du badge à venir
@@ -590,14 +628,14 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                         }
 
                         badges.push(
-                            <TechBadge 
-                                key={lang} 
-                                label={lang} 
-                                x={currentX} 
-                                y={currentY} 
-                                colors={techBadgeColors} 
-                            />
-                        );
+                             <TechBadge 
+                               key={lang} 
+                               label={lang} 
+                               x={currentX} 
+                               y={currentY} 
+                               colors={techBadgeColors} 
+                             />
+                           );
 
                         // On met à jour la position pour le prochain badge
                         currentX += badgeWidth + gap;
