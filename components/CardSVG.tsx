@@ -85,36 +85,36 @@ const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text
   );
 };
 
-// NOUVEAU : Composant pour le texte stylisé "légendaire"
-const StyledText: React.FC<{
-  children: React.ReactNode;
-  x: number;
-  y: number;
-  fontSize: number;
-  fontFamily?: string;
-  fontWeight?: string | number;
-  fill: string;
-  stroke: string; // La couleur du contour
-}> = ({ children, x, y, fontSize, fontFamily, fontWeight, fill, stroke }) => {
-  return (
-    <text
-      x={x}
-      y={y}
-      fontFamily={fontFamily || "sans-serif"}
-      fontSize={fontSize}
-      fontWeight={fontWeight || "bold"} // Les textes importants sont souvent en gras
-      fill={fill}
-      stroke={stroke}
-      strokeWidth={fontSize / 10} // Un contour proportionnel à la taille du texte
-      strokeLinejoin="round" // Arrondit les angles du contour pour un look plus doux
-      paintOrder="stroke" // TRÈS IMPORTANT: dessine le contour D'ABORD, puis le remplissage par-dessus
-      filter="url(#text-shadow)" // On applique notre filtre d'ombre ici
-      dominantBaseline="middle" // Bon pour l'alignement vertical
-    >
-      {children}
-    </text>
-  );
-};
+ // NOUVEAU : Le composant pour le texte stylisé "légendaire"
+  const StyledText: React.FC<{
+    children: React.ReactNode;
+    x: number;
+    y: number;
+    fontSize: number;
+    fontFamily?: string;
+    fontWeight?: string | number;
+    fill: string;
+    stroke: string;
+  }> = ({ children, x, y, fontSize, fontFamily, fontWeight, fill, stroke }) => {
+    return (
+      <text
+        x={x}
+        y={y}
+        fontFamily={fontFamily || "sans-serif"}
+        fontSize={fontSize}
+        fontWeight={fontWeight || "bold"}
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={fontSize / 12} // Ajusté pour un look un peu plus fin
+        strokeLinejoin="round"
+        paintOrder="stroke"
+        filter="url(#text-shadow)"
+        dominantBaseline="middle"
+      >
+        {children}
+      </text>
+    );
+  };
 
 interface CardSVGProps {
   data: CardData;
@@ -165,37 +165,6 @@ const formatStatNumber = (num: number): string => {
     maximumFractionDigits: 1
   }).format(num);
 };
-
-// NOUVEAU : Le composant pour le texte stylisé "légendaire"
-  const StyledText: React.FC<{
-    children: React.ReactNode;
-    x: number;
-    y: number;
-    fontSize: number;
-    fontFamily?: string;
-    fontWeight?: string | number;
-    fill: string;
-    stroke: string;
-  }> = ({ children, x, y, fontSize, fontFamily, fontWeight, fill, stroke }) => {
-    return (
-      <text
-        x={x}
-        y={y}
-        fontFamily={fontFamily || "sans-serif"}
-        fontSize={fontSize}
-        fontWeight={fontWeight || "bold"}
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={fontSize / 12} // Ajusté pour un look un peu plus fin
-        strokeLinejoin="round"
-        paintOrder="stroke"
-        filter="url(#text-shadow)"
-        dominantBaseline="middle"
-      >
-        {children}
-      </text>
-    );
-  };
 
 
 // AJOUT : Composant pour un badge de stat dynamique
