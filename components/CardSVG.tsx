@@ -311,26 +311,36 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
 
         {/* --- Corps Principal --- */}
-        <g transform="translate(24, 195)">
+        <g transform="translate(24, 240)">
           
                   
           {/* Liste des dépôts mis en avant */}
           {/* --- SECTION DES DÉPÔTS MIS EN AVANT --- */}
-          <g transform="translate(24, 20)">
-              {data.highlightedRepos?.slice(0, 2).map((repo, index) => {
+          <g transform="translate(0, 0)">
+              {data.highlightedRepos?.slice(0, 3).map((repo, index) => {
                   const yPos = index * 55;
                   const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
                   return (
                       <g key={repo.id} transform={`translate(0, ${yPos})`}>
                           <ProjectIcon y="2" size="14" fill={mainTextColor}/>
-                          <text x="22" y="12" fontFamily="sans-serif" fontSize="13" fontWeight="600" fill={mainTextColor}>
-                              {truncateText(repo.name, 28)}
-                          </text>
+                          <MultilineText 
+                            text={repo.name} 
+                            x={22} 
+                            y={12} 
+                            width={150} // Largeur maximale autorisée pour le texte avant de couper
+                            fontSize={13} 
+                            fill={mainTextColor} 
+                          />
                           
                           {/* Description déplacée sous le nom pour plus de clarté */}
-                          <text x="22" y="30" fontSize="11" fill={subTextColor}>
-                              {truncateText(repo.description, 45)}
-                          </text>
+                          <MultilineText 
+                            text={repo.description} 
+                            x={22} 
+                            y={30} 
+                            width={150} // Largeur maximale autorisée pour le texte avant de couper
+                            fontSize={11} 
+                            fill={subTextColor} 
+                          />
                           
                           {/* Badges à droite */}
                           <g transform="translate(250, 0)">
