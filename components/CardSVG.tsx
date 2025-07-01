@@ -21,6 +21,36 @@ const templateImages = {
 };
 // ------------------------------------------------
 
+// NOUVEAU : Composant pour un texte avec un style "Légendaire"
+const LegendaryText = ({ children, x, y, fontSize }: { children: string, x: number, y: number, fontSize: number }) => {
+  const FONT_FAMILY = "'Bangers', cursive"; // On utilise notre police personnalisée
+  const TEXT_COLOR = "#FBBF24"; // Jaune/Or (text-amber-400)
+  const STROKE_COLOR = "#374151"; // Contour sombre (text-gray-700)
+  const STROKE_WIDTH = fontSize / 8; // Épaisseur du contour proportionnelle à la taille
+
+  return (
+    // On utilise un groupe pour appliquer un filtre d'ombre à tout le contenu
+    <g filter="url(#text-shadow)">
+      <text
+        x={x}
+        y={y}
+        fontFamily={FONT_FAMILY}
+        fontSize={fontSize}
+        fill={TEXT_COLOR}
+        stroke={STROKE_COLOR}
+        strokeWidth={STROKE_WIDTH}
+        // paint-order est LA propriété magique pour que le contour soit DESSINÉ DERRIÈRE le texte.
+        // Sans ça, le contour "mange" l'intérieur des lettres.
+        paintOrder="stroke fill"
+        dominantBaseline="middle"
+        textAnchor="start" // ou "middle" si tu veux centrer le texte sur le point x
+      >
+        {children}
+      </text>
+    </g>
+  );
+};
+
 // Nouveau composant pour gérer le retour à la ligne en SVG
 const MultilineText = ({ text, x, y, width, fontSize, fill }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string }) => {
   const safeText = text || "Aucune description.";
@@ -61,6 +91,41 @@ interface CardSVGProps {
   avatarBase64: string; // L'avatar sera fourni en Base64 par l'API
 }
 
+// NOUVEAU : Composant pour un titre au style "Premium"
+const TitleText = ({ children, x, y, fontSize, colors }: { 
+  children: string, 
+  x: number, 
+  y: number, 
+  fontSize: number,
+  colors: { fill: string, stroke: string }
+}) => {
+  // Une police moderne et professionnelle avec un poids lourd pour l'impact
+  const FONT_FAMILY = "'Inter', sans-serif";
+  
+  // Le contour est beaucoup plus fin, juste pour détacher le texte
+  const STROKE_WIDTH = 0.75; 
+
+  return (
+    // On garde l'ombre portée, mais on la rendra plus douce dans les <defs>
+    <g filter="url(#title-shadow)">
+      <text
+        x={x}
+        y={y}
+        fontFamily={FONT_FAMILY}
+        fontSize={fontSize}
+        fontWeight="900" // On spécifie le poids "Black" pour être sûr
+        fill={colors.fill} // On utilisera un dégradé défini dans les <defs>
+        stroke={colors.stroke} // Le contour sera subtil
+        strokeWidth={STROKE_WIDTH}
+        paintOrder="stroke fill" // Toujours essentiel !
+        dominantBaseline="middle"
+        textAnchor="start"
+      >
+        {children}
+      </text>
+    </g>
+  );
+};
 
 // Fonction pour formater les grands nombres (ex: 12500 -> 12.5k)
 const formatStatNumber = (num: number): string => {
@@ -135,6 +200,15 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
     bg: isDarkTheme ? '#374151' : '#E5E7EB', // bg-gray-700 ou bg-gray-200
     text: isDarkTheme ? '#D1D5DB' : '#374151', // text-gray-300 ou text-gray-700
   };
+
+  // NOUVELLES couleurs pour le titre
+  const titleColors = {
+    // Le remplissage est maintenant une URL vers notre nouveau dégradé
+    fill: "url(#title-gradient)", 
+    // Le contour est une couleur sombre semi-transparente pour la subtilité
+    stroke: isDarkTheme ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)" 
+  };
+
 
   const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
       const FONT_SIZE = 10;
@@ -241,6 +315,74 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           {/* On termine avec une autre teinte pour donner de la profondeur */}
           <stop offset="100%" stopColor={isDarkTheme ? 'rgba(70, 100, 120, 0.4)' : 'rgba(220, 230, 255, 0.6)'} />
         </linearGradient>
+
+        {/*
+          NOUVEAU : Intégration de la police en Base64.
+          Remplace le contenu de <style> par celui que tu as généré.
+        */}
+        <style>
+          {`
+           /* inter-regular - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 400;
+              src: url('../fonts/inter-v19-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-600 - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 600;
+              src: url('../fonts/inter-v19-latin-600.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-700 - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 700;
+              src: url('../fonts/inter-v19-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-800 - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 800;
+              src: url('../fonts/inter-v19-latin-800.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-900italic - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: italic;
+              font-weight: 900;
+              src: url('../fonts/inter-v19-latin-900italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+          `}
+        </style>
+
+        {/* 
+          NOUVEAU : Définition du filtre pour l'ombre portée.
+          On le met dans <defs> pour pouvoir le réutiliser avec un id.
+        */}
+        <filter id="text-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow 
+              dx="3"      // Décalage horizontal de l'ombre
+              dy="3"      // Décalage vertical
+              stdDeviation="2" // Flou de l'ombre (blur)
+              floodColor="#000000" // Couleur de l'ombre
+              floodOpacity="0.5"   // Opacité
+            />
+        </filter>
       </defs>
 
       {/* --- Arrière-plan de la carte --- */}
@@ -290,16 +432,15 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/* --- Header --- */}
         <g transform="translate(24, 32)">
           <SiGithub size="24" fill={iconColor} />
-          <text
-            x="34"
-            y="12" // Alignement vertical du texte avec l'icône
-            dominantBaseline="middle"
-            fontFamily="monospace, 'Courier New', Courier"
-            fontSize="18"
-            fill={mainTextColor}
+          <TitleText 
+            x={34} 
+            y={12} 
+            fontSize={26}
+            colors={titleColors}
           >
-            @{data.githubUser}
-          </text>
+            {/* On crée une seule chaîne de caractères avec le préfixe '@' */}
+            {`@${data.githubUser}`}
+          </TitleText>
         </g>
 
         {/* --- Bio (avec le style corrigé) --- */}
