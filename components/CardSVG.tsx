@@ -27,6 +27,26 @@ const FONT_FAMILY_MONO = "monospace, 'Courier New', Courier";
 const CHAR_WIDTH_FACTOR = 0.6; // Facteur d'estimation pour la largeur des caractères
 const LINE_HEIGHT_FACTOR = 1.3; // Multiplicateur pour la hauteur de ligne
 
+// --- NOUVELLE FONCTION ROBUSTE pour générer un path avec des arrondis asymétriques ---
+// Cette fonction élimine les bugs de dessin en utilisant des coordonnées absolues.
+const generateAsymmetricPath = (
+  w: number, h: number,
+  r: { tl: number, tr: number, bl: number, br: number }
+) => {
+  return `
+    M ${r.tl},0 
+    L ${w - r.tr},0 
+    A ${r.tr},${r.tr} 0 0 1 ${w},${r.tr}
+    L ${w},${h - r.br}
+    A ${r.br},${r.br} 0 0 1 ${w - r.br},${h}
+    L ${r.bl},${h}
+    A ${r.bl},${r.bl} 0 0 1 0,${h - r.bl}
+    L 0,${r.tl}
+    A ${r.tl},${r.tl} 0 0 1 ${r.tl},0 
+    Z
+  `;
+};
+
 
 // NOUVEAU : Composant pour un texte avec un style "Légendaire"
 const LegendaryText = ({ children, x, y, fontSize }: { children: string, x: number, y: number, fontSize: number }) => {
@@ -218,16 +238,16 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   
   // NOUVEAU: Couleur pour le contour du texte de la bio
   const bioStrokeColor = isDarkTheme ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.8)';
-  // --- Constantes de layout pour le header ---
+  // --- Constantes de layout ---
   const HEADER_X_OFFSET = 24;
   const HEADER_Y_OFFSET = 24;
   const ICON_RECT_WIDTH = 50;
   const ICON_RECT_HEIGHT = 50;
   const ICON_SIZE = 28;
   const CORNER_RADIUS_NORMAL = 10;
-  const CORNER_RADIUS_LARGE = 25; // Arrondi plus grand
+  const CORNER_RADIUS_LARGE = 25;
   const BIO_PADDING_X = 10;
-  const BIO_PADDING_Y = 6; // Padding vertical réduit
+  const BIO_PADDING_Y = 6;
   const BIO_Y_OFFSET = 12;
   
   // --- PRÉ-CALCUL DE LA TAILLE DE LA BIO ---
@@ -237,35 +257,25 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
     11, 3
   );
 
-   // --- NOUVEAU: Génération des `path` SVG pour les fonds ---
+   // --- NOUVEAU: Définition des rayons pour chaque coin pour l'effet "collé" ---
+  const iconRadii = {
+    tl: CORNER_RADIUS_NORMAL,
+    tr: 0, // Angle droit pour toucher la bio
+    bl: CORNER_RADIUS_LARGE, // Grand arrondi sur le coin extérieur
+    br: 0, // Angle droit pour toucher la bio
+  };
   const bioPathWidth = bioLayout.width + BIO_PADDING_X * 2;
   const bioPathHeight = bioLayout.height + BIO_PADDING_Y * 2;
+  const bioRadii = {
+    tl: 0, // Angle droit pour toucher l'icône
+    tr: CORNER_RADIUS_NORMAL,
+    bl: 0, // Angle droit pour toucher l'icône
+    br: CORNER_RADIUS_LARGE, // Grand arrondi sur le coin extérieur
+  };
 
-  // Path pour l'icône
-  const iconPathData = `
-    M ${CORNER_RADIUS_NORMAL},0 
-    h ${ICON_RECT_WIDTH - CORNER_RADIUS_NORMAL} 
-    v ${ICON_RECT_HEIGHT - CORNER_RADIUS_LARGE} 
-    a ${CORNER_RADIUS_LARGE},${CORNER_RADIUS_LARGE} 0 0 1 -${CORNER_RADIUS_LARGE},${CORNER_RADIUS_LARGE}
-    h -${ICON_RECT_WIDTH - CORNER_RADIUS_NORMAL - CORNER_RADIUS_LARGE}
-    a ${CORNER_RADIUS_NORMAL},${CORNER_RADIUS_NORMAL} 0 0 1 -${CORNER_RADIUS_NORMAL},-${CORNER_RADIUS_NORMAL} 
-    v -${ICON_RECT_HEIGHT - CORNER_RADIUS_NORMAL} 
-    a ${CORNER_RADIUS_NORMAL},${CORNER_RADIUS_NORMAL} 0 0 1 ${CORNER_RADIUS_NORMAL},-${CORNER_RADIUS_NORMAL} 
-    z
-  `;
-
-  // Path pour la bio
-  const bioPathData = `
-    M 0,0
-    h ${bioPathWidth - CORNER_RADIUS_NORMAL}
-    a ${CORNER_RADIUS_NORMAL},${CORNER_RADIUS_NORMAL} 0 0 1 ${CORNER_RADIUS_NORMAL},${CORNER_RADIUS_NORMAL}
-    v ${bioPathHeight - CORNER_RADIUS_NORMAL - CORNER_RADIUS_LARGE}
-    a ${CORNER_RADIUS_LARGE},${CORNER_RADIUS_LARGE} 0 0 1 -${CORNER_RADIUS_LARGE},${CORNER_RADIUS_LARGE}
-    h -${bioPathWidth - CORNER_RADIUS_NORMAL - CORNER_RADIUS_LARGE}
-    a ${CORNER_RADIUS_NORMAL},${CORNER_RADIUS_NORMAL} 0 0 1 -${CORNER_RADIUS_NORMAL},-${CORNER_RADIUS_NORMAL}
-    v -${bioPathHeight - CORNER_RADIUS_NORMAL}
-    z
-  `;
+  // --- Génération des paths à l'aide de la nouvelle fonction ---
+  const iconPathData = generateAsymmetricPath(ICON_RECT_WIDTH, ICON_RECT_HEIGHT, iconRadii);
+  const bioPathData = generateAsymmetricPath(bioPathWidth, bioPathHeight, bioRadii);
 
   const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
       const FONT_SIZE = 10;
@@ -443,25 +453,15 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
          {/* --- HEADER AVEC PATHS PERSONNALISÉS --- */}
         <g transform={`translate(${HEADER_X_OFFSET}, ${HEADER_Y_OFFSET})`}>
           
-          {/* Nom d'utilisateur */}
-          <StyledText
-              x={ICON_RECT_WIDTH} 
-              y={16} 
-              fontSize={18}
-              fontFamily={FONT_FAMILY_MONO}
-              fontWeight="bold"
-              fill={mainTextColor}
-              stroke={mainStrokeColor}
-            >
-              @{data.githubUser}
+          <StyledText x={ICON_RECT_WIDTH} y={16} fontSize={18} fontFamily={FONT_FAMILY_MONO} fontWeight="bold" fill={mainTextColor} stroke={mainStrokeColor}>
+            @{data.githubUser}
           </StyledText>
           
-          {/* Groupe pour l'icône GitHub et son fond en <path> */}
           <g transform="translate(0, 32)">
             <path
               d={iconPathData}
               fill={headerRectFill}
-              stroke={bioBorderColor} // Utilise la même couleur que la bordure de la bio
+              stroke={bioBorderColor}
               strokeWidth="1.5"
             />
             <SiGithub 
@@ -472,7 +472,6 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
             />
           </g>
 
-          {/* Groupe pour la Bio et son fond en <path> */}
           <g transform={`translate(${ICON_RECT_WIDTH}, ${32 + BIO_Y_OFFSET})`}>
             <path
               d={bioPathData}
@@ -483,11 +482,11 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
             <MultilineText
               lines={bioLayout.lines}
               x={BIO_PADDING_X}
-              y={BIO_PADDING_Y + 8} // +8 pour le centrage vertical
+              y={BIO_PADDING_Y + 8}
               fontSize={11}
               fill={bioTextColor}
               fontWeight={500}
-              stroke={bioBorderColor} // Le stroke du texte est la même couleur que la bordure
+              stroke={bioBorderColor}
               strokeWidth={0.4}
             />
           </g>
