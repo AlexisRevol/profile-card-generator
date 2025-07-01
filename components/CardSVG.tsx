@@ -111,43 +111,6 @@ const StatBadge = ({ icon: Icon, value, x, y, colors }: { icon: React.ElementTyp
   );
 };
 
-// AJOUT : Composant pour un badge de technologie
-// A placer avec vos autres composants utilitaires (StatBadge, etc.)
-
-const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
-  const FONT_SIZE = 10;
-  const PADDING_X = 8;
-  const PADDING_Y = 4;
-  const BADGE_HEIGHT = FONT_SIZE + PADDING_Y * 2;
-
-  // Estimation de la largeur du texte (le facteur 0.6 est un bon point de départ)
-  const textWidth = label.length * FONT_SIZE * 0.6;
-  const badgeWidth = textWidth + PADDING_X * 2;
-
-  return (
-    <g transform={`translate(${x}, ${y})`}>
-      <rect 
-        width={badgeWidth} 
-        height={BADGE_HEIGHT} 
-        rx="4" // Des bords moins arrondis pour un look plus "technique"
-        fill={colors.bg} 
-      />
-      <text 
-        x={badgeWidth / 2} // Centrer le texte
-        y={BADGE_HEIGHT / 2} 
-        textAnchor="middle" 
-        dominantBaseline="middle" // Alignement vertical parfait
-        fontFamily="sans-serif"
-        fontSize={FONT_SIZE}
-        fontWeight="500"
-        fill={colors.text}
-      >
-        {label}
-      </text>
-    </g>
-  );
-};
-
 export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const currentTemplate = TEMPLATES.find(t => t.id === data.template) || TEMPLATES[0];
   const isDarkTheme = currentTemplate.theme === 'dark';
@@ -162,6 +125,12 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   ? 'rgba(255, 255, 255, 0.2)' 
   : 'rgba(0, 0, 0, 0.1)';
   const footerBgColor = isDarkTheme ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.03)';
+  // Définition des couleurs pour le dégradé du badge
+  const holoColors = {
+    start: isDarkTheme ? 'rgba(80, 70, 120, 0.4)' : 'rgba(230, 240, 255, 0.6)',
+    mid: isDarkTheme ? 'rgba(120, 110, 180, 0.7)' : 'rgba(255, 255, 255, 1)',
+    end: isDarkTheme ? 'rgba(70, 100, 120, 0.4)' : 'rgba(220, 230, 255, 0.6)',
+  };
 
   // Couleurs pour les badges de stats
   const starBadge = {
@@ -172,7 +141,44 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
     bg: isDarkTheme ? '#374151' : '#E5E7EB', // bg-gray-700 ou bg-gray-200
     text: isDarkTheme ? '#D1D5DB' : '#374151', // text-gray-300 ou text-gray-700
   };
-  
+
+  const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
+      const FONT_SIZE = 10;
+      const PADDING_X = 8;
+      const PADDING_Y = 4;
+      const BADGE_HEIGHT = FONT_SIZE + PADDING_Y * 2;
+
+      // Estimation de la largeur du texte (le facteur 0.6 est un bon point de départ)
+      const textWidth = label.length * FONT_SIZE * 0.6;
+      const badgeWidth = textWidth + PADDING_X * 2;
+
+      return (
+        <g transform={`translate(${x}, ${y})`}>
+          <rect 
+            width={badgeWidth} 
+            height={BADGE_HEIGHT} 
+            rx="4"
+            // MODIFICATION ICI: On utilise l'URL de notre dégradé
+            fill="url(#holo-badge-gradient)" 
+            // On peut ajouter une fine bordure pour mieux le délimiter
+            stroke={isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
+            strokeWidth="0.5"
+          />
+            <text 
+              x={badgeWidth / 2} // Centrer le texte
+              y={BADGE_HEIGHT / 2} 
+              textAnchor="middle" 
+              dominantBaseline="middle" // Alignement vertical parfait
+              fontFamily="sans-serif"
+              fontSize={FONT_SIZE}
+              fontWeight="500"
+              fill={colors.text}
+            >
+              {label}
+            </text>
+        </g>
+      );
+    };
 
   return (
     <svg
@@ -229,6 +235,18 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           */}
           <circle cx="128" cy="128" r="128" />
         </clipPath>
+
+        {/* NOUVEAU: Dégradé pour l'effet brillant des badges */}
+        <linearGradient id="holo-badge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          {/* On commence avec une couleur de base légèrement teintée */}
+          <stop offset="0%" stopColor={isDarkTheme ? 'rgba(80, 70, 120, 0.4)' : 'rgba(230, 240, 255, 0.6)'} />
+          
+          {/* La "bande" brillante au milieu */}
+          <stop offset="50%" stopColor={isDarkTheme ? 'rgba(120, 110, 180, 0.7)' : 'rgba(255, 255, 255, 1)'} />
+          
+          {/* On termine avec une autre teinte pour donner de la profondeur */}
+          <stop offset="100%" stopColor={isDarkTheme ? 'rgba(70, 100, 120, 0.4)' : 'rgba(220, 230, 255, 0.6)'} />
+        </linearGradient>
       </defs>
 
       {/* --- Arrière-plan de la carte --- */}
