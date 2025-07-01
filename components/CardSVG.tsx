@@ -281,7 +281,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
             dx="1" 
             dy="1.5" 
             stdDeviation="1" 
-            floodColor={isDarkTheme ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.3)"} 
+            floodColor={isDarkTheme ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)"} 
           />
         </filter>
 
@@ -556,7 +556,22 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                           </StyledText>
                           
                           {/* Description déplacée sous le nom pour plus de clarté */}
-                          <MultilineText text={repo.description} x={22} y={30} width={270} fontSize={11} fill={subTextColor} />
+                          
+                          <StyledText
+                            x={22}
+                            y={30} // Un peu ajusté pour l'alignement vertical avec dominantBaseline
+                            fontSize={11} // Un peu plus grand pour l'impact
+                            fontWeight="400"
+                            fill={mainTextColor}
+                            stroke={strokeColor}
+                          >
+                            {/* On s'assure que le nom ne soit pas trop long */}
+                            {repo.description
+                              ? (repo.description.length > 25
+                                ? `${repo.description.substring(0, 25)}...`
+                                : repo.description)
+                              : "No description"}
+                          </StyledText>
                           
                           {/* Badges à droite */}
                           <g transform="translate(250, 0)">
