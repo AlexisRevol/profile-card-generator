@@ -249,23 +249,26 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const BIO_PADDING_X = 10;
   const BIO_PADDING_Y = 6;
   const BIO_Y_OFFSET = 12;
-  
-  // --- PRÉ-CALCUL DE LA TAILLE DE LA BIO ---
+
+  // --- Pré-calcul de la taille de la bio ---
   const bioLayout = calculateMultilineTextLayout(
     data.bio,
     384 - HEADER_X_OFFSET * 2 - ICON_RECT_WIDTH - BIO_PADDING_X * 2,
     11, 3
   );
 
-   // --- NOUVEAU: Définition des rayons pour chaque coin pour l'effet "collé" ---
+  // --- **CORRECTION** : On arrondit les dimensions pour éviter les bugs de rendu SVG ---
+  const bioPathWidth = Math.round(bioLayout.width + BIO_PADDING_X * 2);
+  const bioPathHeight = Math.round(bioLayout.height + BIO_PADDING_Y * 2);
+
+  // --- **CORRECTION** : Définition des rayons pour chaque coin ---
   const iconRadii = {
     tl: CORNER_RADIUS_NORMAL,
     tr: 0, // Angle droit pour toucher la bio
-    bl: CORNER_RADIUS_LARGE, // Grand arrondi sur le coin extérieur
-    br: 0, // Angle droit pour toucher la bio
+    bl: CORNER_RADIUS_NORMAL,
+    br: CORNER_RADIUS_LARGE, // Grand arrondi sur le coin inférieur droit
   };
-  const bioPathWidth = bioLayout.width + BIO_PADDING_X * 2;
-  const bioPathHeight = bioLayout.height + BIO_PADDING_Y * 2;
+  
   const bioRadii = {
     tl: 0, // Angle droit pour toucher l'icône
     tr: CORNER_RADIUS_NORMAL,
@@ -273,7 +276,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
     br: CORNER_RADIUS_LARGE, // Grand arrondi sur le coin extérieur
   };
 
-  // --- Génération des paths à l'aide de la nouvelle fonction ---
+  // --- Génération des paths à l'aide de la fonction et des dimensions corrigées ---
   const iconPathData = generateAsymmetricPath(ICON_RECT_WIDTH, ICON_RECT_HEIGHT, iconRadii);
   const bioPathData = generateAsymmetricPath(bioPathWidth, bioPathHeight, bioRadii);
 
