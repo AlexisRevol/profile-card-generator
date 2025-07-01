@@ -26,6 +26,7 @@ export interface CardData {
   publicRepos: number;
   totalStars: number; // Tu l'as déjà, c'est super !
   topLanguages: string[];
+  totalContributions: number;
   
   // ON REMPLACE customSkills PAR ÇA :
   highlightedRepos: HighlightedRepo[];

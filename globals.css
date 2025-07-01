@@ -1,6 +1,8 @@
-/* src/index.css */
+/* globals.css */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Dans globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;700&display=swap');

@@ -24,6 +24,7 @@ const initialCardData: CardData = {
   ],
   contributionsLastYear: 1337,
   template: 'holographic',
+  totalContributions: 0,
 };
 
 function App() {
