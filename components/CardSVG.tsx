@@ -200,7 +200,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
     bg: isDarkTheme ? '#374151' : '#E5E7EB', // bg-gray-700 ou bg-gray-200
     text: isDarkTheme ? '#D1D5DB' : '#374151', // text-gray-300 ou text-gray-700
   };
-
+  
   // NOUVELLES couleurs pour le titre
   const titleColors = {
     // Le remplissage est maintenant une URL vers notre nouveau dégradé
@@ -432,15 +432,16 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/* --- Header --- */}
         <g transform="translate(24, 32)">
           <SiGithub size="24" fill={iconColor} />
-          <TitleText 
-            x={34} 
-            y={12} 
-            fontSize={26}
-            colors={titleColors}
+          <text
+            x="34"
+            y="12" // Alignement vertical du texte avec l'icône
+            dominantBaseline="middle"
+            fontFamily="monospace, 'Courier New', Courier"
+            fontSize="18"
+            fill={mainTextColor}
           >
-            {/* On crée une seule chaîne de caractères avec le préfixe '@' */}
-            {`@${data.githubUser}`}
-          </TitleText>
+            @{data.githubUser}
+          </text>
         </g>
 
         {/* --- Bio (avec le style corrigé) --- */}
