@@ -269,22 +269,43 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           On crée un groupe pour positionner l'ensemble de l'avatar.
           Tout ce qui est à l'intérieur de ce groupe sera décalé de (180, 80).
         */}
-       <g transform="translate(192, 160)">
-          {/* Le cercle pour la bordure, dessiné en premier */}
+        <g transform="translate(180, 80)">
+
+          {/* 
+            Groupe de découpe. Ce groupe applique le clipPath rond.
+            Les coordonnées (cx, cy) des éléments à l'intérieur sont maintenant
+            relatives à ce groupe.
+          */}
+          <g clipPath="url(#avatarClip)">
+            {/* 
+              L'image est placée à (0,0) à l'intérieur de ce groupe.
+              Le clipPath va la découper en un cercle centré sur (128,128)
+              car c'est ainsi que avatarClip est défini dans <defs>.
+            */}
+            <image
+              href={avatarBase64}
+              x="0" 
+              y="0"
+              width="256"
+              height="256"
+              mask="url(#avatarMask)"
+            />
+          </g>
+          
+          {/* 
+            La bordure est dessinée APRÈS la découpe de l'image.
+            Elle est positionnée exactement au même endroit que le cercle
+            de découpe dans les <defs> pour s'aligner parfaitement.
+            Comme elle n'est pas dans le groupe de découpe, elle n'est pas
+            affectée par celui-ci.
+          */}
           <circle 
-            cx="0" 
-            cy="0" 
-            r="74" // Un peu plus grand que l'avatar
-            fill={avatarBorderColor}
-          />
-          {/* L'avatar, rempli par le pattern, dessiné par-dessus */}
-          <circle 
-            cx="0" 
-            cy="0" 
-            r="70" // Rayon de 70px
-            fill="url(#avatarPattern)" 
-            stroke={isDarkTheme ? '#1F2937' : '#FFFFFF'} // Petite bordure interne pour détacher
-            strokeWidth="4"
+            cx="128" 
+            cy="128" 
+            r="125" 
+            fill="none"
+            stroke={isDarkTheme ? '#1F2937' : '#FFFFFF'}
+            strokeWidth="6"
           />
         </g>
 
@@ -294,52 +315,31 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           
                   
           {/* Liste des dépôts mis en avant */}
-          <g transform="translate(0, 80)">
-            {data.highlightedRepos?.slice(0, 3).map((repo, index) => {
-              const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
-              const yPos = index * 65; // Espacement vertical entre les dépôts
-              
-              return (
-                <g key={repo.id} transform={`translate(0, ${yPos})`}>
-                  <ProjectIcon x="0" y="4" size="16" fill={subTextColor} />
-
-                  {/* Nom du projet et flamme */}
-                  <text x="24" y="8" fontFamily="sans-serif" fontSize="12" fontWeight="bold" fill={mainTextColor}>
-                    {truncateText(repo.name, 20)}
-                  </text>
-                  {index === 0 && <FaFire x={24 + truncateText(repo.name, 20).length * 6.5} y="-2" size="14" fill={fireColor} />}
-
-                  {/* Description du projet */}
-                  <MultilineText 
-                      text={repo.description} 
-                      x={24} 
-                      y={26} 
-                      width={180} // Largeur maximale autorisée pour le texte avant de couper
-                      fontSize={11} 
-                      fill={subTextColor} 
-                    />
-                  
-                  {/* Badges de stats (Stars & Forks) */}
-                  {/* CORRECTION : Utilisation du composant de badge dynamique */}
-                  <g transform="translate(220, 0)">
-                    <StatBadge 
-                      icon={GoStar} 
-                      value={repo.stars} 
-                      x={0} 
-                      y={0} 
-                      colors={starBadge} 
-                    />
-                    <StatBadge 
-                      icon={GoGitBranch} 
-                      value={repo.forks} 
-                      x={0} 
-                      y={22} 
-                      colors={forkBadge} 
-                    />
-                  </g>
-                </g>
-              )
-            })}
+          {/* --- SECTION DES DÉPÔTS MIS EN AVANT --- */}
+          <g transform="translate(32, 320)">
+              {data.highlightedRepos?.slice(0, 2).map((repo, index) => {
+                  const yPos = index * 55;
+                  const ProjectIcon = getProjectTypeIcon(repo.name, repo.description);
+                  return (
+                      <g key={repo.id} transform={`translate(0, ${yPos})`}>
+                          <ProjectIcon y="2" size="14" fill={mainTextColor}/>
+                          <text x="22" y="12" fontFamily="sans-serif" fontSize="13" fontWeight="600" fill={mainTextColor}>
+                              {truncateText(repo.name, 28)}
+                          </text>
+                          
+                          {/* Description déplacée sous le nom pour plus de clarté */}
+                          <text x="22" y="30" fontSize="11" fill={subTextColor}>
+                              {truncateText(repo.description, 45)}
+                          </text>
+                          
+                          {/* Badges à droite */}
+                          <g transform="translate(250, 0)">
+                              <StatBadge icon={GoStar} value={repo.stars} x={0} y={0} colors={starBadge} />
+                              <StatBadge icon={GoGitBranch} value={repo.forks} x={0} y={22} colors={forkBadge} />
+                          </g>
+                      </g>
+                  )
+              })}
           </g>
         </g>
         
