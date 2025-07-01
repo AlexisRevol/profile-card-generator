@@ -52,7 +52,7 @@ const LegendaryText = ({ children, x, y, fontSize }: { children: string, x: numb
 };
 
 // Nouveau composant pour gérer le retour à la ligne en SVG
-const MultilineText = ({ text, x, y, width, fontSize, fill }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string }) => {
+const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string, fontWeight?: string | number }) => {
   const safeText = text || "Aucune description.";
   const words = safeText.split(' ');
   const lines: string[] = [];
@@ -75,13 +75,43 @@ const MultilineText = ({ text, x, y, width, fontSize, fill }: { text: string | n
 
   // On ne garde que les 2 premières lignes
   return (
-    <text x={x} y={y} fontFamily="sans-serif" fontSize={fontSize} fill={fill}>
+    <text x={x} y={y} fontFamily="sans-serif" fontSize={fontSize} fill={fill} fontWeight={fontWeight || 'normal'}>
       {lines.slice(0, 2).map((line, index) => (
-        // dy = décalage vertical pour chaque nouvelle ligne
         <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * 1.2}>
           {line}
         </tspan>
       ))}
+    </text>
+  );
+};
+
+// NOUVEAU : Composant pour le texte stylisé "légendaire"
+const StyledText: React.FC<{
+  children: React.ReactNode;
+  x: number;
+  y: number;
+  fontSize: number;
+  fontFamily?: string;
+  fontWeight?: string | number;
+  fill: string;
+  stroke: string; // La couleur du contour
+}> = ({ children, x, y, fontSize, fontFamily, fontWeight, fill, stroke }) => {
+  return (
+    <text
+      x={x}
+      y={y}
+      fontFamily={fontFamily || "sans-serif"}
+      fontSize={fontSize}
+      fontWeight={fontWeight || "bold"} // Les textes importants sont souvent en gras
+      fill={fill}
+      stroke={stroke}
+      strokeWidth={fontSize / 10} // Un contour proportionnel à la taille du texte
+      strokeLinejoin="round" // Arrondit les angles du contour pour un look plus doux
+      paintOrder="stroke" // TRÈS IMPORTANT: dessine le contour D'ABORD, puis le remplissage par-dessus
+      filter="url(#text-shadow)" // On applique notre filtre d'ombre ici
+      dominantBaseline="middle" // Bon pour l'alignement vertical
+    >
+      {children}
     </text>
   );
 };
@@ -127,16 +157,46 @@ const TitleText = ({ children, x, y, fontSize, colors }: {
   );
 };
 
-// Fonction pour formater les grands nombres (ex: 12500 -> 12.5k)
 const formatStatNumber = (num: number): string => {
   if (num === null || num === undefined) return '0';
-  // Intl.NumberFormat est un moyen moderne et efficace de formater les nombres
   return new Intl.NumberFormat('en-US', {
     notation: 'compact',
     compactDisplay: 'short',
     maximumFractionDigits: 1
   }).format(num);
 };
+
+// NOUVEAU : Le composant pour le texte stylisé "légendaire"
+  const StyledText: React.FC<{
+    children: React.ReactNode;
+    x: number;
+    y: number;
+    fontSize: number;
+    fontFamily?: string;
+    fontWeight?: string | number;
+    fill: string;
+    stroke: string;
+  }> = ({ children, x, y, fontSize, fontFamily, fontWeight, fill, stroke }) => {
+    return (
+      <text
+        x={x}
+        y={y}
+        fontFamily={fontFamily || "sans-serif"}
+        fontSize={fontSize}
+        fontWeight={fontWeight || "bold"}
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={fontSize / 12} // Ajusté pour un look un peu plus fin
+        strokeLinejoin="round"
+        paintOrder="stroke"
+        filter="url(#text-shadow)"
+        dominantBaseline="middle"
+      >
+        {children}
+      </text>
+    );
+  };
+
 
 // AJOUT : Composant pour un badge de stat dynamique
 const StatBadge = ({ icon: Icon, value, x, y, colors }: { icon: React.ElementType, value: number, x: number, y: number, colors: { bg: string, text: string } }) => {
@@ -176,30 +236,14 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
   // --- Définition des couleurs ---
   // On traduit les classes Tailwind en codes de couleur hexadécimaux.
-  const mainTextColor = isDarkTheme ? '#F9FAFB' : '#11182C'; // text-gray-50 ou text-gray-900
-  const subTextColor = isDarkTheme ? '#9CA3AF' : '#4B5563';  // text-gray-400 ou text-gray-600
-  const iconColor = isDarkTheme ? '#D1D5DB' : '#374151';    // text-gray-300 ou text-gray-800
-  const fireColor = '#F97316'; // text-orange-500
-  const avatarBorderColor = isDarkTheme 
-  ? 'rgba(255, 255, 255, 0.2)' 
-  : 'rgba(0, 0, 0, 0.1)';
-  const footerBgColor = isDarkTheme ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.03)';
-  // Définition des couleurs pour le dégradé du badge
-  const holoColors = {
-    start: isDarkTheme ? 'rgba(80, 70, 120, 0.4)' : 'rgba(230, 240, 255, 0.6)',
-    mid: isDarkTheme ? 'rgba(120, 110, 180, 0.7)' : 'rgba(255, 255, 255, 1)',
-    end: isDarkTheme ? 'rgba(70, 100, 120, 0.4)' : 'rgba(220, 230, 255, 0.6)',
-  };
+    const mainTextColor = isDarkTheme ? '#F9FAFB' : '#11182C';
+  const subTextColor = isDarkTheme ? '#9CA3AF' : '#4B5563';
+  const iconColor = isDarkTheme ? '#D1D5DB' : '#374151';
+  // NOUVEAU : Une couleur spécifique pour le contour, pour un meilleur contraste
+  const strokeColor = isDarkTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
+  const starBadge = { bg: isDarkTheme ? 'rgba(99, 102, 241, 0.2)' : '#E0E7FF', text: isDarkTheme ? '#C7D2FE' : '#4338CA' };
+  const forkBadge = { bg: isDarkTheme ? '#374151' : '#E5E7EB', text: isDarkTheme ? '#D1D5DB' : '#374151' };
 
-  // Couleurs pour les badges de stats
-  const starBadge = {
-    bg: isDarkTheme ? 'rgba(99, 102, 241, 0.2)' : '#E0E7FF', // bg-indigo-500/20 ou bg-indigo-100
-    text: isDarkTheme ? '#C7D2FE' : '#4338CA', // text-indigo-300 ou text-indigo-700
-  };
-  const forkBadge = {
-    bg: isDarkTheme ? '#374151' : '#E5E7EB', // bg-gray-700 ou bg-gray-200
-    text: isDarkTheme ? '#D1D5DB' : '#374151', // text-gray-300 ou text-gray-700
-  };
   
   // NOUVELLES couleurs pour le titre
   const titleColors = {
@@ -262,6 +306,16 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         comme les dégradés, les masques et les motifs d'image.
       */}
       <defs>
+        {/* NOUVEAU : Filtre pour l'effet d'ombre portée sur le texte */}
+        <filter id="text-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow 
+            dx="1" 
+            dy="1.5" 
+            stdDeviation="1" 
+            floodColor={isDarkTheme ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.3)"} 
+          />
+        </filter>
+
         {/* Dégradé pour le template "classic" */}
         <linearGradient id="classic-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#FDE047" /> {/* from-yellow-300 */}
@@ -432,16 +486,16 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/* --- Header --- */}
         <g transform="translate(24, 32)">
           <SiGithub size="24" fill={iconColor} />
-          <text
-            x="34"
-            y="12" // Alignement vertical du texte avec l'icône
-            dominantBaseline="middle"
+          <StyledText
+            x={34}
+            y={12}
+            fontSize={18}
             fontFamily="monospace, 'Courier New', Courier"
-            fontSize="18"
             fill={mainTextColor}
+            stroke={strokeColor}
           >
             @{data.githubUser}
-          </text>
+          </StyledText>
         </g>
 
         {/* --- Bio (avec le style corrigé) --- */}
@@ -519,24 +573,21 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                   return (
                       <g key={repo.id} transform={`translate(0, ${yPos})`}>
                           <ProjectIcon y="2" size="14" fill={mainTextColor}/>
-                          <MultilineText 
-                            text={repo.name} 
-                            x={22} 
-                            y={12} 
-                            width={220} // Largeur maximale autorisée pour le texte avant de couper
-                            fontSize={13} 
-                            fill={mainTextColor} 
-                          />
+                           {/* MODIFIÉ : On utilise StyledText pour le nom du repo. On le met en gras. */}
+                          <StyledText
+                            x={22}
+                            y={8} // Un peu ajusté pour l'alignement vertical avec dominantBaseline
+                            fontSize={14} // Un peu plus grand pour l'impact
+                            fontWeight="600"
+                            fill={mainTextColor}
+                            stroke={strokeColor}
+                          >
+                            {/* On s'assure que le nom ne soit pas trop long */}
+                            {repo.name.length > 25 ? `${repo.name.substring(0, 25)}...` : repo.name}
+                          </StyledText>
                           
                           {/* Description déplacée sous le nom pour plus de clarté */}
-                          <MultilineText 
-                            text={repo.description} 
-                            x={22} 
-                            y={30} 
-                            width={270} // Largeur maximale autorisée pour le texte avant de couper
-                            fontSize={11} 
-                            fill={subTextColor} 
-                          />
+                          <MultilineText text={repo.description} x={22} y={30} width={270} fontSize={11} fill={subTextColor} />
                           
                           {/* Badges à droite */}
                           <g transform="translate(250, 0)">
