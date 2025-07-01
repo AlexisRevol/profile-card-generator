@@ -308,17 +308,21 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           </text>
         </g>
 
-        {/* Bio */}
-        <g transform="translate(24, 52)">
+        {/* --- Bio (avec le style corrigé) --- */}
+        {/* La bio est placée juste en dessous. */}
+        <g transform="translate(24, 65)"> {/* J'ai légèrement remonté à 65 pour resserrer l'espace */}
           <MultilineText
-            text={data.bio ? data.bio.toUpperCase() : "AUCUNE BIOGRAPHIE FOURNIE"}
-            x={0} // La bio commence au début du groupe
-            y={10}
-            width={336} // Largeur max de la carte (384) - padding (24*2)
-            fontSize={12}
-            fill={mainTextColor}
+            // MODIFICATION 1 : On retire .toUpperCase() pour un style plus doux
+            text={data.bio || "Aucune biographie fournie."} 
+            x={0}
+            y={0} // Le y est maintenant géré par le transform du groupe parent
+            width={336}
+            // MODIFICATION 2 : La taille est déjà bonne, on la garde.
+            fontSize={11} 
+            // MODIFICATION 3 : On utilise la couleur de texte secondaire
+            fill={subTextColor} 
           />
-          </g>
+        </g>
 
          {/* --- Avatar --- */}
         {/*
@@ -411,7 +415,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         
         {/* --- PIED DE PAGE "SMOOTH" POUR LES TECHNOS --- */}
         {/* --- SECTION TECHNOLOGIES AVEC BADGES DYNAMIQUES --- */}
-        <g transform="translate(32, 460)">
+        <g transform="translate(32, 490)">
             <text y="0" fontFamily="sans-serif" fontSize="10" fontWeight="bold" fill={subTextColor} letterSpacing="0.05em">
                 {'Technologies Favorites'.toUpperCase()}
             </text>
