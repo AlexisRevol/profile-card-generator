@@ -21,6 +21,13 @@ const templateImages = {
 };
 // ------------------------------------------------
 
+// --- Constantes de layout et de style (pour un ajustement facile) ---
+const FONT_FAMILY_SANS = "Inter, sans-serif";
+const FONT_FAMILY_MONO = "monospace, 'Courier New', Courier";
+const CHAR_WIDTH_FACTOR = 0.6; // Facteur d'estimation pour la largeur des caractères
+const LINE_HEIGHT_FACTOR = 1.3; // Multiplicateur pour la hauteur de ligne
+
+
 // NOUVEAU : Composant pour un texte avec un style "Légendaire"
 const LegendaryText = ({ children, x, y, fontSize }: { children: string, x: number, y: number, fontSize: number }) => {
   const FONT_FAMILY = "'Bangers', cursive"; // On utilise notre police personnalisée
@@ -49,8 +56,15 @@ const LegendaryText = ({ children, x, y, fontSize }: { children: string, x: numb
   );
 };
 
-// Nouveau composant pour gérer le retour à la ligne en SVG
-const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string, fontWeight?: string | number }) => {
+
+// --- NOUVEAU : Fonction utilitaire pour calculer la taille du texte multiligne ---
+// C'est la clé pour avoir un rectangle de fond qui s'adapte au contenu.
+const calculateMultilineTextLayout = (
+  text: string | null,
+  maxWidth: number,
+  fontSize: number,
+  maxLines: number
+) => {
   const safeText = text || "Aucune description.";
   const words = safeText.split(' ');
   const lines: string[] = [];
@@ -58,10 +72,9 @@ const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text
 
   words.forEach(word => {
     const testLine = currentLine ? `${currentLine} ${word}` : word;
-    // Estimation de la largeur (ajustez le facteur 0.6 si la police change)
-    const testWidth = testLine.length * fontSize * 0.6; 
+    const testWidth = testLine.length * fontSize * CHAR_WIDTH_FACTOR;
     
-    if (testWidth > width && currentLine) {
+    if (testWidth > maxWidth && currentLine) {
       lines.push(currentLine);
       currentLine = word;
     } else {
@@ -70,11 +83,46 @@ const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text
   });
   lines.push(currentLine);
 
-  // On garde jusqu'à 3 lignes, ce qui semble plus adapté pour la bio dans ce layout
+  const finalLines = lines.slice(0, maxLines);
+
+  // Calculer la largeur du plus long segment de ligne
+  const calculatedWidth = Math.max(
+    ...finalLines.map(line => line.length * fontSize * CHAR_WIDTH_FACTOR)
+  );
+  
+  // Calculer la hauteur totale
+  const calculatedHeight = finalLines.length * fontSize * LINE_HEIGHT_FACTOR - (fontSize * (LINE_HEIGHT_FACTOR - 1));
+
+  return {
+    lines: finalLines,
+    width: calculatedWidth,
+    height: calculatedHeight,
+  };
+};
+
+
+// --- Composant MultilineText mis à jour pour accepter les lignes pré-calculées ---
+const MultilineText = ({ 
+  lines, x, y, fontSize, fill, fontWeight, stroke, strokeWidth 
+}: { 
+  lines: string[], 
+  x: number, y: number, fontSize: number, fill: string, 
+  fontWeight?: string | number, stroke?: string, strokeWidth?: number 
+}) => {
   return (
-    <text x={x} y={y} fontFamily="sans-serif" fontSize={fontSize} fill={fill} fontWeight={fontWeight || 'normal'}>
-      {lines.slice(0, 3).map((line, index) => (
-        <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * 1.2}>
+    <text 
+      x={x} 
+      y={y} 
+      fontFamily={FONT_FAMILY_SANS} 
+      fontSize={fontSize} 
+      fill={fill} 
+      fontWeight={fontWeight || 'normal'}
+      stroke={stroke}
+      strokeWidth={strokeWidth}
+      paintOrder="stroke" // Essentiel pour que le contour soit derrière le texte
+    >
+      {lines.map((line, index) => (
+        <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * LINE_HEIGHT_FACTOR}>
           {line}
         </tspan>
       ))}
@@ -156,10 +204,35 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const strokeColor = isDarkTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   const starBadge = { bg: isDarkTheme ? 'rgba(99, 102, 241, 0.2)' : '#E0E7FF', text: isDarkTheme ? '#C7D2FE' : '#4338CA' };
   const forkBadge = { bg: isDarkTheme ? '#374151' : '#E5E7EB', text: isDarkTheme ? '#D1D5DB' : '#374151' };
+   const mainStrokeColor = isDarkTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
-  // NOUVEAU : Couleurs pour les rectangles du header
-  const headerRectFill = isDarkTheme ? 'rgba(0, 0, 0, 0.25)' : 'rgba(255, 255, 255, 0.6)';
-  const headerRectStroke = isDarkTheme ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.15)';
+  // NOUVEAU: Couleurs spécifiques pour les fonds et bordures du header
+  const headerRectFill = isDarkTheme ? 'rgba(0, 0, 0, 0.25)' : 'rgba(255, 255, 255, 0.4)';
+  const headerRectStroke = isDarkTheme ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.1)';
+  
+  // NOUVEAU: Couleur pour le contour du texte de la bio
+  const bioStrokeColor = isDarkTheme ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.8)';
+  // --- NOUVEAU: Constantes de layout pour le header ---
+  const HEADER_X_OFFSET = 24;
+  const HEADER_Y_OFFSET = 24;
+  const ICON_RECT_SIZE = 54;
+  const ICON_SIZE = 28;
+  const BIO_RECT_PADDING = 12;
+  const ICON_BIO_GAP = 8;
+  const BIO_Y_OFFSET = 12; // Décalage de la bio vers le bas
+  // NOUVEAU : Constantes de layout pour le header pour un ajustement facile
+  const HEADER_RECT_RX = 10;  // Arrondi des bords
+  const USERNAME_Y_POS = 16;  // Position verticale du nom d'utilisateur
+  const RECTS_Y_POS = 32;     // Position verticale des rectangles (sous le nom d'utilisateur)
+  const CARD_CONTENT_WIDTH = 384 - (HEADER_X_OFFSET * 2); // Largeur utile à l'intérieur des paddings
+  
+  // --- PRÉ-CALCUL DE LA TAILLE DE LA BIO ---
+  const bioLayout = calculateMultilineTextLayout(
+    data.bio,
+    384 - HEADER_X_OFFSET * 2 - ICON_RECT_SIZE - ICON_BIO_GAP - BIO_RECT_PADDING * 2, // maxWidth
+    11, // fontSize
+    3   // maxLines
+  );
 
 
   const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
@@ -178,16 +251,6 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         </g>
       );
     };
-
-  // NOUVEAU : Constantes de layout pour le header pour un ajustement facile
-  const HEADER_Y_OFFSET = 24; // Marge du haut de la carte
-  const HEADER_X_OFFSET = 24; // Marge de gauche de la carte
-  const ICON_RECT_SIZE = 64;  // Taille du carré pour l'icône
-  const ICON_SIZE = 36;       // Taille de l'icône SiGithub
-  const HEADER_RECT_RX = 10;  // Arrondi des bords
-  const USERNAME_Y_POS = 16;  // Position verticale du nom d'utilisateur
-  const RECTS_Y_POS = 32;     // Position verticale des rectangles (sous le nom d'utilisateur)
-  const CARD_CONTENT_WIDTH = 384 - (HEADER_X_OFFSET * 2); // Largeur utile à l'intérieur des paddings
 
   return (
     <svg
@@ -344,72 +407,63 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/***********************************************/}
         {/* --- NOUVEAU HEADER STYLE CARTE POKÉMON --- */}
         {/***********************************************/}
+         {/* --- NOUVEAU HEADER DYNAMIQUE ET STYLISÉ --- */}
         <g transform={`translate(${HEADER_X_OFFSET}, ${HEADER_Y_OFFSET})`}>
           
-          {/* --- Arrière-plans pour l'icône et la bio --- */}
+          {/* Nom d'utilisateur, positionné en premier */}
+          <StyledText
+              x={ICON_RECT_SIZE + ICON_BIO_GAP} 
+              y={16} 
+              fontSize={18}
+              fontFamily={FONT_FAMILY_MONO}
+              fontWeight="bold"
+              fill={mainTextColor}
+              stroke={mainStrokeColor}
+            >
+              @{data.githubUser}
+          </StyledText>
+          
+          {/* Groupe pour l'icône GitHub et son fond */}
           <g>
-            {/* Rectangle de fond pour l'icône */}
             <rect
               x="0"
-              y={RECTS_Y_POS}
+              y="32"
               width={ICON_RECT_SIZE}
               height={ICON_RECT_SIZE}
-              rx={HEADER_RECT_RX}
+              rx="10"
               fill={headerRectFill}
               stroke={headerRectStroke}
-              strokeWidth="1"
+              strokeWidth="1.5"
             />
-            {/* Rectangle de fond pour la bio */}
-            <rect
-              // On le fait commencer LÀ OÙ L'AUTRE FINIT pour l'effet "collé"
-              x={ICON_RECT_SIZE} 
-              y={RECTS_Y_POS}
-              // La largeur restante jusqu'au bord droit (moins le padding)
-              width={CARD_CONTENT_WIDTH - ICON_RECT_SIZE} 
-              height={ICON_RECT_SIZE}
-              rx={HEADER_RECT_RX}
-              fill={headerRectFill}
-              stroke={headerRectStroke}
-              strokeWidth="1"
-            />
-          </g>
-
-          {/* --- Contenu du header (par-dessus les fonds) --- */}
-          <g>
-            {/* Icône GitHub, centrée dans son rectangle */}
             <SiGithub 
-              x={(ICON_RECT_SIZE - ICON_SIZE) / 2} // Centrage horizontal
-              y={RECTS_Y_POS + (ICON_RECT_SIZE - ICON_SIZE) / 2} // Centrage vertical
+              x={(ICON_RECT_SIZE - ICON_SIZE) / 2}
+              y={32 + (ICON_RECT_SIZE - ICON_SIZE) / 2}
               size={ICON_SIZE} 
               fill={iconColor} 
             />
+          </g>
 
-            {/* Texte du nom d'utilisateur */}
-            <StyledText
-              // Alignement vertical avec la bio
-              x={ICON_RECT_SIZE + 12} 
-              // Positionné au-dessus des rectangles
-              y={USERNAME_Y_POS} 
-              fontSize={18}
-              fontFamily="monospace, 'Courier New', Courier"
-              fontWeight="bold"
-              fill={mainTextColor}
-              stroke={strokeColor}
-            >
-              @{data.githubUser}
-            </StyledText>
-            
-            {/* Texte de la bio */}
+          {/* Groupe pour la Bio et son fond dynamique */}
+          <g transform={`translate(${ICON_RECT_SIZE + ICON_BIO_GAP}, ${32 + BIO_Y_OFFSET})`}>
+            <rect
+              x="0"
+              y="0"
+              width={bioLayout.width + BIO_RECT_PADDING * 2}
+              height={bioLayout.height + BIO_RECT_PADDING * 2}
+              rx="10"
+              fill={headerRectFill}
+              stroke={headerRectStroke}
+              strokeWidth="1.5"
+            />
             <MultilineText
-              // Décalé à l'intérieur du rectangle de droite
-              x={ICON_RECT_SIZE + 12}
-              // Positionné en haut du rectangle, avec un petit padding
-              y={RECTS_Y_POS + 14}
-              // Largeur disponible pour le texte (rectangle - paddings)
-              width={CARD_CONTENT_WIDTH - ICON_RECT_SIZE - 24}
+              lines={bioLayout.lines}
+              x={BIO_RECT_PADDING}
+              y={BIO_RECT_PADDING + 8} // +8 pour centrer verticalement avec dominantBaseline
               fontSize={11}
               fill={subTextColor}
-              text={data.bio}
+              fontWeight={500}
+              stroke={bioStrokeColor}
+              strokeWidth={0.5}
             />
           </g>
         </g>
