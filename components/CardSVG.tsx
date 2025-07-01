@@ -121,6 +121,9 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const subTextColor = isDarkTheme ? '#9CA3AF' : '#4B5563';  // text-gray-400 ou text-gray-600
   const iconColor = isDarkTheme ? '#D1D5DB' : '#374151';    // text-gray-300 ou text-gray-800
   const fireColor = '#F97316'; // text-orange-500
+  const avatarBorderColor = isDarkTheme 
+  ? 'rgba(255, 255, 255, 0.2)' 
+  : 'rgba(0, 0, 0, 0.1)';
   
   // Couleurs pour les badges de stats
   const starBadge = {
@@ -249,63 +252,46 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           </text>
         </g>
 
+        {/* Bio */}
+        <g transform="translate(24, 52)">
+          <MultilineText
+            text={data.bio ? data.bio.toUpperCase() : "AUCUNE BIOGRAPHIE FOURNIE"}
+            x={0} // La bio commence au début du groupe
+            y={10}
+            width={336} // Largeur max de la carte (384) - padding (24*2)
+            fontSize={12}
+            fill={mainTextColor}
+          />
+          </g>
+
          {/* --- Avatar --- */}
         {/*
           On crée un groupe pour positionner l'ensemble de l'avatar.
           Tout ce qui est à l'intérieur de ce groupe sera décalé de (180, 80).
         */}
-        <g transform="translate(180, 80)">
-
-          {/* 
-            Groupe de découpe. Ce groupe applique le clipPath rond.
-            Les coordonnées (cx, cy) des éléments à l'intérieur sont maintenant
-            relatives à ce groupe.
-          */}
-          <g clipPath="url(#avatarClip)">
-            {/* 
-              L'image est placée à (0,0) à l'intérieur de ce groupe.
-              Le clipPath va la découper en un cercle centré sur (128,128)
-              car c'est ainsi que avatarClip est défini dans <defs>.
-            */}
-            <image
-              href={avatarBase64}
-              x="0" 
-              y="0"
-              width="256"
-              height="256"
-              mask="url(#avatarMask)"
-            />
-          </g>
-          
-          {/* 
-            La bordure est dessinée APRÈS la découpe de l'image.
-            Elle est positionnée exactement au même endroit que le cercle
-            de découpe dans les <defs> pour s'aligner parfaitement.
-            Comme elle n'est pas dans le groupe de découpe, elle n'est pas
-            affectée par celui-ci.
-          */}
+       <g transform="translate(192, 160)">
+          {/* Le cercle pour la bordure, dessiné en premier */}
           <circle 
-            cx="128" 
-            cy="128" 
-            r="125" 
-            fill="none"
-            stroke="rgba(255, 255, 255, 0.3)"
-            strokeWidth="6"
+            cx="0" 
+            cy="0" 
+            r="74" // Un peu plus grand que l'avatar
+            fill={avatarBorderColor}
+          />
+          {/* L'avatar, rempli par le pattern, dessiné par-dessus */}
+          <circle 
+            cx="0" 
+            cy="0" 
+            r="70" // Rayon de 70px
+            fill="url(#avatarPattern)" 
+            stroke={isDarkTheme ? '#1F2937' : '#FFFFFF'} // Petite bordure interne pour détacher
+            strokeWidth="4"
           />
         </g>
 
 
         {/* --- Corps Principal --- */}
         <g transform="translate(24, 195)">
-          {/* Bio */}
-          <MultilineText
-            text={data.bio ? data.bio.toUpperCase() : "AUCUNE BIOGRAPHIE FOURNIE"}
-            x={0} // La bio commence au début du groupe
-            y={10}
-            width={336} // Largeur max de la carte (384) - padding (24*2)
-            fontSize={14}
-            fill={mainTextColor}
-          />
+          
                   
           {/* Liste des dépôts mis en avant */}
           <g transform="translate(0, 80)">
