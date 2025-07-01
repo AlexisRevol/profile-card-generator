@@ -124,7 +124,8 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const avatarBorderColor = isDarkTheme 
   ? 'rgba(255, 255, 255, 0.2)' 
   : 'rgba(0, 0, 0, 0.1)';
-  
+  const footerBgColor = isDarkTheme ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.03)';
+
   // Couleurs pour les badges de stats
   const starBadge = {
     bg: isDarkTheme ? 'rgba(99, 102, 241, 0.2)' : '#E0E7FF', // bg-indigo-500/20 ou bg-indigo-100
@@ -311,7 +312,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
 
         {/* --- Corps Principal --- */}
-        <g transform="translate(24, 240)">
+        <g transform="translate(24, 270)">
           
                   
           {/* Liste des dépôts mis en avant */}
@@ -327,7 +328,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                             text={repo.name} 
                             x={22} 
                             y={12} 
-                            width={150} // Largeur maximale autorisée pour le texte avant de couper
+                            width={170} // Largeur maximale autorisée pour le texte avant de couper
                             fontSize={13} 
                             fill={mainTextColor} 
                           />
@@ -337,7 +338,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                             text={repo.description} 
                             x={22} 
                             y={30} 
-                            width={150} // Largeur maximale autorisée pour le texte avant de couper
+                            width={190} // Largeur maximale autorisée pour le texte avant de couper
                             fontSize={11} 
                             fill={subTextColor} 
                           />
@@ -353,29 +354,36 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           </g>
         </g>
         
-        {/* --- Technologies Favorites (Footer) --- */}
-        <g transform="translate(24, 480)">
-          <text
-            y="0"
-            fontFamily="sans-serif"
-            fontSize="10"
-            fontWeight="bold"
-            fill={subTextColor}
-            letterSpacing="0.05em"
-          >
-            {'Technologies Favorites'.toUpperCase()}
-          </text>
-          <g transform="translate(0, 15)">
-              {data.topLanguages.slice(0, 7).map((lang, index) => {
-                  const IconComponent = iconMap[lang.toLowerCase()];
-                  if (!IconComponent) return null;
+        {/* --- PIED DE PAGE "SMOOTH" POUR LES TECHNOS --- */}
+        <g>
+            {/* Le fond du footer */}
+            <rect 
+                x="8" y="460" 
+                width="368" height="60" 
+                // On arrondit seulement les coins du bas
+                rx="12" 
+                fill={footerBgColor} 
+            />
+            {/* On utilise un clipPath pour que les coins du rectangle soient bien ceux de la carte */}
+            <path d="M 8 460 h 368 v 52 a 12 12 0 0 1 -12 12 H 20 a 12 12 0 0 1 -12 -12 z" fill={footerBgColor}/>
 
-                  const xPos = index * 32; // Espacement horizontal entre les icônes
-                  return (
-                      <IconComponent key={lang} x={xPos} y={0} size="24" fill={iconColor} />
-                  );
-              })}
-          </g>
+            {/* Les icônes, centrées dans le footer */}
+            <g transform="translate(192, 485)" textAnchor="middle">
+                <text y="0" fontFamily="sans-serif" fontSize="10" fontWeight="bold" fill={subTextColor} letterSpacing="0.05em">
+                    {'Technologies'.toUpperCase()}
+                </text>
+                <g transform="translate(0, 15)">
+                    {data.topLanguages.slice(0, 7).map((lang, index) => {
+                        const IconComponent = iconMap[lang.toLowerCase()];
+                        if (!IconComponent) return null;
+                        // Calcul pour centrer le groupe d'icônes
+                        const totalWidth = 7 * 32;
+                        const startX = -(totalWidth / 2) + 16;
+                        const xPos = startX + index * 32;
+                        return <IconComponent key={lang} x={xPos} y={0} size="24" fill={iconColor} />;
+                    })}
+                </g>
+            </g>
         </g>
       </g>
     </svg>
