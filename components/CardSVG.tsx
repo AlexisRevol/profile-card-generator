@@ -397,7 +397,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                             text={repo.description} 
                             x={22} 
                             y={30} 
-                            width={190} // Largeur maximale autorisée pour le texte avant de couper
+                            width={210} // Largeur maximale autorisée pour le texte avant de couper
                             fontSize={11} 
                             fill={subTextColor} 
                           />
@@ -420,7 +420,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                 {'Technologies Favorites'.toUpperCase()}
             </text>
 
-            <g transform="translate(0, 15)">
+            <g transform="translate(0, 12)">
                 {(() => {
                     const badges: React.ReactNode[] = [];
                     let currentX = 0;
