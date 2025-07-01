@@ -209,31 +209,63 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   // NOUVEAU: Couleurs spécifiques pour les fonds et bordures du header
   const headerRectFill = isDarkTheme ? 'rgba(0, 0, 0, 0.25)' : 'rgba(255, 255, 255, 0.4)';
   const headerRectStroke = isDarkTheme ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.1)';
+    const headerIconColor = isDarkTheme ? '#E5E7EB' : '#374151';
+
+
+  // Couleurs spécifiques pour la bio
+  const bioTextColor = isDarkTheme ? '#FFFFFF' : '#000000';
+  const bioBorderColor = isDarkTheme ? '#000000' : '#FFFFFF';
   
   // NOUVEAU: Couleur pour le contour du texte de la bio
   const bioStrokeColor = isDarkTheme ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.8)';
-  // --- NOUVEAU: Constantes de layout pour le header ---
+  // --- Constantes de layout pour le header ---
   const HEADER_X_OFFSET = 24;
   const HEADER_Y_OFFSET = 24;
-  const ICON_RECT_SIZE = 54;
+  const ICON_RECT_WIDTH = 50;
+  const ICON_RECT_HEIGHT = 50;
   const ICON_SIZE = 28;
-  const BIO_RECT_PADDING = 12;
-  const ICON_BIO_GAP = 8;
-  const BIO_Y_OFFSET = 12; // Décalage de la bio vers le bas
-  // NOUVEAU : Constantes de layout pour le header pour un ajustement facile
-  const HEADER_RECT_RX = 10;  // Arrondi des bords
-  const USERNAME_Y_POS = 16;  // Position verticale du nom d'utilisateur
-  const RECTS_Y_POS = 32;     // Position verticale des rectangles (sous le nom d'utilisateur)
-  const CARD_CONTENT_WIDTH = 384 - (HEADER_X_OFFSET * 2); // Largeur utile à l'intérieur des paddings
+  const CORNER_RADIUS_NORMAL = 10;
+  const CORNER_RADIUS_LARGE = 25; // Arrondi plus grand
+  const BIO_PADDING_X = 10;
+  const BIO_PADDING_Y = 6; // Padding vertical réduit
+  const BIO_Y_OFFSET = 12;
   
   // --- PRÉ-CALCUL DE LA TAILLE DE LA BIO ---
   const bioLayout = calculateMultilineTextLayout(
     data.bio,
-    384 - HEADER_X_OFFSET * 2 - ICON_RECT_SIZE - ICON_BIO_GAP - BIO_RECT_PADDING * 2, // maxWidth
-    11, // fontSize
-    3   // maxLines
+    384 - HEADER_X_OFFSET * 2 - ICON_RECT_WIDTH - BIO_PADDING_X * 2,
+    11, 3
   );
 
+   // --- NOUVEAU: Génération des `path` SVG pour les fonds ---
+  const bioPathWidth = bioLayout.width + BIO_PADDING_X * 2;
+  const bioPathHeight = bioLayout.height + BIO_PADDING_Y * 2;
+
+  // Path pour l'icône
+  const iconPathData = `
+    M ${CORNER_RADIUS_NORMAL},0 
+    h ${ICON_RECT_WIDTH - CORNER_RADIUS_NORMAL} 
+    v ${ICON_RECT_HEIGHT - CORNER_RADIUS_LARGE} 
+    a ${CORNER_RADIUS_LARGE},${CORNER_RADIUS_LARGE} 0 0 1 -${CORNER_RADIUS_LARGE},${CORNER_RADIUS_LARGE}
+    h -${ICON_RECT_WIDTH - CORNER_RADIUS_NORMAL - CORNER_RADIUS_LARGE}
+    a ${CORNER_RADIUS_NORMAL},${CORNER_RADIUS_NORMAL} 0 0 1 -${CORNER_RADIUS_NORMAL},-${CORNER_RADIUS_NORMAL} 
+    v -${ICON_RECT_HEIGHT - CORNER_RADIUS_NORMAL} 
+    a ${CORNER_RADIUS_NORMAL},${CORNER_RADIUS_NORMAL} 0 0 1 ${CORNER_RADIUS_NORMAL},-${CORNER_RADIUS_NORMAL} 
+    z
+  `;
+
+  // Path pour la bio
+  const bioPathData = `
+    M 0,0
+    h ${bioPathWidth - CORNER_RADIUS_NORMAL}
+    a ${CORNER_RADIUS_NORMAL},${CORNER_RADIUS_NORMAL} 0 0 1 ${CORNER_RADIUS_NORMAL},${CORNER_RADIUS_NORMAL}
+    v ${bioPathHeight - CORNER_RADIUS_NORMAL - CORNER_RADIUS_LARGE}
+    a ${CORNER_RADIUS_LARGE},${CORNER_RADIUS_LARGE} 0 0 1 -${CORNER_RADIUS_LARGE},${CORNER_RADIUS_LARGE}
+    h -${bioPathWidth - CORNER_RADIUS_NORMAL - CORNER_RADIUS_LARGE}
+    a ${CORNER_RADIUS_NORMAL},${CORNER_RADIUS_NORMAL} 0 0 1 -${CORNER_RADIUS_NORMAL},-${CORNER_RADIUS_NORMAL}
+    v -${bioPathHeight - CORNER_RADIUS_NORMAL}
+    z
+  `;
 
   const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
       const FONT_SIZE = 10;
@@ -408,11 +440,12 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/* --- NOUVEAU HEADER STYLE CARTE POKÉMON --- */}
         {/***********************************************/}
          {/* --- NOUVEAU HEADER DYNAMIQUE ET STYLISÉ --- */}
+         {/* --- HEADER AVEC PATHS PERSONNALISÉS --- */}
         <g transform={`translate(${HEADER_X_OFFSET}, ${HEADER_Y_OFFSET})`}>
           
-          {/* Nom d'utilisateur, positionné en premier */}
+          {/* Nom d'utilisateur */}
           <StyledText
-              x={ICON_RECT_SIZE + ICON_BIO_GAP} 
+              x={ICON_RECT_WIDTH} 
               y={16} 
               fontSize={18}
               fontFamily={FONT_FAMILY_MONO}
@@ -423,47 +456,39 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
               @{data.githubUser}
           </StyledText>
           
-          {/* Groupe pour l'icône GitHub et son fond */}
-          <g>
-            <rect
-              x="0"
-              y="32"
-              width={ICON_RECT_SIZE}
-              height={ICON_RECT_SIZE}
-              rx="10"
+          {/* Groupe pour l'icône GitHub et son fond en <path> */}
+          <g transform="translate(0, 32)">
+            <path
+              d={iconPathData}
               fill={headerRectFill}
-              stroke={headerRectStroke}
+              stroke={bioBorderColor} // Utilise la même couleur que la bordure de la bio
               strokeWidth="1.5"
             />
             <SiGithub 
-              x={(ICON_RECT_SIZE - ICON_SIZE) / 2}
-              y={32 + (ICON_RECT_SIZE - ICON_SIZE) / 2}
+              x={(ICON_RECT_WIDTH - ICON_SIZE) / 2}
+              y={(ICON_RECT_HEIGHT - ICON_SIZE) / 2}
               size={ICON_SIZE} 
-              fill={iconColor} 
+              fill={headerIconColor} 
             />
           </g>
 
-          {/* Groupe pour la Bio et son fond dynamique */}
-          <g transform={`translate(${ICON_RECT_SIZE + ICON_BIO_GAP}, ${32 + BIO_Y_OFFSET})`}>
-            <rect
-              x="0"
-              y="0"
-              width={bioLayout.width + BIO_RECT_PADDING * 2}
-              height={bioLayout.height + BIO_RECT_PADDING * 2}
-              rx="10"
+          {/* Groupe pour la Bio et son fond en <path> */}
+          <g transform={`translate(${ICON_RECT_WIDTH}, ${32 + BIO_Y_OFFSET})`}>
+            <path
+              d={bioPathData}
               fill={headerRectFill}
-              stroke={headerRectStroke}
+              stroke={bioBorderColor}
               strokeWidth="1.5"
             />
             <MultilineText
               lines={bioLayout.lines}
-              x={BIO_RECT_PADDING}
-              y={BIO_RECT_PADDING + 8} // +8 pour centrer verticalement avec dominantBaseline
+              x={BIO_PADDING_X}
+              y={BIO_PADDING_Y + 8} // +8 pour le centrage vertical
               fontSize={11}
-              fill={subTextColor}
+              fill={bioTextColor}
               fontWeight={500}
-              stroke={bioStrokeColor}
-              strokeWidth={0.5}
+              stroke={bioBorderColor} // Le stroke du texte est la même couleur que la bordure
+              strokeWidth={0.4}
             />
           </g>
         </g>
