@@ -397,7 +397,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                             text={repo.description} 
                             x={22} 
                             y={30} 
-                            width={330} // Largeur maximale autorisée pour le texte avant de couper
+                            width={270} // Largeur maximale autorisée pour le texte avant de couper
                             fontSize={11} 
                             fill={subTextColor} 
                           />
