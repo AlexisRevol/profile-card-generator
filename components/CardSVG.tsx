@@ -207,7 +207,7 @@ const TitleText = ({ children, x, y, fill }: { children: string, x: number, y: n
 
 /**
  * BodyText: Pour les textes courants comme les descriptions de repo ou la bio.
- * Optimisé pour la lisibilité.
+ * Version corrigée pour fonctionner sur le serveur.
  */
 const BodyText = ({ text, x, y, width, fontSize, fill, maxLines = 2 }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string, maxLines?: number }) => {
   const safeText = text || "Aucune description.";
@@ -215,17 +215,12 @@ const BodyText = ({ text, x, y, width, fontSize, fill, maxLines = 2 }: { text: s
   const lines: string[] = [];
   let currentLine = '';
 
-  // Estimation simple de la largeur du texte (à ajuster si nécessaire)
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-  if (context) {
-    context.font = `${fontSize}px 'Inter', sans-serif`;
-  }
-  
+  // ON REVIENT À L'ESTIMATION SIMPLE QUI NE DÉPEND PAS DU NAVIGATEUR
   words.forEach(word => {
     const testLine = currentLine ? `${currentLine} ${word}` : word;
-    // Utilise une mesure plus précise si possible, sinon fallback
-    const testWidth = context ? context.measureText(testLine).width : testLine.length * fontSize * 0.6;
+    // On estime la largeur en pixels. Le facteur 0.6 est une approximation pour une police standard.
+    // Vous pouvez l'ajuster (ex: 0.55 pour une police fine, 0.65 pour une police large).
+    const testWidth = testLine.length * fontSize * 0.6;
     
     if (testWidth > width && currentLine) {
       lines.push(currentLine);
@@ -236,17 +231,23 @@ const BodyText = ({ text, x, y, width, fontSize, fill, maxLines = 2 }: { text: s
   });
   lines.push(currentLine);
 
+  // On ajoute "..." si le texte est coupé pour indiquer qu'il y a plus à lire.
+  const slicedLines = lines.slice(0, maxLines);
+  if (lines.length > maxLines) {
+      const lastLine = slicedLines[maxLines - 1];
+      slicedLines[maxLines - 1] = lastLine.slice(0, Math.floor(lastLine.length * 0.9)) + '...';
+  }
+
   return (
     <text x={x} y={y} fontFamily="'Inter', sans-serif" fontSize={fontSize} fill={fill} style={{ fontFeatureSettings: "'tnum' on, 'lnum' on" }}>
-      {lines.slice(0, maxLines).map((line, index) => (
+      {slicedLines.map((line, index) => (
         <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * 1.3}>
-          {line}{lines.length > maxLines && index === maxLines - 1 ? '...' : ''}
+          {line}
         </tspan>
       ))}
     </text>
   );
 };
-
 // ... (garder les composants StatBadge, etc.)
 // On va juste améliorer le TechBadge
 const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { text: string, shadow: string } }) => {
