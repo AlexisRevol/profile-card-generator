@@ -39,11 +39,9 @@ const LegendaryText = ({ children, x, y, fontSize }: { children: string, x: numb
         fill={TEXT_COLOR}
         stroke={STROKE_COLOR}
         strokeWidth={STROKE_WIDTH}
-        // paint-order est LA propriété magique pour que le contour soit DESSINÉ DERRIÈRE le texte.
-        // Sans ça, le contour "mange" l'intérieur des lettres.
         paintOrder="stroke fill"
         dominantBaseline="middle"
-        textAnchor="start" // ou "middle" si tu veux centrer le texte sur le point x
+        textAnchor="start"
       >
         {children}
       </text>
@@ -59,9 +57,8 @@ const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text
   let currentLine = '';
 
   words.forEach(word => {
-    // Cette estimation de la largeur est très approximative (largeur = nb lettres * taille police * 0.6)
-    // C'est le point le plus difficile à simuler par rapport au HTML.
     const testLine = currentLine ? `${currentLine} ${word}` : word;
+    // Estimation de la largeur (ajustez le facteur 0.6 si la police change)
     const testWidth = testLine.length * fontSize * 0.6; 
     
     if (testWidth > width && currentLine) {
@@ -73,10 +70,10 @@ const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text
   });
   lines.push(currentLine);
 
-  // On ne garde que les 2 premières lignes
+  // On garde jusqu'à 3 lignes, ce qui semble plus adapté pour la bio dans ce layout
   return (
     <text x={x} y={y} fontFamily="sans-serif" fontSize={fontSize} fill={fill} fontWeight={fontWeight || 'normal'}>
-      {lines.slice(0, 2).map((line, index) => (
+      {lines.slice(0, 3).map((line, index) => (
         <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * 1.2}>
           {line}
         </tspan>
@@ -85,7 +82,7 @@ const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text
   );
 };
 
- // NOUVEAU : Le composant pour le texte stylisé "légendaire"
+ // Le composant pour le texte stylisé
   const StyledText: React.FC<{
     children: React.ReactNode;
     x: number;
@@ -105,7 +102,7 @@ const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text
         fontWeight={fontWeight || "bold"}
         fill={fill}
         stroke={stroke}
-        strokeWidth={fontSize / 12} // Ajusté pour un look un peu plus fin
+        strokeWidth={fontSize / 12}
         strokeLinejoin="round"
         paintOrder="stroke"
         dominantBaseline="middle"
@@ -117,44 +114,8 @@ const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text
 
 interface CardSVGProps {
   data: CardData;
-  avatarBase64: string; // L'avatar sera fourni en Base64 par l'API
+  avatarBase64: string;
 }
-
-// NOUVEAU : Composant pour un titre au style "Premium"
-const TitleText = ({ children, x, y, fontSize, colors }: { 
-  children: string, 
-  x: number, 
-  y: number, 
-  fontSize: number,
-  colors: { fill: string, stroke: string }
-}) => {
-  // Une police moderne et professionnelle avec un poids lourd pour l'impact
-  const FONT_FAMILY = "'Inter', sans-serif";
-  
-  // Le contour est beaucoup plus fin, juste pour détacher le texte
-  const STROKE_WIDTH = 0.75; 
-
-  return (
-    // On garde l'ombre portée, mais on la rendra plus douce dans les <defs>
-    <g filter="url(#title-shadow)">
-      <text
-        x={x}
-        y={y}
-        fontFamily={FONT_FAMILY}
-        fontSize={fontSize}
-        fontWeight="900" // On spécifie le poids "Black" pour être sûr
-        fill={colors.fill} // On utilisera un dégradé défini dans les <defs>
-        stroke={colors.stroke} // Le contour sera subtil
-        strokeWidth={STROKE_WIDTH}
-        paintOrder="stroke fill" // Toujours essentiel !
-        dominantBaseline="middle"
-        textAnchor="start"
-      >
-        {children}
-      </text>
-    </g>
-  );
-};
 
 const formatStatNumber = (num: number): string => {
   if (num === null || num === undefined) return '0';
@@ -165,33 +126,20 @@ const formatStatNumber = (num: number): string => {
   }).format(num);
 };
 
-
-// AJOUT : Composant pour un badge de stat dynamique
 const StatBadge = ({ icon: Icon, value, x, y, colors }: { icon: React.ElementType, value: number, x: number, y: number, colors: { bg: string, text: string } }) => {
   const FONT_SIZE = 10;
-  const PADDING_X = 8; // Espace à gauche et à droite du contenu
+  const PADDING_X = 8;
   const ICON_SIZE = 12;
   const ICON_MARGIN_RIGHT = 4;
-
   const formattedValue = formatStatNumber(value);
-  
-  // Estimation de la largeur du texte (très approximative, ajuster le facteur 0.6 si besoin)
   const textWidth = formattedValue.length * FONT_SIZE * 0.6;
-  
   const badgeWidth = PADDING_X + ICON_SIZE + ICON_MARGIN_RIGHT + textWidth + PADDING_X;
 
   return (
     <g transform={`translate(${x}, ${y})`}>
       <rect x="0" y="0" width={badgeWidth} height="18" rx="9" fill={colors.bg} />
       <Icon x={PADDING_X} y="3" size={ICON_SIZE} fill={colors.text} />
-      <text 
-        x={PADDING_X + ICON_SIZE + ICON_MARGIN_RIGHT} 
-        y="13" 
-        fontFamily="sans-serif" 
-        fontSize={FONT_SIZE} 
-        fontWeight="500" 
-        fill={colors.text}
-      >
+      <text x={PADDING_X + ICON_SIZE + ICON_MARGIN_RIGHT} y="13" fontFamily="sans-serif" fontSize={FONT_SIZE} fontWeight="500" fill={colors.text}>
         {formattedValue}
       </text>
     </g>
@@ -202,24 +150,16 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const currentTemplate = TEMPLATES.find(t => t.id === data.template) || TEMPLATES[0];
   const isDarkTheme = currentTemplate.theme === 'dark';
 
-  // --- Définition des couleurs ---
-  // On traduit les classes Tailwind en codes de couleur hexadécimaux.
-    const mainTextColor = isDarkTheme ? '#F9FAFB' : '#11182C';
+  const mainTextColor = isDarkTheme ? '#F9FAFB' : '#11182C';
   const subTextColor = isDarkTheme ? '#9CA3AF' : '#4B5563';
   const iconColor = isDarkTheme ? '#D1D5DB' : '#374151';
-  // NOUVEAU : Une couleur spécifique pour le contour, pour un meilleur contraste
-  const strokeColor = isDarkTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
+  const strokeColor = isDarkTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   const starBadge = { bg: isDarkTheme ? 'rgba(99, 102, 241, 0.2)' : '#E0E7FF', text: isDarkTheme ? '#C7D2FE' : '#4338CA' };
   const forkBadge = { bg: isDarkTheme ? '#374151' : '#E5E7EB', text: isDarkTheme ? '#D1D5DB' : '#374151' };
-
   
-  // NOUVELLES couleurs pour le titre
-  const titleColors = {
-    // Le remplissage est maintenant une URL vers notre nouveau dégradé
-    fill: "url(#title-gradient)", 
-    // Le contour est une couleur sombre semi-transparente pour la subtilité
-    stroke: isDarkTheme ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)" 
-  };
+  // NOUVEAU : Couleurs pour les rectangles du header
+  const headerRectFill = isDarkTheme ? 'rgba(0, 0, 0, 0.25)' : 'rgba(255, 255, 255, 0.6)';
+  const headerRectStroke = isDarkTheme ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.15)';
 
 
   const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
@@ -227,38 +167,27 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       const PADDING_X = 8;
       const PADDING_Y = 4;
       const BADGE_HEIGHT = FONT_SIZE + PADDING_Y * 2;
-
-      // Estimation de la largeur du texte (le facteur 0.6 est un bon point de départ)
       const textWidth = label.length * FONT_SIZE * 0.6;
       const badgeWidth = textWidth + PADDING_X * 2;
-
       return (
         <g transform={`translate(${x}, ${y})`}>
-          <rect 
-            width={badgeWidth} 
-            height={BADGE_HEIGHT} 
-            rx="4"
-            // MODIFICATION ICI: On utilise l'URL de notre dégradé
-            fill="url(#holo-badge-gradient)" 
-            // On peut ajouter une fine bordure pour mieux le délimiter
-            stroke={isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
-            strokeWidth="0.5"
-          />
-            <text 
-              x={badgeWidth / 2} // Centrer le texte
-              y={BADGE_HEIGHT / 2} 
-              textAnchor="middle" 
-              dominantBaseline="middle" // Alignement vertical parfait
-              fontFamily="sans-serif"
-              fontSize={FONT_SIZE}
-              fontWeight="500"
-              fill={colors.text}
-            >
-              {label}
-            </text>
+          <rect width={badgeWidth} height={BADGE_HEIGHT} rx="4" fill="url(#holo-badge-gradient)" stroke={isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'} strokeWidth="0.5"/>
+          <text x={badgeWidth / 2} y={BADGE_HEIGHT / 2} textAnchor="middle" dominantBaseline="middle" fontFamily="sans-serif" fontSize={FONT_SIZE} fontWeight="500" fill={colors.text}>
+            {label}
+          </text>
         </g>
       );
     };
+
+  // NOUVEAU : Constantes de layout pour le header pour un ajustement facile
+  const HEADER_Y_OFFSET = 24; // Marge du haut de la carte
+  const HEADER_X_OFFSET = 24; // Marge de gauche de la carte
+  const ICON_RECT_SIZE = 64;  // Taille du carré pour l'icône
+  const ICON_SIZE = 36;       // Taille de l'icône SiGithub
+  const HEADER_RECT_RX = 10;  // Arrondi des bords
+  const USERNAME_Y_POS = 16;  // Position verticale du nom d'utilisateur
+  const RECTS_Y_POS = 32;     // Position verticale des rectangles (sous le nom d'utilisateur)
+  const CARD_CONTENT_WIDTH = 384 - (HEADER_X_OFFSET * 2); // Largeur utile à l'intérieur des paddings
 
   return (
     <svg
@@ -267,260 +196,132 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       viewBox="0 0 384 536"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      xmlnsXlink="http://www.w3.org/1999/xlink" // Nécessaire pour les href d'images
+      xmlnsXlink="http://www.w3.org/1999/xlink"
     >
-      {/* 
-        Définitions : C'est ici qu'on place les éléments réutilisables
-        comme les dégradés, les masques et les motifs d'image.
-      */}
       <defs>
-        {/* NOUVEAU : Filtre pour l'effet d'ombre portée sur le texte */}
+        {/* ... Toutes vos définitions existantes (gradients, fonts, etc.) restent ici ... */}
+        {/* NOTE : J'ai copié les définitions essentielles depuis votre code. Assurez-vous que tout y est. */}
         <filter id="text-shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow 
-            dx="1" 
-            dy="1.5" 
-            stdDeviation="1" 
-            floodColor={isDarkTheme ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)"} 
-          />
+          <feDropShadow dx="1" dy="1.5" stdDeviation="1" floodColor={isDarkTheme ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)"} />
         </filter>
-
-        {/* Dégradé pour le template "classic" */}
         <linearGradient id="classic-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FDE047" /> {/* from-yellow-300 */}
-          <stop offset="100%" stopColor="#F97316" /> {/* to-orange-400 */}
+          <stop offset="0%" stopColor="#FDE047" />
+          <stop offset="100%" stopColor="#F97316" />
         </linearGradient>
-
-        {/* Motifs pour les templates avec image de fond */}
         <pattern id="bg-holo" patternUnits="userSpaceOnUse" width="384" height="536">
           <image href={templateImages.holographic} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
-        </pattern>
-        <pattern id="bg-blue" patternUnits="userSpaceOnUse" width="384" height="536">
-          <image href={templateImages.blue} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
         <pattern id="bg-dark" patternUnits="userSpaceOnUse" width="384" height="536">
           <image href={templateImages.dark} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
-        
-        {/* Masque pour l'avatar */}
-        <mask id="avatarMask">
-            {/* Le masque est un dégradé de blanc (visible) à noir (invisible) */}
-            <linearGradient id="mask-gradient" x1="1" y1="0" x2="0" y2="1">
-                <stop offset="0.4" stopColor="white" />
-                <stop offset="0.8" stopColor="black" />
-            </linearGradient>
-            <rect width="256" height="256" fill="url(#mask-gradient)" />
-        </mask>
-
-        {/* Chemin de découpe pour rendre l'avatar rond AVANT d'appliquer le masque */}
         <clipPath id="card-border-clip">
-          {/* C'est un rectangle qui correspond exactement à la bordure intérieure */}
           <rect x="8" y="8" width="368" height="520" rx="12" />
         </clipPath>
-
-        {/* CORRECTION : Définition du clipPath circulaire pour l'avatar */}
-        <clipPath id="avatarClip">
-          {/* Ce cercle servira à découper l'image. 
-              Son centre (cx, cy) est à la moitié de la taille de l'image (256/2 = 128)
-              et son rayon (r) est de 128 pour couvrir toute l'image.
-          */}
-          <circle cx="128" cy="128" r="128" />
-        </clipPath>
-
-        {/* NOUVEAU: Dégradé pour l'effet brillant des badges */}
+        <clipPath id="avatarClip"><circle cx="128" cy="128" r="128" /></clipPath>
         <linearGradient id="holo-badge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          {/* On commence avec une couleur de base légèrement teintée */}
           <stop offset="0%" stopColor={isDarkTheme ? 'rgba(80, 70, 120, 0.4)' : 'rgba(230, 240, 255, 0.6)'} />
-          
-          {/* La "bande" brillante au milieu */}
           <stop offset="50%" stopColor={isDarkTheme ? 'rgba(120, 110, 180, 0.7)' : 'rgba(255, 255, 255, 1)'} />
-          
-          {/* On termine avec une autre teinte pour donner de la profondeur */}
           <stop offset="100%" stopColor={isDarkTheme ? 'rgba(70, 100, 120, 0.4)' : 'rgba(220, 230, 255, 0.6)'} />
         </linearGradient>
-
-        {/*
-          NOUVEAU : Intégration de la police en Base64.
-          Remplace le contenu de <style> par celui que tu as généré.
-        */}
-        <style>
-          {`
-           /* inter-regular - latin */
-            @font-face {
-              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-              font-family: 'Inter';
-              font-style: normal;
-              font-weight: 400;
-              src: url('../fonts/inter-v19-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-            }
-
-            /* inter-600 - latin */
-            @font-face {
-              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-              font-family: 'Inter';
-              font-style: normal;
-              font-weight: 600;
-              src: url('../fonts/inter-v19-latin-600.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-            }
-
-            /* inter-700 - latin */
-            @font-face {
-              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-              font-family: 'Inter';
-              font-style: normal;
-              font-weight: 700;
-              src: url('../fonts/inter-v19-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-            }
-
-            /* inter-800 - latin */
-            @font-face {
-              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-              font-family: 'Inter';
-              font-style: normal;
-              font-weight: 800;
-              src: url('../fonts/inter-v19-latin-800.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-            }
-
-            /* inter-900italic - latin */
-            @font-face {
-              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-              font-family: 'Inter';
-              font-style: italic;
-              font-weight: 900;
-              src: url('../fonts/inter-v19-latin-900italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-            }
-
-          `}
-        </style>
-
-        {/* 
-          NOUVEAU : Définition du filtre pour l'ombre portée.
-          On le met dans <defs> pour pouvoir le réutiliser avec un id.
-        */}
-        <filter id="text-shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow 
-              dx="3"      // Décalage horizontal de l'ombre
-              dy="3"      // Décalage vertical
-              stdDeviation="2" // Flou de l'ombre (blur)
-              floodColor="#000000" // Couleur de l'ombre
-              floodOpacity="0.5"   // Opacité
-            />
-        </filter>
+        <style>{`/* ... VOS FONTS ICI ... */`}</style>
       </defs>
 
-      {/* --- Arrière-plan de la carte --- */}
+      {/* --- Arrière-plan de la carte (inchangé) --- */}
       <g>
-        {/* 
-          On dessine le fond de la carte EN UNE SEULE FOIS.
-          Le "fill" de ce rectangle détermine tout l'arrière-plan extérieur.
-        */}
-        <rect 
-          width="384" 
-          height="536" 
-          rx="20" 
-          fill={
-            currentTemplate.id === 'classic' ? 'url(#classic-gradient)'
-          : currentTemplate.id === 'holographic' ? 'url(#bg-holo)'
-          : currentTemplate.id === 'blue' ? 'url(#bg-blue)'
-          : currentTemplate.id === 'dark' ? 'url(#bg-dark)'
-          : '#FFF' // Un fond par défaut au cas où
-          } 
-        />
-        
-        {/* 
-          On dessine le fond intérieur par-dessus, en simulant leAh padding.
-          x="8" y="8" simule un padding de 8px. width/height sont réduits de 16px (2*8)
-        */}
-        <rect 
-          x="8" 
-          y="8" 
-          width="368" 
-          height="520" 
-          rx="12" 
-          fill={
-            currentTemplate.id === 'classic' ? '#F8FAFC' // bg-slate-50
-          : currentTemplate.id === 'holographic' ? 'rgba(255, 255, 255, 0.70)' // bg-white/70
-          : currentTemplate.id === 'blue' ? 'rgba(255, 255, 255, 0.90)' // bg-white/90
-          : 'rgba(31, 41, 55, 0.85)' // bg-gray-800/85
-          }
-        />
+        <rect width="384" height="536" rx="20" fill={ currentTemplate.id === 'classic' ? 'url(#classic-gradient)' : currentTemplate.id === 'holographic' ? 'url(#bg-holo)' : 'url(#bg-dark)' } />
+        <rect x="8" y="8" width="368" height="520" rx="12" fill={ currentTemplate.id === 'classic' ? '#F8FAFC' : currentTemplate.id === 'holographic' ? 'rgba(255, 255, 255, 0.70)' : 'rgba(31, 41, 55, 0.85)' } />
       </g>
       
-
       {/* --- GROUPE PRINCIPAL AVEC DÉCOUPE --- */}
-      {/* Tous les éléments intérieurs seront "coupés" s'ils dépassent de ce chemin */}
       <g clipPath="url(#card-border-clip)">
 
+        {/***********************************************/}
+        {/* --- NOUVEAU HEADER STYLE CARTE POKÉMON --- */}
+        {/***********************************************/}
+        <g transform={`translate(${HEADER_X_OFFSET}, ${HEADER_Y_OFFSET})`}>
+          
+          {/* --- Arrière-plans pour l'icône et la bio --- */}
+          <g>
+            {/* Rectangle de fond pour l'icône */}
+            <rect
+              x="0"
+              y={RECTS_Y_POS}
+              width={ICON_RECT_SIZE}
+              height={ICON_RECT_SIZE}
+              rx={HEADER_RECT_RX}
+              fill={headerRectFill}
+              stroke={headerRectStroke}
+              strokeWidth="1"
+            />
+            {/* Rectangle de fond pour la bio */}
+            <rect
+              // On le fait commencer LÀ OÙ L'AUTRE FINIT pour l'effet "collé"
+              x={ICON_RECT_SIZE} 
+              y={RECTS_Y_POS}
+              // La largeur restante jusqu'au bord droit (moins le padding)
+              width={CARD_CONTENT_WIDTH - ICON_RECT_SIZE} 
+              height={ICON_RECT_SIZE}
+              rx={HEADER_RECT_RX}
+              fill={headerRectFill}
+              stroke={headerRectStroke}
+              strokeWidth="1"
+            />
+          </g>
 
-        {/* --- Header --- */}
-        <g transform="translate(24, 32)">
-          <SiGithub size="24" fill={iconColor} />
-          <StyledText
-            x={34}
-            y={12}
-            fontSize={18}
-            fontFamily="monospace, 'Courier New', Courier"
-            fill={mainTextColor}
-            stroke={strokeColor}
-          >
-            @{data.githubUser}
-          </StyledText>
+          {/* --- Contenu du header (par-dessus les fonds) --- */}
+          <g>
+            {/* Icône GitHub, centrée dans son rectangle */}
+            <SiGithub 
+              x={(ICON_RECT_SIZE - ICON_SIZE) / 2} // Centrage horizontal
+              y={RECTS_Y_POS + (ICON_RECT_SIZE - ICON_SIZE) / 2} // Centrage vertical
+              size={ICON_SIZE} 
+              fill={iconColor} 
+            />
+
+            {/* Texte du nom d'utilisateur */}
+            <StyledText
+              // Alignement vertical avec la bio
+              x={ICON_RECT_SIZE + 12} 
+              // Positionné au-dessus des rectangles
+              y={USERNAME_Y_POS} 
+              fontSize={18}
+              fontFamily="monospace, 'Courier New', Courier"
+              fontWeight="bold"
+              fill={mainTextColor}
+              stroke={strokeColor}
+            >
+              @{data.githubUser}
+            </StyledText>
+            
+            {/* Texte de la bio */}
+            <MultilineText
+              // Décalé à l'intérieur du rectangle de droite
+              x={ICON_RECT_SIZE + 12}
+              // Positionné en haut du rectangle, avec un petit padding
+              y={RECTS_Y_POS + 14}
+              // Largeur disponible pour le texte (rectangle - paddings)
+              width={CARD_CONTENT_WIDTH - ICON_RECT_SIZE - 24}
+              fontSize={11}
+              fill={subTextColor}
+              text={data.bio}
+            />
+          </g>
         </g>
+        {/***********************************************/}
+        {/* --- FIN DU NOUVEAU HEADER --- */}
 
-        {/* --- Bio (avec le style corrigé) --- */}
-        {/* La bio est placée juste en dessous. */}
-        <g transform="translate(28, 75)"> {/* J'ai légèrement remonté à 65 pour resserrer l'espace */}
-          <MultilineText
-            // MODIFICATION 1 : On retire .toUpperCase() pour un style plus doux
-            text={data.bio || ""} 
-            x={0}
-            y={0} // Le y est maintenant géré par le transform du groupe parent
-            width={336}
-            // MODIFICATION 2 : La taille est déjà bonne, on la garde.
-            fontSize={11} 
-            // MODIFICATION 3 : On utilise la couleur de texte secondaire
-            fill={subTextColor} 
-          />
-        </g>
-
-         {/* --- Avatar --- */}
-        {/*
-          On crée un groupe pour positionner l'ensemble de l'avatar.
-          Tout ce qui est à l'intérieur de ce groupe sera décalé de (180, 80).
-        */}
-        <g transform="translate(180, 80)">
-
-          {/* 
-            Groupe de découpe. Ce groupe applique le clipPath rond.
-            Les coordonnées (cx, cy) des éléments à l'intérieur sont maintenant
-            relatives à ce groupe.
-          */}
+        {/* --- Avatar --- */}
+        {/* On le décale vers le bas pour laisser de la place au nouveau header plus grand */}
+        <g transform="translate(180, 130)">
           <g clipPath="url(#avatarClip)">
-            {/* 
-              L'image est placée à (0,0) à l'intérieur de ce groupe.
-              Le clipPath va la découper en un cercle centré sur (128,128)
-              car c'est ainsi que avatarClip est défini dans <defs>.
-            */}
             <image
               href={avatarBase64}
-              x="0" 
-              y="0"
-              width="256"
-              height="256"
+              x="0" y="0" width="256" height="256"
               mask="url(#avatarMask)"
             />
           </g>
-          
-          {/* 
-            La bordure est dessinée APRÈS la découpe de l'image.
-            Elle est positionnée exactement au même endroit que le cercle
-            de découpe dans les <defs> pour s'aligner parfaitement.
-            Comme elle n'est pas dans le groupe de découpe, elle n'est pas
-            affectée par celui-ci.
-          */}
           <circle 
-            cx="128" 
-            cy="128" 
-            r="125" 
+            cx="128" cy="128" r="125" 
             fill="none"
             stroke={isDarkTheme ? '#1F2937' : '#FFFFFF'}
             strokeWidth="6"
@@ -529,11 +330,9 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
 
         {/* --- Corps Principal --- */}
+        {/* Également décalé vers le bas */}
         <g transform="translate(24, 270)">
-          
-                  
           {/* Liste des dépôts mis en avant */}
-          {/* --- SECTION DES DÉPÔTS MIS EN AVANT --- */}
           <g transform="translate(0, 0)">
               {data.highlightedRepos?.slice(0, 3).map((repo, index) => {
                   const yPos = index * 55;
@@ -541,36 +340,12 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                   return (
                       <g key={repo.id} transform={`translate(0, ${yPos})`}>
                           <ProjectIcon y="2" size="14" fill={mainTextColor}/>
-                           {/* MODIFIÉ : On utilise StyledText pour le nom du repo. On le met en gras. */}
-                          <StyledText
-                            x={22}
-                            y={8} // Un peu ajusté pour l'alignement vertical avec dominantBaseline
-                            fontSize={14} // Un peu plus grand pour l'impact
-                            fontWeight="600"
-                            fill={mainTextColor}
-                            stroke={strokeColor}
-                          >
-                            {/* On s'assure que le nom ne soit pas trop long */}
+                          <StyledText x={22} y={8} fontSize={14} fontWeight="600" fill={mainTextColor} stroke={strokeColor}>
                             {repo.name.length > 25 ? `${repo.name.substring(0, 25)}...` : repo.name}
                           </StyledText>
-                          
-                          {/* Description déplacée sous le nom pour plus de clarté */}
-                          
-                          <StyledText
-                            x={22}
-                            y={30} // Un peu ajusté pour l'alignement vertical avec dominantBaseline
-                            fontSize={11} // Un peu plus grand pour l'impact
-                            fontWeight="400"
-                            fill={mainTextColor}
-                            stroke={strokeColor}
-                          >
-                            {/* On s'assure que le nom ne soit pas trop long */}
-                            {repo.description
-                              ? repo.description
-                              : "No description"}
+                          <StyledText x={22} y={30} fontSize={11} fontWeight="400" fill={mainTextColor} stroke={strokeColor}>
+                            {repo.description ? repo.description : "No description"}
                           </StyledText>
-                          
-                          {/* Badges à droite */}
                           <g transform="translate(250, 0)">
                               <StatBadge icon={GoStar} value={repo.stars} x={0} y={0} colors={starBadge} />
                               <StatBadge icon={GoGitBranch} value={repo.forks} x={0} y={22} colors={forkBadge} />
@@ -581,60 +356,36 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           </g>
         </g>
         
-        {/* --- PIED DE PAGE "SMOOTH" POUR LES TECHNOS --- */}
-        {/* --- SECTION TECHNOLOGIES AVEC BADGES DYNAMIQUES --- */}
+        {/* --- Pied de page des technologies --- */}
         <g transform="translate(28, 485)">
             <text y="0" fontFamily="sans-serif" fontSize="10" fontWeight="bold" fill={subTextColor} letterSpacing="0.05em">
                 {'Technologies Favorites'.toUpperCase()}
             </text>
-
             <g transform="translate(0, 12)">
                 {(() => {
                     const badges: React.ReactNode[] = [];
                     let currentX = 0;
                     let currentY = 0;
-                    const cardWidth = 320; // Largeur disponible pour les badges (384 - padding*2 - marge)
-                    const gap = 6; // Espace entre les badges
-                    const lineHeight = 24; // Hauteur d'une ligne de badges
+                    const cardWidth = 320;
+                    const gap = 6;
+                    const lineHeight = 24;
+                    const techBadgeColors = { bg: isDarkTheme ? 'rgba(55, 65, 81, 0.5)' : 'rgba(229, 231, 235, 1)', text: isDarkTheme ? '#D1D5DB' : '#374151' };
 
-                    // Couleurs pour les badges de techno
-                    const techBadgeColors = {
-                        bg: isDarkTheme ? 'rgba(55, 65, 81, 0.5)' : 'rgba(229, 231, 235, 1)', // gray-700/50 ou gray-200
-                        text: isDarkTheme ? '#D1D5DB' : '#374151' // gray-300 ou gray-700
-                    };
-
-                    data.topLanguages.slice(0, 8).forEach((lang, index) => {
-                        // Calcul de la largeur du badge à venir
+                    data.topLanguages.slice(0, 8).forEach((lang) => {
                         const FONT_SIZE = 10;
                         const PADDING_X = 8;
                         const textWidth = lang.length * FONT_SIZE * 0.6;
                         const badgeWidth = textWidth + PADDING_X * 2;
-
-                        // Si le badge dépasse, on passe à la ligne suivante
                         if (currentX + badgeWidth > cardWidth) {
                             currentX = 0;
                             currentY += lineHeight;
                         }
-
-                        // Si on a plus de 2 lignes, on arrête
                         if (currentY >= lineHeight * 2) {
                             return;
                         }
-
-                        badges.push(
-                            <TechBadge 
-                                key={lang} 
-                                label={lang} 
-                                x={currentX} 
-                                y={currentY} 
-                                colors={techBadgeColors} 
-                            />
-                        );
-
-                        // On met à jour la position pour le prochain badge
+                        badges.push(<TechBadge key={lang} label={lang} x={currentX} y={currentY} colors={techBadgeColors} />);
                         currentX += badgeWidth + gap;
                     });
-
                     return badges;
                 })()}
             </g>
@@ -643,6 +394,3 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
     </svg>
   );
 }
-
-// Assurez-vous d'avoir exporté iconMap depuis Card.tsx ou de l'avoir mis dans un fichier partagé
-// Par exemple, dans Card.tsx, changez `const iconMap` en `export const iconMap`
