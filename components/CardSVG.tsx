@@ -111,7 +111,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         </pattern>
         
         {/* Mask for avatar */}
-        <mask id="avatarMask">
+        <mask id="aavatarMask">
             <linearGradient id="mask-gradient" x1="1" y1="0" x2="0" y2="1">
                 <stop offset="0.4" stopColor="white" />
                 <stop offset="0.8" stopColor="black" />
