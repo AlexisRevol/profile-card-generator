@@ -48,7 +48,7 @@ export function StyledMultilineText(props: {
   stroke: string;
   lineHeightFactor?: number;
 }) {
-  const { text, x, y, maxWidth, fontSize, maxLines = 2, lineHeightFactor = 1.3, ...styleProps } = props;
+  const { text, x, y, maxWidth, fontSize, fontWeight, fill, stroke, maxLines = 2, lineHeightFactor = 1.3, ...styleProps } = props;
 
   // ON RÉUTILISE NOTRE UTILITAIRE ! Plus de logique dupliquée.
   const { lines } = calculateMultilineLayout(text, maxWidth, fontSize, maxLines, lineHeightFactor);
@@ -58,7 +58,13 @@ export function StyledMultilineText(props: {
       x={x}
       y={y}
       fontSize={fontSize}
+      fontWeight={fontWeight}
+      fill={fill}
       fontFamily={FONT_FAMILY_SANS}
+      stroke={stroke}
+      strokeWidth={fontSize / 12}
+      strokeLinejoin="round"
+      paintOrder="stroke"
       dominantBaseline="hanging"
       {...styleProps}
     >
