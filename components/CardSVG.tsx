@@ -452,7 +452,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                           <StyledText x={22} y={30} fontSize={11} fontWeight="400" fill={mainTextColor} stroke={strokeColor}>
                             {repo.description ? repo.description : "No description"}
                           </StyledText>
-                          <g transform="translate(250, 0)">
+                          <g transform="translate(300, 0)">
                               <StatBadge icon={GoStar} value={repo.stars} x={0} y={0} colors={starBadge} />
                               <StatBadge icon={GoGitBranch} value={repo.forks} x={0} y={22} colors={forkBadge} />
                           </g>
