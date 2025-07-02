@@ -1,8 +1,7 @@
 // src/components/card/card.components.tsx
 import React from 'react';
 import { FONT_FAMILY_MONO, FONT_FAMILY_SANS } from './card.constants';
-import { calculateMultilineLayout, formatStatNumber } from './card.utils';
-import { estimateTextWidth } from '@/utils/card.utils';
+import { calculateMultilineLayout, estimateTextWidth, formatStatNumber } from '@/utils/card.utils';
 
 // --- Text Components ---
 

@@ -3,7 +3,6 @@
 import type { CardData } from '@/types';
 import { TEMPLATES } from '@/config/templates';
 import { getProjectTypeIcon } from '@/utils/projectTypeHelper';
-import { calculateMultilineLayout } from './card.utils';
 import {
   StyledText,
   StyledMultilineText,
@@ -26,6 +25,7 @@ import {
 // Icônes
 import { SiGithub } from 'react-icons/si';
 import { GoStar, GoGitBranch, GoRepo } from 'react-icons/go';
+import { calculateMultilineLayout } from '@/utils/card.utils';
 
 interface CardSVGProps {
   data: CardData;
@@ -71,8 +71,8 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       </linearGradient>
 
       <linearGradient id="badge-bg-holographic" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="rgba(239, 164, 206, 0.7)" />
-        <stop offset="100%" stopColor="rgba(240, 133, 174, 0.7)" />
+        <stop offset="0%" stopColor="rgba(239, 225, 230, 0.7)" />
+        <stop offset="100%" stopColor="rgba(239, 216, 228, 0.7)" />
       </linearGradient>
 
 
@@ -191,7 +191,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           <StyledText x={34} y={12} fontSize={18} fill={colors.mainText} stroke={colors.stroke}>
             @{data.githubUser}
           </StyledText>
-
+          
           {data.publicRepos > 0 && (
             <HeaderStat
               value={data.publicRepos} 

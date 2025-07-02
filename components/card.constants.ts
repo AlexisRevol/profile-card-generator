@@ -47,7 +47,7 @@ export const THEME_COLORS = {
     subText: '#4B5563',
     icon: '#374151',
     stroke: 'rgba(255,255,255,0.7)',
-    bioBg: '#E5E7EB',
+    bioBg: '#FFEDF9',
     bioText: '#1F2937',
     bioBorder: '#D1D5DB',
     starBadge: { bg: '#E0E7FF', text: commonColors.star.light },
