@@ -160,7 +160,22 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       {/* --- Card background --- */}
       <g>
         <rect width="384" height="536" rx="20" fill={ currentTemplate.id === 'classic' ? 'url(#classic-gradient)' : currentTemplate.id === 'holographic' ? 'url(#bg-holo)' : 'url(#bg-dark)' } />
-        <rect x="8" y="8" width="368" height="520" rx="12" fill={ currentTemplate.id === 'classic' ? '#F8FAFC' : currentTemplate.id === 'holographic' ? 'rgba(255, 255, 255, 0.70)' : 'rgba(31, 41, 55, 0.85)' } />
+         <rect 
+            x="8" y="8" 
+            width="368" height="520" 
+            rx="12" 
+            fill={
+              currentTemplate.id === 'classic' ? '#F8FAFC' :
+              currentTemplate.theme === 'light' ? '#FFFFFF' : // holographic & blue
+              '#1F2937' // dark
+            }
+            fill-opacity={
+              currentTemplate.id === 'classic' ? '1' :
+              currentTemplate.id === 'holographic' ? '0.70' :
+              currentTemplate.id === 'blue' ? '0.90' : // En supposant que vous vouliez une opacité différente pour 'blue'
+              '0.85' // dark
+            }
+          />
       </g>
       
       {/* --- Main group --- */}
@@ -206,12 +221,10 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/* --- Avatar --- */}
         <g transform={`translate(${LAYOUT.avatar.x}, ${LAYOUT.avatar.y})`}>
           <g clipPath="url(#avatarClip)">
-            {/* 1. L'image de base, toujours avec xlinkHref pour la compatibilité */}
             <image
               xlinkHref={avatarBase64}
               x="0" y="0" width="256" height="256"
             />
-            {/* 2. Le rectangle de superposition qui crée l'effet de fondu */}
             <rect 
               x="0" y="0" width="256" height="256"
               fill="url(#avatarFadeGradient)"
