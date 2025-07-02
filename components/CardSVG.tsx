@@ -114,6 +114,85 @@ const MultilineText = ({ lines, x, y, fontSize, fill, fontWeight }: { lines: str
     );
   };
 
+  // NOUVEAU : Composant pour du texte stylisé ET multi-lignes
+const StyledMultilineText: React.FC<{
+  text: string;
+  x: number;
+  y: number;
+  maxWidth: number;
+  maxLines?: number;
+  fontSize: number;
+  fontWeight?: string | number;
+  fill: string;
+  stroke: string;
+  lineHeightFactor?: number;
+}> = ({
+  text,
+  x,
+  y,
+  maxWidth,
+  maxLines = 2, // Limite à 2 lignes par défaut
+  fontSize,
+  fontWeight,
+  fill,
+  stroke,
+  lineHeightFactor = 1.3, // Espacement entre les lignes
+}) => {
+  const safeText = text || "No description";
+  const words = safeText.split(' ');
+  let lines: string[] = [];
+  let currentLine = '';
+
+  // Logique de découpage du texte
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    // Estimation de la largeur (comme dans les autres fonctions)
+    const testWidth = testLine.length * fontSize * 0.6; 
+    
+    if (testWidth > maxWidth && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  }
+  lines.push(currentLine);
+
+  // Appliquer la limite de lignes et ajouter "..." si nécessaire
+  let finalLines = lines.slice(0, maxLines);
+  if (lines.length > maxLines) {
+    // S'assurer que les "..." ne dépassent pas
+    let lastLine = finalLines[maxLines - 1];
+    while ((lastLine + "...").length * fontSize * 0.6 > maxWidth && lastLine.length > 0) {
+      lastLine = lastLine.slice(0, -1);
+    }
+    finalLines[maxLines - 1] = lastLine + "...";
+  }
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fontFamily="sans-serif"
+      fontSize={fontSize}
+      fontWeight={fontWeight || "normal"}
+      fill={fill}
+      stroke={stroke}
+      strokeWidth={fontSize / 12}
+      strokeLinejoin="round"
+      paintOrder="stroke"
+      // Utiliser 'hanging' pour que le 'y' corresponde au haut du bloc de texte
+      dominantBaseline="hanging" 
+    >
+      {finalLines.map((line, index) => (
+        <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * lineHeightFactor}>
+          {line}
+        </tspan>
+      ))}
+    </text>
+  );
+};
+
 interface CardSVGProps {
   data: CardData;
   avatarBase64: string;
@@ -171,7 +250,8 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const bioBorderColor = isDarkTheme ? 'rgba(107, 114, 128, 0.5)' : '#D1D5DB';
   const bioInnerHighlightColor = 'rgba(255, 255, 255, 0.8)';
 
-
+  const REPO_DESC_MAX_WIDTH = 270; // Largeur max avant que le texte ne touche les badges
+  
 // --- Pré-calcul de la taille de la bio ---
   const bioLayout = calculateMultilineTextLayout(
     data.bio,
@@ -449,9 +529,18 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                           <StyledText x={22} y={8} fontSize={14} fontWeight="600" fill={mainTextColor} stroke={strokeColor}>
                             {repo.name.length > 25 ? `${repo.name.substring(0, 25)}...` : repo.name}
                           </StyledText>
-                          <StyledText x={22} y={30} fontSize={11} fontWeight="400" fill={mainTextColor} stroke={strokeColor}>
-                            {repo.description ? repo.description : "No description"}
-                          </StyledText>
+                          {/* --- MODIFIÉ : Utilisation du nouveau composant pour la description --- */}
+                          <StyledMultilineText
+                            text={repo.description || "No description"}
+                            x={22}
+                            y={24} // Ajusté pour 'dominantBaseline="hanging"'
+                            maxWidth={REPO_DESC_MAX_WIDTH}
+                            maxLines={2}
+                            fontSize={11} 
+                            fontWeight="400" 
+                            fill={mainTextColor} 
+                            stroke={strokeColor}
+                          />
                           <g transform="translate(300, 0)">
                               <StatBadge icon={GoStar} value={repo.stars} x={0} y={0} colors={starBadge} />
                               <StatBadge icon={GoGitBranch} value={repo.forks} x={0} y={22} colors={forkBadge} />
