@@ -191,18 +191,16 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           <StyledText x={34} y={12} fontSize={18} fill={colors.mainText} stroke={colors.stroke}>
             @{data.githubUser}
           </StyledText>
-          {/* ======================================= */}
-          {/*       LA SOLUTION FINALE : CLAIRE ET FIABLE       */}
-          {/* ======================================= */}
+
           {data.publicRepos > 0 && (
             <HeaderStat
-              value={data.publicRepos} // <-- ON UTILISE publicRepos
-              icon={GoRepo} // <-- On passe l'icône de dépôt
+              value={data.publicRepos} 
+              icon={GoRepo} 
               x={CARD_WIDTH - (LAYOUT.header.x * 2) - CARD_PADDING}
               y={12}
               colors={{
                 text: colors.mainText,
-                icon: colors.subText, // On peut utiliser une couleur sobre
+                icon: colors.subText, 
                 stroke: colors.stroke,
               }}
             />

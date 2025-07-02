@@ -244,31 +244,36 @@ export const HeaderStat: React.FC<{
 }> = ({ value, x, y, colors, icon: Icon }) => {
   const fontSize = 16;
   const iconSize = 15;
-  const spacing = 6; // Espace entre l'icône et le texte
+  const spacing = 6;
 
-  // Utilise le formateur pour rendre les grands nombres plus lisibles (ex: 1200 -> 1.2k)
   const formattedValue = formatStatNumber(value);
 
-  // Estimation de la largeur du texte pour positionner l'icône correctement.
-  // Un facteur de 0.6 est une bonne approximation pour une police sans-serif.
-  const textWidth = formattedValue.length * fontSize * 0.6;
+  // --- CORRECTION CLÉ ICI ---
+  // Estimation de la largeur du texte. On utilise un facteur plus grand (0.75)
+  // pour couvrir les cas où les caractères sont larges et éviter tout chevauchement.
+  // C'est un compromis : l'espacement peut être un peu plus grand, mais jamais négatif.
+  const textWidth = formattedValue.length * fontSize * 0.75;
   
-  // La position de l'icône est calculée en reculant depuis le point d'ancrage du texte.
+  // La position de l'icône est calculée en reculant depuis la fin du texte.
+  // Le point (0,0) de notre groupe est la fin du texte (grâce à textAnchor="end").
+  // On recule de la largeur du texte, puis de l'espacement.
   const iconXPosition = -textWidth - spacing;
 
   return (
-    // text-anchor="end" est crucial. Il signifie que le point (x, y) est la FIN du texte.
+    // text-anchor="end" aligne tout par la droite, ce qui est parfait pour notre usage.
+    // Le point (x,y) que nous passons au transform devient le bord droit du composant.
     <g transform={`translate(${x}, ${y})`} textAnchor="end">
       
       {/* 
-        Le composant StyledText gère l'affichage du nombre avec son contour.
-        Il est ancré au point (x,y) par son côté droit.
+        Le composant StyledText affiche le nombre.
+        Son 'x' est à 0, et comme text-anchor="end", son bord droit sera à 0.
+        Le texte s'étendra donc vers la gauche.
       */}
       <StyledText
         x={0}
-        y={0} // dominantBaseline="middle" s'occupe de l'alignement vertical
+        y={0}
         fontSize={fontSize}
-        fontWeight="800" // Police épaisse pour un look impactant
+        fontWeight="800"
         fill={colors.text}
         stroke={colors.stroke}
       >
@@ -276,9 +281,9 @@ export const HeaderStat: React.FC<{
       </StyledText>
 
       {/* 
-        L'icône est placée à gauche du texte.
-        Sa position est calculée pour qu'elle ne chevauche pas le texte.
-        y={-(iconSize / 2)} la centre verticalement avec le texte.
+        L'icône est positionnée à gauche du texte.
+        Son 'x' est calculé pour être avant le début estimé du texte.
+        y={-(iconSize / 2)} la centre verticalement.
       */}
       <Icon 
         x={iconXPosition} 
