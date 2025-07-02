@@ -57,6 +57,7 @@ export function StyledMultilineText(props: {
     <text
       x={x}
       y={y}
+      fontSize={fontSize}
       fontFamily={FONT_FAMILY_SANS}
       dominantBaseline="hanging"
       {...styleProps}
