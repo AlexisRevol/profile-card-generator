@@ -1,11 +1,9 @@
-// src/components/card/card.components.tsx
 import React from 'react';
-import { FONT_FAMILY_MONO, FONT_FAMILY_SANS } from './card.constants';
+import { FONT_FAMILY_SANS } from './card.constants';
 import { calculateMultilineLayout, estimateTextWidth, formatStatNumber } from '@/utils/card.utils';
 
 // --- Text Components ---
 
-// Texte simple avec un contour pour la lisibilité
 export const StyledText: React.FC<{
   children: React.ReactNode;
   x: number;
@@ -15,13 +13,13 @@ export const StyledText: React.FC<{
   fontWeight?: string | number;
   fill: string;
   stroke: string;
-  textAnchor?: 'start' | 'middle' | 'end'; // <-- AJOUTEZ CETTE LIGNE
-}> = ({ children, x, y, fontSize, fontFamily, fontWeight, fill, stroke, textAnchor }) => { // <-- Ajoutez textAnchor ici
+  textAnchor?: 'start' | 'middle' | 'end'; 
+}> = ({ children, x, y, fontSize, fontFamily, fontWeight, fill, stroke, textAnchor }) => { 
   return (
     <text
       x={x}
       y={y}
-      fontFamily={fontFamily || "sans-serif"} // J'ai corrigé "FONT_FAMILY_MONO" qui était peut-être une erreur de copier/coller
+      fontFamily={fontFamily || "sans-serif"} 
       fontSize={fontSize}
       fontWeight={fontWeight || "bold"}
       fill={fill}
@@ -30,14 +28,14 @@ export const StyledText: React.FC<{
       strokeLinejoin="round"
       paintOrder="stroke"
       dominantBaseline="middle"
-      textAnchor={textAnchor || 'start'} // <-- ET APPLIQUEZ-LE ICI
+      textAnchor={textAnchor || 'start'} 
     >
       {children}
     </text>
   );
 };
   
-// Texte multiligne avec contour
+// Multiline text with backline
 export function StyledMultilineText(props: {
   text: string;
   x: number;
@@ -52,7 +50,6 @@ export function StyledMultilineText(props: {
 }) {
   const { text, x, y, maxWidth, fontSize, fontWeight, fill, stroke, maxLines = 2, lineHeightFactor = 1.3, ...styleProps } = props;
 
-  // ON RÉUTILISE NOTRE UTILITAIRE ! Plus de logique dupliquée.
   const { lines } = calculateMultilineLayout(text, maxWidth, fontSize, maxLines, lineHeightFactor);
 
   return (
@@ -113,7 +110,6 @@ const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: numbe
 
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Ombre portée */}
       <rect
         x="0.5" y="1" width={badgeWidth} height={BADGE_HEIGHT}
         rx={badgeRadius}
@@ -121,16 +117,14 @@ const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: numbe
         filter="url(#text-shadow)"
       />
 
-      {/* MODIFIÉ : La couche de fond utilise maintenant l'ID dynamique */}
       <rect
         width={badgeWidth} height={BADGE_HEIGHT}
         rx={badgeRadius}
-        fill={`url(#${colors.backgroundGradientId})`} // <-- UTILISATION DYNAMIQUE !
+        fill={`url(#${colors.backgroundGradientId})`} 
         stroke={colors.borderOuter}
         strokeWidth="0.5"
       />
 
-      {/* Bordure intérieure */}
       <rect
         x="0.5" y="0.5" width={badgeWidth - 1} height={BADGE_HEIGHT - 1}
         rx={badgeRadius - 0.5}
@@ -138,15 +132,13 @@ const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: numbe
         stroke={colors.borderInner}
         strokeWidth="0.5"
       />
-      
-      {/* Reflet (inchangé) */}
+
       <rect
         x="0.5" y="0.5" width={badgeWidth - 1} height={(BADGE_HEIGHT - 1) / 2}
         rx={badgeRadius - 0.5} ry={badgeRadius - 0.5}
         fill="url(#tech-badge-shine-gradient)"
       />
 
-      {/* Texte (inchangé) */}
       <text
         x={badgeWidth / 2} y={BADGE_HEIGHT / 2}
         textAnchor="middle" dominantBaseline="middle"
@@ -173,32 +165,27 @@ interface TechBadgeColors {
   backgroundGradientId: string;
 }
 
-// ÉTAPE 2: Définir le type pour les props de TechBadgeList
 interface TechBadgeListProps {
   languages: string[];
   x: number;
   y: number;
   maxWidth: number;
-  colors: TechBadgeColors; // On réutilise l'interface précédente
+  colors: TechBadgeColors; 
 }
 
-// --- CORRIGÉ : Composant pour la liste des badges technologiques ---
-// Gère la logique de placement complexe
-// ÉTAPE 3: Appliquer le type à la fonction
 export function TechBadgeList({
   languages,
   x,
   y,
   maxWidth,
   colors,
-}: TechBadgeListProps) { // <-- On utilise le type que l'on vient de définir
+}: TechBadgeListProps) { 
   const badges: React.ReactNode[] = [];
   let currentX = 0;
   let currentY = 0;
   const gap = 6;
   const lineHeight = 24;
 
-  // Le reste du code de la fonction est correct
   languages.slice(0, 8).forEach((lang) => {
     const FONT_SIZE = 10;
     const PADDING_X = 8;
@@ -214,7 +201,6 @@ export function TechBadgeList({
       return;
     }
 
-    // Le `TechBadge` ici sera maintenant correctement typé
     badges.push(
       <TechBadge key={lang} label={lang} x={currentX} y={currentY} colors={colors} />
     );
@@ -224,41 +210,27 @@ export function TechBadgeList({
   return <g transform={`translate(${x}, ${y})`}>{badges}</g>;
 }
 
-/**
- * Affiche une statistique clé, alignée à droite, avec un espacement interne parfait.
- * Utilise la même logique que StatBadge mais adaptée pour un alignement à droite
- * grâce à une estimation de largeur de texte précise.
- */
+
 export const HeaderStat: React.FC<{
   value: number;
-  x: number; // Coordonnée X du bord droit final souhaité
+  x: number; 
   y: number;
   colors: { text: string; icon: string; stroke: string; };
   icon: React.ElementType;
 }> = ({ value, x, y, colors, icon: Icon }) => {
   const fontSize = 16;
   const iconSize = 15;
-  const spacing = 6; // L'espacement que l'on veut entre l'icône et le texte
+  const spacing = 6; 
 
   const formattedValue = formatStatNumber(value);
 
-  // 1. On calcule la largeur précise des éléments
   const textWidth = estimateTextWidth(formattedValue, fontSize);
   const totalWidth = iconSize + spacing + textWidth;
 
-  // 2. On calcule le point de départ du groupe pour qu'il se termine à `x`
   const startX = x - totalWidth;
 
   return (
-    // On positionne le groupe pour qu'il soit parfaitement aligné à droite
     <g transform={`translate(${startX}, ${y})`}>
-
-      {/* 
-        3. On place les éléments à l'intérieur du groupe, de gauche à droite.
-        Les positions sont maintenant relatives au début du groupe (0).
-      */}
-      
-      {/* L'icône est au début */}
       <Icon
         x={0}
         y={-(iconSize / 2)}
@@ -266,7 +238,6 @@ export const HeaderStat: React.FC<{
         fill={colors.icon}
       />
 
-      {/* Le texte est placé juste après l'icône et son espacement */}
       <StyledText
         x={iconSize + spacing}
         y={0}
@@ -274,7 +245,7 @@ export const HeaderStat: React.FC<{
         fontWeight="800"
         fill={colors.text}
         stroke={colors.stroke}
-        textAnchor="start" // Important: le texte s'aligne maintenant par son début
+        textAnchor="start"
       >
         {formattedValue}
       </StyledText>

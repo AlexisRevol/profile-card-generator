@@ -17,12 +17,9 @@ import {
   REPO_DEFAULTS,
   templateImages,
   CARD_WIDTH,
-  CARD_HEIGHT,
   CARD_PADDING,
-  // ... autres constantes importées
 } from './card.constants';
 
-// Icônes
 import { SiGithub } from 'react-icons/si';
 import { GoStar, GoGitBranch, GoRepo } from 'react-icons/go';
 import { calculateMultilineLayout } from '@/utils/card.utils';
@@ -37,7 +34,6 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const isDarkTheme = currentTemplate.theme === 'dark';
   const colors = isDarkTheme ? THEME_COLORS.dark : THEME_COLORS.light;
 
-  // --- Pré-calculs pour la mise en page ---
   const bioLayout = calculateMultilineLayout(
     data.bio,
     BIO_DEFAULTS.maxWidth - BIO_DEFAULTS.paddingX * 2,
@@ -60,61 +56,56 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
      <defs>
-      <linearGradient id="badge-bg-light" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#F9FAFB" />
-        <stop offset="100%" stopColor="#E5E7EB" />
-      </linearGradient>
+        <linearGradient id="badge-bg-light" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#F9FAFB" />
+          <stop offset="100%" stopColor="#E5E7EB" />
+        </linearGradient>
 
-      <linearGradient id="badge-bg-dark" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="rgba(80, 90, 110, 0.6)" />
-        <stop offset="100%" stopColor="rgba(40, 50, 65, 0.6)" />
-      </linearGradient>
+        <linearGradient id="badge-bg-dark" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(80, 90, 110, 0.6)" />
+          <stop offset="100%" stopColor="rgba(40, 50, 65, 0.6)" />
+        </linearGradient>
 
-      <linearGradient id="badge-bg-holographic" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="rgba(239, 225, 230, 0.7)" />
-        <stop offset="100%" stopColor="rgba(239, 216, 228, 0.7)" />
-      </linearGradient>
+        <linearGradient id="badge-bg-holographic" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(239, 225, 230, 0.7)" />
+          <stop offset="100%" stopColor="rgba(239, 216, 228, 0.7)" />
+        </linearGradient>
 
 
-      <linearGradient id="tech-badge-shine-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="rgba(255, 255, 255, 0.7)" stopOpacity={isDarkTheme ? 0.3 : 1} />
-        <stop offset="50%" stopColor="rgba(255, 255, 255, 0)" stopOpacity={isDarkTheme ? 0.1 : 0.5} />
-        <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" stopOpacity="0" />
-      </linearGradient>
+        <linearGradient id="tech-badge-shine-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255, 255, 255, 0.7)" stopOpacity={isDarkTheme ? 0.3 : 1} />
+          <stop offset="50%" stopColor="rgba(255, 255, 255, 0)" stopOpacity={isDarkTheme ? 0.1 : 0.5} />
+          <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" stopOpacity="0" />
+        </linearGradient>
 
-      <linearGradient id="tech-badge-bg-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop
-          offset="0%"
-          stopColor={isDarkTheme ? 'rgba(80, 90, 110, 0.6)' : '#F9FAFB'} // Sombre : gris-bleu / Clair : blanc cassé
-        />
-        <stop
-          offset="100%"
-          stopColor={isDarkTheme ? 'rgba(40, 50, 65, 0.6)' : '#E5E7EB'} // Sombre : plus foncé / Clair : gris de base
-        />
-      </linearGradient>
+        <linearGradient id="tech-badge-bg-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop
+            offset="0%"
+            stopColor={isDarkTheme ? 'rgba(80, 90, 110, 0.6)' : '#F9FAFB'}
+          />
+          <stop
+            offset="100%"
+            stopColor={isDarkTheme ? 'rgba(40, 50, 65, 0.6)' : '#E5E7EB'} 
+          />
+        </linearGradient>
 
-      <linearGradient id="tech-badge-shine-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="rgba(255, 255, 255, 0.7)" stopOpacity={isDarkTheme ? 0.3 : 1} />
-        <stop offset="50%" stopColor="rgba(255, 255, 255, 0)" stopOpacity={isDarkTheme ? 0.1 : 0.5} />
-        <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" stopOpacity="0" />
-      </linearGradient>
+        <linearGradient id="tech-badge-shine-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255, 255, 255, 0.7)" stopOpacity={isDarkTheme ? 0.3 : 1} />
+          <stop offset="50%" stopColor="rgba(255, 255, 255, 0)" stopOpacity={isDarkTheme ? 0.1 : 0.5} />
+          <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" stopOpacity="0" />
+        </linearGradient>
 
-        {/* --- NOUVEAU : Dégradé pour l'effet de reflet sur la bio --- */}
-        {/* --- MODIFIÉ : Dégradé pour le reflet avec opacité ajustée pour le thème clair --- */}
         <linearGradient id="bio-reflect-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          {/* Thème clair : opacité beaucoup plus forte pour être visible sur fond clair */}
           <stop offset="0%" stopColor="white" stopOpacity={isDarkTheme ? "0.15" : "0.7"} />
           <stop offset="50%" stopColor="white" stopOpacity="0" />
           <stop offset="100%" stopColor="white" stopOpacity="0" />
         </linearGradient>
 
-        {/* Dégradé pour le template "classic" */}
         <linearGradient id="classic-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FDE047" /> {/* from-yellow-300 */}
-          <stop offset="100%" stopColor="#F97316" /> {/* to-orange-400 */}
+          <stop offset="0%" stopColor="#FDE047" />
+          <stop offset="100%" stopColor="#F97316" />
         </linearGradient>
 
-        {/* Motifs pour les templates avec image de fond */}
         <pattern id="bg-holo" patternUnits="userSpaceOnUse" width="384" height="536">
           <image href={templateImages.holographic} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
@@ -125,9 +116,8 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           <image href={templateImages.dark} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
         
-        {/* Masque pour l'avatar */}
+        {/* Mask for avatar */}
         <mask id="avatarMask">
-            {/* Le masque est un dégradé de blanc (visible) à noir (invisible) */}
             <linearGradient id="mask-gradient" x1="1" y1="0" x2="0" y2="1">
                 <stop offset="0.4" stopColor="white" />
                 <stop offset="0.8" stopColor="black" />
@@ -135,55 +125,38 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
             <rect width="256" height="256" fill="url(#mask-gradient)" />
         </mask>
 
-        {/* Chemin de découpe pour rendre l'avatar rond AVANT d'appliquer le masque */}
         <clipPath id="card-border-clip">
-          {/* C'est un rectangle qui correspond exactement à la bordure intérieure */}
           <rect x="8" y="8" width="368" height="520" rx="12" />
         </clipPath>
 
-        {/* CORRECTION : Définition du clipPath circulaire pour l'avatar */}
         <clipPath id="avatarClip">
-          {/* Ce cercle servira à découper l'image. 
-              Son centre (cx, cy) est à la moitié de la taille de l'image (256/2 = 128)
-              et son rayon (r) est de 128 pour couvrir toute l'image.
-          */}
           <circle cx="128" cy="128" r="128" />
         </clipPath>
 
-        {/* NOUVEAU: Dégradé pour l'effet brillant des badges */}
         <linearGradient id="holo-badge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          {/* On commence avec une couleur de base légèrement teintée */}
           <stop offset="0%" stopColor={isDarkTheme ? 'rgba(80, 70, 120, 0.4)' : 'rgba(230, 240, 255, 0.6)'} />
-          
-          {/* La "bande" brillante au milieu */}
           <stop offset="50%" stopColor={isDarkTheme ? 'rgba(120, 110, 180, 0.7)' : 'rgba(255, 255, 255, 1)'} />
-          
-          {/* On termine avec une autre teinte pour donner de la profondeur */}
           <stop offset="100%" stopColor={isDarkTheme ? 'rgba(70, 100, 120, 0.4)' : 'rgba(220, 230, 255, 0.6)'} />
         </linearGradient>
 
-        {/* 
-          NOUVEAU : Définition du filtre pour l'ombre portée.
-          On le met dans <defs> pour pouvoir le réutiliser avec un id.
-        */}
         <filter id="text-shadow" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow 
-              dx="3"      // Décalage horizontal de l'ombre
-              dy="3"      // Décalage vertical
-              stdDeviation="2" // Flou de l'ombre (blur)
-              floodColor="#000000" // Couleur de l'ombre
-              floodOpacity="0.5"   // Opacité
+              dx="3" 
+              dy="3" 
+              stdDeviation="2" 
+              floodColor="#000000" 
+              floodOpacity="0.5"   
             />
         </filter>
       </defs>
 
-      {/* --- Arrière-plan de la carte (inchangé) --- */}
+      {/* --- Card background --- */}
       <g>
         <rect width="384" height="536" rx="20" fill={ currentTemplate.id === 'classic' ? 'url(#classic-gradient)' : currentTemplate.id === 'holographic' ? 'url(#bg-holo)' : 'url(#bg-dark)' } />
         <rect x="8" y="8" width="368" height="520" rx="12" fill={ currentTemplate.id === 'classic' ? '#F8FAFC' : currentTemplate.id === 'holographic' ? 'rgba(255, 255, 255, 0.70)' : 'rgba(31, 41, 55, 0.85)' } />
       </g>
       
-      {/* --- GROUPE PRINCIPAL AVEC DÉCOUPE --- */}
+      {/* --- Main group --- */}
       <g clipPath="url(#card-border-clip)">
          {/* --- Header --- */}
         <g transform={`translate(${LAYOUT.header.x}, ${LAYOUT.header.y})`}>
@@ -211,7 +184,6 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         <g transform={`translate(${LAYOUT.bio.x}, ${LAYOUT.bio.y})`}>
           <path d={bioBgPath} fill={colors.bioBg} />
           <path d={bioBgPath} fill="url(#bio-reflect-gradient)" />
-          {/* ... autres chemins de la bio ... */}
           <StyledMultilineText
             text={data.bio || ''}
             x={BIO_DEFAULTS.paddingX}
@@ -219,7 +191,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
             maxWidth={BIO_DEFAULTS.maxWidth - BIO_DEFAULTS.paddingX * 2}
             fontSize={BIO_DEFAULTS.fontSize}
             fill={colors.bioText}
-            stroke="none" // Pas de stroke pour la bio pour la lisibilité
+            stroke="none" 
           />
         </g>
 
