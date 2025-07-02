@@ -122,27 +122,32 @@ const calculateMultilineTextLayout = (
 
 
 // --- Composant MultilineText mis à jour pour accepter les lignes pré-calculées ---
-const MultilineText = ({ 
-  lines, x, y, fontSize, fill, fontWeight, stroke, strokeWidth 
-}: { 
-  lines: string[], 
-  x: number, y: number, fontSize: number, fill: string, 
-  fontWeight?: string | number, stroke?: string, strokeWidth?: number 
-}) => {
+const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string, fontWeight?: string | number }) => {
+  const safeText = text || "Aucune description.";
+  const words = safeText.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+
+  words.forEach(word => {
+    // Cette estimation de la largeur est très approximative (largeur = nb lettres * taille police * 0.6)
+    // C'est le point le plus difficile à simuler par rapport au HTML.
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const testWidth = testLine.length * fontSize * 0.6; 
+    
+    if (testWidth > width && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  });
+  lines.push(currentLine);
+
+  // On ne garde que les 2 premières lignes
   return (
-    <text 
-      x={x} 
-      y={y} 
-      fontFamily={FONT_FAMILY_SANS} 
-      fontSize={fontSize} 
-      fill={fill} 
-      fontWeight={fontWeight || 'normal'}
-      stroke={stroke}
-      strokeWidth={strokeWidth}
-      paintOrder="stroke" // Essentiel pour que le contour soit derrière le texte
-    >
-      {lines.map((line, index) => (
-        <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * LINE_HEIGHT_FACTOR}>
+    <text x={x} y={y} fontFamily="sans-serif" fontSize={fontSize} fill={fill} fontWeight={fontWeight || 'normal'}>
+      {lines.slice(0, 2).map((line, index) => (
+        <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * 1.2}>
           {line}
         </tspan>
       ))}
@@ -452,47 +457,35 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/***********************************************/}
         {/* --- NOUVEAU HEADER STYLE CARTE POKÉMON --- */}
         {/***********************************************/}
-         {/* --- NOUVEAU HEADER DYNAMIQUE ET STYLISÉ --- */}
-         {/* --- HEADER AVEC PATHS PERSONNALISÉS --- */}
-        <g transform={`translate(${HEADER_X_OFFSET}, ${HEADER_Y_OFFSET})`}>
-          
-          <StyledText x={ICON_RECT_WIDTH} y={16} fontSize={18} fontFamily={FONT_FAMILY_MONO} fontWeight="bold" fill={mainTextColor} stroke={mainStrokeColor}>
+         {/* --- Header --- */}
+        <g transform="translate(24, 32)">
+          <SiGithub size="24" fill={iconColor} />
+          <StyledText
+            x={34}
+            y={12}
+            fontSize={18}
+            fontFamily="monospace, 'Courier New', Courier"
+            fill={mainTextColor}
+            stroke={strokeColor}
+          >
             @{data.githubUser}
           </StyledText>
-          
-          <g transform="translate(0, 32)">
-            <path
-              d={iconPathData}
-              fill={headerRectFill}
-              stroke={bioBorderColor}
-              strokeWidth="1.5"
-            />
-            <SiGithub 
-              x={(ICON_RECT_WIDTH - ICON_SIZE) / 2}
-              y={(ICON_RECT_HEIGHT - ICON_SIZE) / 2}
-              size={ICON_SIZE} 
-              fill={headerIconColor} 
-            />
-          </g>
+        </g>
 
-          <g transform={`translate(${ICON_RECT_WIDTH}, ${32 + BIO_Y_OFFSET})`}>
-            <path
-              d={bioPathData}
-              fill={headerRectFill}
-              stroke={bioBorderColor}
-              strokeWidth="1.5"
-            />
-            <MultilineText
-              lines={bioLayout.lines}
-              x={BIO_PADDING_X}
-              y={BIO_PADDING_Y + 8}
-              fontSize={11}
-              fill={bioTextColor}
-              fontWeight={500}
-              stroke={bioBorderColor}
-              strokeWidth={0.4}
-            />
-          </g>
+        {/* --- Bio (avec le style corrigé) --- */}
+        {/* La bio est placée juste en dessous. */}
+        <g transform="translate(28, 75)"> {/* J'ai légèrement remonté à 65 pour resserrer l'espace */}
+          <MultilineText
+            // MODIFICATION 1 : On retire .toUpperCase() pour un style plus doux
+            text={data.bio || ""} 
+            x={0}
+            y={0} // Le y est maintenant géré par le transform du groupe parent
+            width={336}
+            // MODIFICATION 2 : La taille est déjà bonne, on la garde.
+            fontSize={11} 
+            // MODIFICATION 3 : On utilise la couleur de texte secondaire
+            fill={subTextColor} 
+          />
         </g>
         {/***********************************************/}
         {/* --- FIN DU NOUVEAU HEADER --- */}
