@@ -23,58 +23,8 @@ const templateImages = {
 
 // --- Constantes de layout et de style (pour un ajustement facile) ---
 const FONT_FAMILY_SANS = "Inter, sans-serif";
-const FONT_FAMILY_MONO = "monospace, 'Courier New', Courier";
 const CHAR_WIDTH_FACTOR = 0.6; // Facteur d'estimation pour la largeur des caractères
 const LINE_HEIGHT_FACTOR = 1.3; // Multiplicateur pour la hauteur de ligne
-
-// --- NOUVELLE FONCTION ROBUSTE pour générer un path avec des arrondis asymétriques ---
-// Cette fonction élimine les bugs de dessin en utilisant des coordonnées absolues.
-const generateAsymmetricPath = (
-  w: number, h: number,
-  r: { tl: number, tr: number, bl: number, br: number }
-) => {
-  return `
-    M ${r.tl},0 
-    L ${w - r.tr},0 
-    A ${r.tr},${r.tr} 0 0 1 ${w},${r.tr}
-    L ${w},${h - r.br}
-    A ${r.br},${r.br} 0 0 1 ${w - r.br},${h}
-    L ${r.bl},${h}
-    A ${r.bl},${r.bl} 0 0 1 0,${h - r.bl}
-    L 0,${r.tl}
-    A ${r.tl},${r.tl} 0 0 1 ${r.tl},0 
-    Z
-  `;
-};
-
-
-// NOUVEAU : Composant pour un texte avec un style "Légendaire"
-const LegendaryText = ({ children, x, y, fontSize }: { children: string, x: number, y: number, fontSize: number }) => {
-  const FONT_FAMILY = "'Bangers', cursive"; // On utilise notre police personnalisée
-  const TEXT_COLOR = "#FBBF24"; // Jaune/Or (text-amber-400)
-  const STROKE_COLOR = "#374151"; // Contour sombre (text-gray-700)
-  const STROKE_WIDTH = fontSize / 8; // Épaisseur du contour proportionnelle à la taille
-
-  return (
-    // On utilise un groupe pour appliquer un filtre d'ombre à tout le contenu
-    <g filter="url(#text-shadow)">
-      <text
-        x={x}
-        y={y}
-        fontFamily={FONT_FAMILY}
-        fontSize={fontSize}
-        fill={TEXT_COLOR}
-        stroke={STROKE_COLOR}
-        strokeWidth={STROKE_WIDTH}
-        paintOrder="stroke fill"
-        dominantBaseline="middle"
-        textAnchor="start"
-      >
-        {children}
-      </text>
-    </g>
-  );
-};
 
 
 // --- NOUVEAU : Fonction utilitaire pour calculer la taille du texte multiligne ---
@@ -208,11 +158,10 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const strokeColor = isDarkTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   const starBadge = { bg: isDarkTheme ? 'rgba(99, 102, 241, 0.2)' : '#E0E7FF', text: isDarkTheme ? '#C7D2FE' : '#4338CA' };
   const forkBadge = { bg: isDarkTheme ? '#374151' : '#E5E7EB', text: isDarkTheme ? '#D1D5DB' : '#374151' };
-   const mainStrokeColor = isDarkTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
   // --- NOUVEAU : Constantes et couleurs spécifiques pour le bloc de la bio ---
-  const BIO_FONT_SIZE = 11;
-  const BIO_MAX_WIDTH = 336; // Largeur max disponible pour le texte
+  const BIO_FONT_SIZE = 10;
+  const BIO_MAX_WIDTH = 300; // Largeur max disponible pour le texte
   const BIO_PADDING_X = 12; // Marge intérieure horizontale
   const BIO_PADDING_Y = 6;  // Marge intérieure verticale (très légère comme demandé)
   const BIO_SKEW_AMOUNT = 15; // Décalage diagonal pour le coin haut-droit
@@ -221,15 +170,6 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const bioBorderColor = isDarkTheme ? 'rgba(107, 114, 128, 0.5)' : 'rgba(156, 163, 175, 0.7)'; // Bordure contrastée
   const bioTextColor = isDarkTheme ? '#D1D5DB' : '#1F2937'; // Texte clair sur fond sombre, et inversement
 
-  // --- Constantes de layout ---
-  const HEADER_X_OFFSET = 24;
-  const HEADER_Y_OFFSET = 24;
-  const ICON_RECT_WIDTH = 50;
-  const ICON_RECT_HEIGHT = 50;
-  const ICON_SIZE = 28;
-  const CORNER_RADIUS_NORMAL = 10;
-  const CORNER_RADIUS_LARGE = 25;
-  const BIO_Y_OFFSET = 12;
 
 // --- Pré-calcul de la taille de la bio ---
   const bioLayout = calculateMultilineTextLayout(
@@ -447,7 +387,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/***************************************************/}
         {/* --- MODIFIÉ : Bloc de la bio avec fond stylisé --- */}
         {/***************************************************/}
-        <g transform="translate(24, 70)">
+        <g transform="translate(8, 70)">
           {/* 1. Le fond coloré */}
           <path d={bioBgPath} fill={bioBackgroundColor} />
           
