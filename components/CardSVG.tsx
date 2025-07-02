@@ -250,8 +250,8 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const bioBorderColor = isDarkTheme ? 'rgba(107, 114, 128, 0.5)' : '#D1D5DB';
   const bioInnerHighlightColor = 'rgba(255, 255, 255, 0.8)';
 
-  const REPO_DESC_MAX_WIDTH = 270; // Largeur max avant que le texte ne touche les badges
-  
+  const REPO_DESC_MAX_WIDTH = 320; // Largeur max avant que le texte ne touche les badges
+
 // --- Pré-calcul de la taille de la bio ---
   const bioLayout = calculateMultilineTextLayout(
     data.bio,
