@@ -9,6 +9,7 @@ import {
   StyledMultilineText,
   StatBadge,
   TechBadgeList,
+  ActivityScore,
 } from './card.components';
 import {
   THEME_COLORS,
@@ -18,6 +19,7 @@ import {
   templateImages,
   CARD_WIDTH,
   CARD_HEIGHT,
+  CARD_PADDING,
   // ... autres constantes importées
 } from './card.constants';
 
@@ -189,6 +191,24 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           <StyledText x={34} y={12} fontSize={18} fill={colors.mainText} stroke={colors.stroke}>
             @{data.githubUser}
           </StyledText>
+
+          {/* ======================================= */}
+          {/* AJOUT DU SCORE D'ACTIVITÉ (PV) */}
+          {/* ======================================= */}
+          {data.contributionsLastYear > 0 && ( // On l'affiche seulement si > 0
+            <ActivityScore
+              score={data.contributionsLastYear}
+              // On le positionne tout à droite
+              // Largeur de la carte - padding de droite du header - padding de la carte
+              x={CARD_WIDTH - (LAYOUT.header.x * 2) - CARD_PADDING} 
+              y={12} // Même hauteur que le nom d'utilisateur
+              colors={{
+                text: colors.mainText,
+                icon: '#f97316', // Une couleur orange pour l'énergie !
+                stroke: colors.stroke,
+              }}
+            />
+          )}
         </g>
 
          {/* --- Bio --- */}

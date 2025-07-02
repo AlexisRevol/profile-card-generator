@@ -221,3 +221,41 @@ export function TechBadgeList({
 
   return <g transform={`translate(${x}, ${y})`}>{badges}</g>;
 }
+
+// ==========================================================
+// NOUVEAU COMPOSANT : LE "SCORE D'ACTIVITÉ" (PV)
+// ==========================================================
+export const ActivityScore: React.FC<{
+  score: number;
+  x: number;
+  y: number;
+  colors: {
+    text: string;
+    icon: string;
+    stroke: string;
+  };
+}> = ({ score, x, y, colors }) => {
+  const fontSize = 16;
+  const iconSize = 14;
+  const spacing = 4;
+
+  return (
+    // 'text-anchor="end"' aligne le texte sur la droite, ce qui est parfait pour le positionner au bout de la carte
+    <g transform={`translate(${x}, ${y})`} textAnchor="end">
+      <StyledText
+        x={0}
+        y={0} // dominantBaseline="middle" s'occupe de l'alignement vertical
+        fontSize={fontSize}
+        fontWeight="800" // Un poids de police élevé pour un look impactant
+        fill={colors.text}
+        stroke={colors.stroke}
+      >
+        {/* On peut ajouter un label comme "ACT" pour "Activité" */}
+        <tspan fill={colors.icon} fontSize={fontSize * 0.8} fontWeight="bold">ACT </tspan>
+        {score}
+      </StyledText>
+      {/* On peut ajouter l'icône à côté si on veut, mais le texte seul peut être plus propre */}
+      {/* <FaFire x={-iconSize - spacing} y={-(iconSize / 2)} size={iconSize} fill={colors.icon} /> */}
+    </g>
+  );
+};
