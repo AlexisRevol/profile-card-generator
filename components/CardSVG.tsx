@@ -161,14 +161,15 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   
   // --- NOUVEAU : Constantes et couleurs spécifiques pour le bloc de la bio ---
   const BIO_FONT_SIZE = 10;
-  const BIO_MAX_WIDTH = 300; // Largeur max disponible pour le texte
+  const BIO_MAX_WIDTH = 325; // Largeur max disponible pour le texte
   const BIO_PADDING_X = 12; // Marge intérieure horizontale
   const BIO_PADDING_Y = 6;  // Marge intérieure verticale (très légère comme demandé)
   const BIO_SKEW_AMOUNT = 15; // Décalage diagonal pour le coin haut-droit
 
   const bioBackgroundColor = isDarkTheme ? 'rgba(31, 41, 55, 0.75)' : '#E5E7EB'; // Gris sombre transparent ou gris clair
-  const bioBorderColor = isDarkTheme ? 'rgba(107, 114, 128, 0.5)' : 'rgba(156, 163, 175, 0.7)'; // Bordure contrastée
   const bioTextColor = isDarkTheme ? '#D1D5DB' : '#1F2937'; // Texte clair sur fond sombre, et inversement
+  const bioBorderColor = isDarkTheme ? 'rgba(107, 114, 128, 0.5)' : '#D1D5DB';
+  const bioInnerHighlightColor = 'rgba(255, 255, 255, 0.8)';
 
 
 // --- Pré-calcul de la taille de la bio ---
@@ -188,6 +189,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const bioBgPath = `M 0 0 L ${bioBgWidth + BIO_SKEW_AMOUNT} 0 L ${bioBgWidth} ${bioBgHeight} L 0 ${bioBgHeight} Z`;
   // Bordure (chemin ouvert, sans le côté gauche)
   const bioBorderPath = `M 0 ${bioBgHeight} L ${bioBgWidth} ${bioBgHeight} L ${bioBgWidth + BIO_SKEW_AMOUNT} 0 L 0 0`;
+  const bioInnerHighlightPath = `M 1 ${bioBgHeight - 1} L ${bioBgWidth - 1} ${bioBgHeight - 1} L ${bioBgWidth - 1 + BIO_SKEW_AMOUNT} 1`;
 
 
   const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
@@ -218,10 +220,12 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
     >
      <defs>
         {/* --- NOUVEAU : Dégradé pour l'effet de reflet sur la bio --- */}
+        {/* --- MODIFIÉ : Dégradé pour le reflet avec opacité ajustée pour le thème clair --- */}
         <linearGradient id="bio-reflect-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="white" stopOpacity={isDarkTheme ? "0.15" : "0.3"} />
+          {/* Thème clair : opacité beaucoup plus forte pour être visible sur fond clair */}
+          <stop offset="0%" stopColor="white" stopOpacity={isDarkTheme ? "0.15" : "0.7"} />
           <stop offset="50%" stopColor="white" stopOpacity="0" />
-          <stop offset="100%" stopColor="white" stopOpacity={isDarkTheme ? "0.05" : "0.1"} />
+          <stop offset="100%" stopColor="white" stopOpacity="0" />
         </linearGradient>
 
         {/* NOUVEAU : Filtre pour l'effet d'ombre portée sur le texte */}
