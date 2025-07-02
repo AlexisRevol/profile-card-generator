@@ -41,7 +41,7 @@ export const TEMPLATES: Template[] = [
     innerClassName: 'bg-white/70 backdrop-blur-sm', 
      theme: 'light',
      badgeColors: {
-      text: 'rgba(0, 0, 0, 1)',
+      text: '#374151',
       borderOuter: 'rgba(192, 132, 252, 0.4)',
       borderInner: 'rgba(56, 189, 248, 0.3)',
       backgroundGradientId: 'badge-bg-holographic', 
