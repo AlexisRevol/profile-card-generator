@@ -270,7 +270,7 @@ export const HeaderStat: React.FC<{
         Le texte s'étendra donc vers la gauche.
       */}
       <StyledText
-        x={0}
+        x={iconXPosition+20}
         y={0}
         fontSize={fontSize}
         fontWeight="800"
