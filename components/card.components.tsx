@@ -7,33 +7,35 @@ import { calculateMultilineLayout, formatStatNumber } from './card.utils';
 
 // Texte simple avec un contour pour la lisibilité
 export const StyledText: React.FC<{
-    children: React.ReactNode;
-    x: number;
-    y: number;
-    fontSize: number;
-    fontFamily?: string;
-    fontWeight?: string | number;
-    fill: string;
-    stroke: string;
-  }> = ({ children, x, y, fontSize, fontFamily, fontWeight, fill, stroke }) => {
-    return (
-      <text
-        x={x}
-        y={y}
-        fontFamily={FONT_FAMILY_MONO}
-        fontSize={fontSize}
-        fontWeight={fontWeight || "bold"}
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={fontSize / 12}
-        strokeLinejoin="round"
-        paintOrder="stroke"
-        dominantBaseline="middle"
-      >
-        {children}
-      </text>
-    );
-  };
+  children: React.ReactNode;
+  x: number;
+  y: number;
+  fontSize: number;
+  fontFamily?: string;
+  fontWeight?: string | number;
+  fill: string;
+  stroke: string;
+  textAnchor?: 'start' | 'middle' | 'end'; // <-- AJOUTEZ CETTE LIGNE
+}> = ({ children, x, y, fontSize, fontFamily, fontWeight, fill, stroke, textAnchor }) => { // <-- Ajoutez textAnchor ici
+  return (
+    <text
+      x={x}
+      y={y}
+      fontFamily={fontFamily || "sans-serif"} // J'ai corrigé "FONT_FAMILY_MONO" qui était peut-être une erreur de copier/coller
+      fontSize={fontSize}
+      fontWeight={fontWeight || "bold"}
+      fill={fill}
+      stroke={stroke}
+      strokeWidth={fontSize / 12}
+      strokeLinejoin="round"
+      paintOrder="stroke"
+      dominantBaseline="middle"
+      textAnchor={textAnchor || 'start'} // <-- ET APPLIQUEZ-LE ICI
+    >
+      {children}
+    </text>
+  );
+};
   
 // Texte multiligne avec contour
 export function StyledMultilineText(props: {
@@ -233,63 +235,38 @@ export function TechBadgeList({
  */
 export const HeaderStat: React.FC<{
   value: number;
-  x: number;
-  y: number;
-  colors: {
-    text: string;
-    icon: string;
-    stroke: string;
-  };
+  x: number; // Coordonnée X du bord droit final. Ex: 360
+  y: number; // Coordonnée Y. Ex: 12
+  colors: { text: string; icon: string; stroke: string; };
   icon: React.ElementType;
 }> = ({ value, x, y, colors, icon: Icon }) => {
   const fontSize = 16;
   const iconSize = 15;
-  const spacing = 6;
+  // Largeur fixe pour l'icône + son espacement.
+  // C'est la seule valeur dont on a besoin.
+  const iconBlockWidth = iconSize + 8; 
 
   const formattedValue = formatStatNumber(value);
 
-  // --- CORRECTION CLÉ ICI ---
-  // Estimation de la largeur du texte. On utilise un facteur plus grand (0.75)
-  // pour couvrir les cas où les caractères sont larges et éviter tout chevauchement.
-  // C'est un compromis : l'espacement peut être un peu plus grand, mais jamais négatif.
-  const textWidth = formattedValue.length * fontSize * 0.75;
-  
-  // La position de l'icône est calculée en reculant depuis la fin du texte.
-  // Le point (0,0) de notre groupe est la fin du texte (grâce à textAnchor="end").
-  // On recule de la largeur du texte, puis de l'espacement.
-  const iconXPosition = -textWidth - spacing;
-
-  return (
-    // text-anchor="end" aligne tout par la droite, ce qui est parfait pour notre usage.
-    // Le point (x,y) que nous passons au transform devient le bord droit du composant.
-    <g transform={`translate(${x}, ${y})`} textAnchor="end">
-      
-      {/* 
-        Le composant StyledText affiche le nombre.
-        Son 'x' est à 0, et comme text-anchor="end", son bord droit sera à 0.
-        Le texte s'étendra donc vers la gauche.
-      */}
+   return (
+    <g>
       <StyledText
-        x={iconXPosition+30}
-        y={0}
+        x={x}
+        y={y}
         fontSize={fontSize}
         fontWeight="800"
         fill={colors.text}
         stroke={colors.stroke}
+        textAnchor="end" // <-- MODIFICATION ICI : On passe la prop directement
       >
         {formattedValue}
       </StyledText>
 
-      {/* 
-        L'icône est positionnée à gauche du texte.
-        Son 'x' est calculé pour être avant le début estimé du texte.
-        y={-(iconSize / 2)} la centre verticalement.
-      */}
-      <Icon 
-        x={iconXPosition} 
-        y={-(iconSize / 2)} 
-        size={iconSize} 
-        fill={colors.icon} 
+      <Icon
+        x={x - iconBlockWidth}
+        y={y - (iconSize / 2)}
+        size={iconSize}
+        fill={colors.icon}
       />
     </g>
   );
