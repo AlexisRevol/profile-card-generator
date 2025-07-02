@@ -1,6 +1,6 @@
 // src/components/card/card.components.tsx
 import React from 'react';
-import { FONT_FAMILY_SANS } from './card.constants';
+import { FONT_FAMILY_MONO, FONT_FAMILY_SANS } from './card.constants';
 import { calculateMultilineLayout, formatStatNumber } from './card.utils';
 
 // --- Text Components ---
@@ -20,7 +20,7 @@ export const StyledText: React.FC<{
       <text
         x={x}
         y={y}
-        fontFamily={fontFamily || "sans-serif"}
+        fontFamily={FONT_FAMILY_MONO}
         fontSize={fontSize}
         fontWeight={fontWeight || "bold"}
         fill={fill}
