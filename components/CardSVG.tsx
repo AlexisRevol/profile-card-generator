@@ -42,6 +42,16 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
     avatarFadeColor = '#1F2937'; // Couleur de base du fond sombre
   }
 
+   // NOUVEAU: Préparer l'URL de l'image de fond
+  let bgImage = null;
+  if (currentTemplate.id === 'holographic') {
+    bgImage = templateImages.holographic;
+  } else if (currentTemplate.id === 'blue') {
+    bgImage = templateImages.blue;
+  } else if (currentTemplate.id === 'dark') {
+    bgImage = templateImages.dark;
+  }
+
   const bioLayout = calculateMultilineLayout(
     data.bio,
     BIO_DEFAULTS.maxWidth - BIO_DEFAULTS.paddingX * 2,
@@ -122,15 +132,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         <pattern id="bg-dark" patternUnits="userSpaceOnUse" width="384" height="536">
           <image xlinkHref={templateImages.dark} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
-        
-        {/* Mask for avatar */}
-        <mask id="aavatarMask">
-            <linearGradient id="mask-gradient" x1="1" y1="0" x2="0" y2="1">
-                <stop offset="0.4" stopColor="white" />
-                <stop offset="0.8" stopColor="black" />
-            </linearGradient>
-            <rect width="256" height="256" fill="url(#mask-gradient)" />
-        </mask>
+      
 
         <clipPath id="card-border-clip">
           <rect x="8" y="8" width="368" height="520" rx="12" />
@@ -159,27 +161,52 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
       {/* --- Card background --- */}
       <g>
-        <rect width="384" height="536" rx="20" fill={ currentTemplate.id === 'classic' ? 'url(#classic-gradient)' : currentTemplate.id === 'holographic' ? 'url(#bg-holo)' : 'url(#bg-dark)' } />
-         <rect 
-            x="8" y="8" 
-            width="368" height="520" 
-            rx="12" 
+           {/* --- Card background (Bordure extérieure seulement) --- */}
+        {/* Ce rect dessine la bordure qui sera visible autour du clip-path */}
+        <rect 
+          width="384" 
+          height="536" 
+          rx="20" 
+          fill={
+            currentTemplate.id === 'classic' ? 'url(#classic-gradient)' :
+            bgImage ? '#000' : // Fallback noir si l'image est utilisée
+            '#000' // Cas par défaut
+          } 
+        />
+        
+        {/* --- Main group avec le clip-path --- */}
+        <g clipPath="url(#card-border-clip)">
+        
+          {/* --- NOUVELLE SECTION : FOND DU CONTENU --- */}
+          {/* Couche 1: Image de fond (si applicable) */}
+          {bgImage && (
+            <image 
+              xlinkHref={bgImage} 
+              width="384" 
+              height="536" 
+              preserveAspectRatio="xMidYMid slice"
+            />
+          )}
+
+          {/* Couche 2: Superposition de couleur */}
+          <rect 
+            width="384" 
+            height="536"
             fill={
               currentTemplate.id === 'classic' ? '#F8FAFC' :
-              currentTemplate.theme === 'light' ? '#FFFFFF' : // holographic & blue
-              '#1F2937' // dark
+              currentTemplate.theme === 'light' ? '#FFFFFF' :
+              '#1F2937'
             }
             fill-opacity={
               currentTemplate.id === 'classic' ? '1' :
               currentTemplate.id === 'holographic' ? '0.70' :
-              currentTemplate.id === 'blue' ? '0.90' : // En supposant que vous vouliez une opacité différente pour 'blue'
-              '0.85' // dark
+              currentTemplate.id === 'blue' ? '0.90' :
+              '0.85'
             }
           />
-      </g>
       
       {/* --- Main group --- */}
-      <g clipPath="url(#card-border-clip)">
+
          {/* --- Header --- */}
         <g transform={`translate(${LAYOUT.header.x}, ${LAYOUT.header.y})`}>
           <SiGithub size="24" fill={colors.icon} />
@@ -279,6 +306,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
               colors={currentTemplate.badgeColors}
             />
         </g>
+      </g>
       </g>
     </svg>
   );
