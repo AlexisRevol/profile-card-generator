@@ -57,10 +57,10 @@ export const TEMPLATES: Template[] = [
     innerClassName: 'bg-white/90 backdrop-blur-sm', // Fond blanc semi-transparent avec un effet de flou
     theme: 'light',
     badgeColors: {
-    text: '#A5F3FC',
-    borderOuter: 'rgba(110, 231, 255, 0.4)',
-    borderInner: 'rgba(0, 0, 0, 0.25)',
-    backgroundGradientId: 'badge-bg-dark', // Le thème bleu peut réutiliser le dégradé sombre
+      text: '#374151',
+      borderOuter: 'rgba(0, 0, 0, 0.15)',
+      borderInner: 'rgba(255, 255, 255, 0.7)',
+      backgroundGradientId: 'badge-bg-light', // Le thème bleu peut réutiliser le dégradé sombre
     },
   },
   {

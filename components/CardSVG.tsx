@@ -365,8 +365,8 @@ const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: numbe
       </linearGradient>
 
       <linearGradient id="badge-bg-holographic" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="rgba(87, 83, 112, 0.7)" />
-        <stop offset="100%" stopColor="rgba(54, 56, 82, 0.7)" />
+        <stop offset="0%" stopColor="rgba(239, 145, 186, 0.7)" />
+        <stop offset="100%" stopColor="rgba(239, 113, 162, 0.7" />
       </linearGradient>
 
 
