@@ -31,7 +31,7 @@ export const BIO_DEFAULTS = {
 
 // --- REPO BLOCK ---
 export const REPO_DEFAULTS = {
-  descMaxWidth: 330,
+  descMaxWidth: 320,
   itemSpacingY: 60,
 };
 
