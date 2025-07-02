@@ -122,32 +122,11 @@ const calculateMultilineTextLayout = (
 
 
 // --- Composant MultilineText mis à jour pour accepter les lignes pré-calculées ---
-const MultilineText = ({ text, x, y, width, fontSize, fill, fontWeight }: { text: string | null, x: number, y: number, width: number, fontSize: number, fill: string, fontWeight?: string | number }) => {
-  const safeText = text || "Aucune description.";
-  const words = safeText.split(' ');
-  const lines: string[] = [];
-  let currentLine = '';
-
-  words.forEach(word => {
-    // Cette estimation de la largeur est très approximative (largeur = nb lettres * taille police * 0.6)
-    // C'est le point le plus difficile à simuler par rapport au HTML.
-    const testLine = currentLine ? `${currentLine} ${word}` : word;
-    const testWidth = testLine.length * fontSize * 0.6; 
-    
-    if (testWidth > width && currentLine) {
-      lines.push(currentLine);
-      currentLine = word;
-    } else {
-      currentLine = testLine;
-    }
-  });
-  lines.push(currentLine);
-
-  // On ne garde que les 2 premières lignes
+const MultilineText = ({ lines, x, y, fontSize, fill, fontWeight }: { lines: string[], x: number, y: number, fontSize: number, fill: string, fontWeight?: string | number }) => {
   return (
-    <text x={x} y={y} fontFamily="sans-serif" fontSize={fontSize} fill={fill} fontWeight={fontWeight || 'normal'}>
-      {lines.slice(0, 2).map((line, index) => (
-        <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * 1.2}>
+    <text x={x} y={y} fontFamily={FONT_FAMILY_SANS} fontSize={fontSize} fill={fill} fontWeight={fontWeight || 'normal'} dominantBaseline="hanging">
+      {lines.map((line, index) => (
+        <tspan key={index} x={x} dy={index === 0 ? 0 : fontSize * LINE_HEIGHT_FACTOR}>
           {line}
         </tspan>
       ))}
@@ -231,18 +210,17 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const forkBadge = { bg: isDarkTheme ? '#374151' : '#E5E7EB', text: isDarkTheme ? '#D1D5DB' : '#374151' };
    const mainStrokeColor = isDarkTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
   
-  // NOUVEAU: Couleurs spécifiques pour les fonds et bordures du header
-  const headerRectFill = isDarkTheme ? 'rgba(0, 0, 0, 0.25)' : 'rgba(255, 255, 255, 0.4)';
-  const headerRectStroke = isDarkTheme ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.1)';
-    const headerIconColor = isDarkTheme ? '#E5E7EB' : '#374151';
+  // --- NOUVEAU : Constantes et couleurs spécifiques pour le bloc de la bio ---
+  const BIO_FONT_SIZE = 11;
+  const BIO_MAX_WIDTH = 336; // Largeur max disponible pour le texte
+  const BIO_PADDING_X = 12; // Marge intérieure horizontale
+  const BIO_PADDING_Y = 6;  // Marge intérieure verticale (très légère comme demandé)
+  const BIO_SKEW_AMOUNT = 15; // Décalage diagonal pour le coin haut-droit
 
+  const bioBackgroundColor = isDarkTheme ? 'rgba(31, 41, 55, 0.75)' : '#E5E7EB'; // Gris sombre transparent ou gris clair
+  const bioBorderColor = isDarkTheme ? 'rgba(107, 114, 128, 0.5)' : 'rgba(156, 163, 175, 0.7)'; // Bordure contrastée
+  const bioTextColor = isDarkTheme ? '#D1D5DB' : '#1F2937'; // Texte clair sur fond sombre, et inversement
 
-  // Couleurs spécifiques pour la bio
-  const bioTextColor = isDarkTheme ? '#FFFFFF' : '#000000';
-  const bioBorderColor = isDarkTheme ? '#000000' : '#FFFFFF';
-  
-  // NOUVEAU: Couleur pour le contour du texte de la bio
-  const bioStrokeColor = isDarkTheme ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.8)';
   // --- Constantes de layout ---
   const HEADER_X_OFFSET = 24;
   const HEADER_Y_OFFSET = 24;
@@ -251,39 +229,26 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const ICON_SIZE = 28;
   const CORNER_RADIUS_NORMAL = 10;
   const CORNER_RADIUS_LARGE = 25;
-  const BIO_PADDING_X = 10;
-  const BIO_PADDING_Y = 6;
   const BIO_Y_OFFSET = 12;
 
-  // --- Pré-calcul de la taille de la bio ---
+// --- Pré-calcul de la taille de la bio ---
   const bioLayout = calculateMultilineTextLayout(
     data.bio,
-    384 - HEADER_X_OFFSET * 2 - ICON_RECT_WIDTH - BIO_PADDING_X * 2,
-    11, 3
+    BIO_MAX_WIDTH - (BIO_PADDING_X * 2), // On soustrait les paddings de la largeur max
+    BIO_FONT_SIZE, 
+    2 // Limité à 2 lignes
   );
 
-  // --- **CORRECTION** : On arrondit les dimensions pour éviter les bugs de rendu SVG ---
-  const bioPathWidth = Math.round(bioLayout.width + BIO_PADDING_X * 2);
-  const bioPathHeight = Math.round(bioLayout.height + BIO_PADDING_Y * 2);
+  // Dimensions du bloc de fond incluant le padding
+  const bioBgWidth = bioLayout.width + BIO_PADDING_X * 2;
+  const bioBgHeight = bioLayout.height + BIO_PADDING_Y * 2;
 
-  // --- **CORRECTION** : Définition des rayons pour chaque coin ---
-  const iconRadii = {
-    tl: CORNER_RADIUS_NORMAL,
-    tr: 0, // Angle droit pour toucher la bio
-    bl: CORNER_RADIUS_NORMAL,
-    br: CORNER_RADIUS_LARGE, // Grand arrondi sur le coin inférieur droit
-  };
-  
-  const bioRadii = {
-    tl: 0, // Angle droit pour toucher l'icône
-    tr: CORNER_RADIUS_NORMAL,
-    bl: 0, // Angle droit pour toucher l'icône
-    br: CORNER_RADIUS_LARGE, // Grand arrondi sur le coin extérieur
-  };
+    // --- Génération du path pour le fond et la bordure de la bio ---
+  // Fond (forme pleine)
+  const bioBgPath = `M 0 0 L ${bioBgWidth + BIO_SKEW_AMOUNT} 0 L ${bioBgWidth} ${bioBgHeight} L 0 ${bioBgHeight} Z`;
+  // Bordure (chemin ouvert, sans le côté gauche)
+  const bioBorderPath = `M 0 ${bioBgHeight} L ${bioBgWidth} ${bioBgHeight} L ${bioBgWidth + BIO_SKEW_AMOUNT} 0 L 0 0`;
 
-  // --- Génération des paths à l'aide de la fonction et des dimensions corrigées ---
-  const iconPathData = generateAsymmetricPath(ICON_RECT_WIDTH, ICON_RECT_HEIGHT, iconRadii);
-  const bioPathData = generateAsymmetricPath(bioPathWidth, bioPathHeight, bioRadii);
 
   const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
       const FONT_SIZE = 10;
@@ -312,6 +277,13 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
      <defs>
+        {/* --- NOUVEAU : Dégradé pour l'effet de reflet sur la bio --- */}
+        <linearGradient id="bio-reflect-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="white" stopOpacity={isDarkTheme ? "0.15" : "0.3"} />
+          <stop offset="50%" stopColor="white" stopOpacity="0" />
+          <stop offset="100%" stopColor="white" stopOpacity={isDarkTheme ? "0.05" : "0.1"} />
+        </linearGradient>
+
         {/* NOUVEAU : Filtre pour l'effet d'ombre portée sur le texte */}
         <filter id="text-shadow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow 
@@ -472,21 +444,31 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           </StyledText>
         </g>
 
-        {/* --- Bio (avec le style corrigé) --- */}
-        {/* La bio est placée juste en dessous. */}
-        <g transform="translate(28, 75)"> {/* J'ai légèrement remonté à 65 pour resserrer l'espace */}
+        {/***************************************************/}
+        {/* --- MODIFIÉ : Bloc de la bio avec fond stylisé --- */}
+        {/***************************************************/}
+        <g transform="translate(24, 70)">
+          {/* 1. Le fond coloré */}
+          <path d={bioBgPath} fill={bioBackgroundColor} />
+          
+          {/* 2. Le reflet par-dessus le fond */}
+          <path d={bioBgPath} fill="url(#bio-reflect-gradient)" />
+          
+          {/* 3. La bordure (sans le côté gauche) */}
+          <path d={bioBorderPath} fill="none" stroke={bioBorderColor} strokeWidth="1" />
+          
+          {/* 4. Le texte, positionné avec le padding */}
           <MultilineText
-            // MODIFICATION 1 : On retire .toUpperCase() pour un style plus doux
-            text={data.bio || ""} 
-            x={0}
-            y={0} // Le y est maintenant géré par le transform du groupe parent
-            width={336}
-            // MODIFICATION 2 : La taille est déjà bonne, on la garde.
-            fontSize={11} 
-            // MODIFICATION 3 : On utilise la couleur de texte secondaire
-            fill={subTextColor} 
+            lines={bioLayout.lines}
+            x={BIO_PADDING_X}
+            y={BIO_PADDING_Y}
+            fontSize={BIO_FONT_SIZE}
+            fill={bioTextColor}
           />
         </g>
+        {/****************************************/}
+        {/* --- FIN DU BLOC DE LA BIO MODIFIÉ --- */}
+
         {/***********************************************/}
         {/* --- FIN DU NOUVEAU HEADER --- */}
 
