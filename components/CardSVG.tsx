@@ -58,6 +58,57 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
      <defs>
+      <style>
+          {`
+           /* inter-regular - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 400;
+              src: url('../fonts/inter-v19-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-600 - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 600;
+              src: url('../fonts/inter-v19-latin-600.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-700 - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 700;
+              src: url('../fonts/inter-v19-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-800 - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: normal;
+              font-weight: 800;
+              src: url('../fonts/inter-v19-latin-800.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+            /* inter-900italic - latin */
+            @font-face {
+              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+              font-family: 'Inter';
+              font-style: italic;
+              font-weight: 900;
+              src: url('../fonts/inter-v19-latin-900italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            }
+
+          `}
+        </style>
+
+
       <linearGradient id="badge-bg-light" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor="#F9FAFB" />
         <stop offset="100%" stopColor="#E5E7EB" />
