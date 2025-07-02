@@ -235,7 +235,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const subTextColor = isDarkTheme ? '#9CA3AF' : '#4B5563';
   const iconColor = isDarkTheme ? '#D1D5DB' : '#374151';
   const strokeColor = isDarkTheme ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
-  const starBadge = { bg: isDarkTheme ? 'rgba(99, 102, 241, 0.2)' : '#E0E7FF', text: isDarkTheme ? '#C7D2FE' : '#4338CA' };
+  const starBadge = { bg: isDarkTheme ? 'rgba(99, 102, 241, 0.5)' : '#E0E7FF', text: isDarkTheme ? '#C7D2FE' : '#4338CA' };
   const forkBadge = { bg: isDarkTheme ? '#374151' : '#E5E7EB', text: isDarkTheme ? '#D1D5DB' : '#374151' };
   
   // --- NOUVEAU : Constantes et couleurs spécifiques pour le bloc de la bio ---
@@ -250,7 +250,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const bioBorderColor = isDarkTheme ? 'rgba(107, 114, 128, 0.5)' : '#D1D5DB';
   const bioInnerHighlightColor = 'rgba(255, 255, 255, 0.8)';
 
-  const REPO_DESC_MAX_WIDTH = 320; // Largeur max avant que le texte ne touche les badges
+  const REPO_DESC_MAX_WIDTH = 330; // Largeur max avant que le texte ne touche les badges
 
 // --- Pré-calcul de la taille de la bio ---
   const bioLayout = calculateMultilineTextLayout(
