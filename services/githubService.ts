@@ -1,17 +1,8 @@
-// src/services/githubService.ts
-
 import type { CardData, HighlightedRepo } from '@/types';
 
 const GITHUB_API_URL = 'https://api.github.com/graphql';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN
 
-// Un type pour la réponse de l'API /users/{username}
-// On ne type que ce dont on a besoin
-
-
-// La requête GraphQL qui va tout chercher d'un coup !
-
-// ON CHANGE la query pour utiliser "repositoryOwner" qui marche pour les users ET les orgs
 const GITHUB_OWNER_QUERY_OPTIMIZED = `
   query GetOwner($username: String!) {
     repositoryOwner(login: $username) {
@@ -111,11 +102,10 @@ export async function fetchGithubUserData(username: string): Promise<CardData> {
 
   const owner = data.repositoryOwner;
 
-  // Calcul du total des étoiles et des langages
   let totalStars = 0;
   const langMap = new Map<string, number>();
   owner.repositories.nodes.forEach((repo: any) => {
-    totalStars += repo.stargazerCount.totalCount; // Attention, la structure a changé ici
+    totalStars += repo.stargazerCount.totalCount; 
     repo.languages.nodes.forEach((lang: any) => {
       langMap.set(lang.name, (langMap.get(lang.name) || 0) + 1);
     });
@@ -125,7 +115,6 @@ export async function fetchGithubUserData(username: string): Promise<CardData> {
     .slice(0, 5)
     .map(entry => entry[0]);
 
-  // Traitement des dépôts mis en avant
   let highlightedRepos: HighlightedRepo[] = owner.pinnedItems.nodes.map((repo: any) => ({
     id: repo.id,
     name: repo.name,
@@ -135,7 +124,6 @@ export async function fetchGithubUserData(username: string): Promise<CardData> {
     forks: repo.forkCount,
   }));
 
-  // FALLBACK
   if (highlightedRepos.length === 0) {
     const topStarredRepos = owner.repositories.nodes.slice(0, 3);
     highlightedRepos = topStarredRepos.map((repo: any) => ({
@@ -143,12 +131,11 @@ export async function fetchGithubUserData(username: string): Promise<CardData> {
       name: repo.name,
       description: repo.description,
       url: repo.url,
-      stars: repo.stargazerCount.totalCount, // La structure est différente ici aussi
+      stars: repo.stargazerCount.totalCount, 
       forks: repo.forkCount,
     }));
   }
 
-  // On adapte les données retournées en fonction du type (User ou Organization)
   const isUser = owner.__typename === 'User';
 
   return {
