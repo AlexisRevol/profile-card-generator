@@ -648,8 +648,8 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                     const cardWidth = 320;
                     const gap = 6;
                     const lineHeight = 24;
-                    const techBadgeColors = { bg: isDarkTheme ? 'rgba(55, 65, 81, 0.5)' : 'rgba(229, 231, 235, 1)', text: isDarkTheme ? '#D1D5DB' : '#374151' };
-
+                     const techBadgeColors = currentTemplate.badgeColors;
+                     
                     data.topLanguages.slice(0, 8).forEach((lang) => {
                         const FONT_SIZE = 10;
                         const PADDING_X = 8;

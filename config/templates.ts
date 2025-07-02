@@ -10,6 +10,13 @@ export interface Template {
   // Classes pour le conteneur intérieur
   innerClassName: string; 
   theme: 'light' | 'dark';
+  badgeColors: BadgeColors;
+}
+
+export interface BadgeColors {
+  text: string;
+  borderOuter: string;
+  borderInner: string;
 }
 
 export const TEMPLATES: Template[] = [
@@ -18,7 +25,13 @@ export const TEMPLATES: Template[] = [
     name: 'Classic',
     outerClassName: 'p-2 bg-gradient-to-br from-yellow-300 to-orange-400',
     innerClassName: 'bg-slate-50',
-     theme: 'light',
+    theme: 'light',
+    // NOUVEAU : Couleurs spécifiques pour le thème "classic"
+    badgeColors: {
+      text: '#374151', // Texte gris foncé
+      borderOuter: 'rgba(0, 0, 0, 0.15)', // Bordure extérieure sombre et subtile
+      borderInner: 'rgba(255, 255, 255, 0.7)', // Surbrillance intérieure claire
+    },
   },
   {
     id: 'holographic',
@@ -27,6 +40,11 @@ export const TEMPLATES: Template[] = [
     outerClassName: "p-2 bg-cover bg-center bg-[url('/templates/holographic.jpg')]",
     innerClassName: 'bg-white/70 backdrop-blur-sm', // Fond blanc semi-transparent avec un effet de flou
      theme: 'light',
+     badgeColors: {
+      text: '#E0E7FF', // Texte lavande très clair pour matcher l'ambiance
+      borderOuter: 'rgba(192, 132, 252, 0.4)', // Bordure extérieure violette
+      borderInner: 'rgba(56, 189, 248, 0.3)', // Surbrillance intérieure cyan
+    },
   },
   {
     id: 'blue',
@@ -35,6 +53,11 @@ export const TEMPLATES: Template[] = [
     outerClassName: "p-2 bg-cover bg-center bg-[url('/templates/blue.jpg')]",
     innerClassName: 'bg-white/90 backdrop-blur-sm', // Fond blanc semi-transparent avec un effet de flou
      theme: 'light',
+      badgeColors: {
+      text: '#A5F3FC', // Texte cyan très clair
+      borderOuter: 'rgba(110, 231, 255, 0.4)', // Bordure extérieure cyan
+      borderInner: 'rgba(0, 0, 0, 0.25)', // Ombre intérieure sombre
+    },
   },
   {
     id: 'dark',
@@ -42,5 +65,10 @@ export const TEMPLATES: Template[] = [
     outerClassName: "p-2 bg-cover bg-center bg-[url('/templates/dark.jpg')]",
     innerClassName: 'bg-gray-800/85 backdrop-blur-sm',
      theme: 'dark',
+     badgeColors: {
+      text: '#D1D5DB', // Texte gris clair
+      borderOuter: 'rgba(255, 255, 255, 0.2)', // Bordure extérieure claire
+      borderInner: 'rgba(0, 0, 0, 0.25)', // Ombre intérieure sombre
+    },
   },
 ];
