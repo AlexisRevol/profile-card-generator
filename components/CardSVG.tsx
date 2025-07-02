@@ -272,82 +272,69 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const bioInnerHighlightPath = `M 1 ${bioBgHeight - 1} L ${bioBgWidth - 1} ${bioBgHeight - 1} L ${bioBgWidth - 1 + BIO_SKEW_AMOUNT} 1`;
 
 
-  const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: { bg: string, text: string } }) => {
+// MODIFIÉ : Définition du type pour correspondre à la nouvelle structure
+interface TechBadgeColors {
+  text: string;
+  borderOuter: string;
+  borderInner: string;
+  backgroundGradientId: string;
+}
+
+const TechBadge = ({ label, x, y, colors }: { label: string, x: number, y: number, colors: TechBadgeColors }) => {
   const FONT_SIZE = 10;
   const PADDING_X = 8;
   const PADDING_Y = 4;
   const BADGE_HEIGHT = FONT_SIZE + PADDING_Y * 2;
-  // Utiliser une police à chasse fixe (mono) pour un calcul de largeur plus prévisible si possible, sinon 0.6 est une bonne estimation.
   const textWidth = label.length * FONT_SIZE * 0.6;
   const badgeWidth = textWidth + PADDING_X * 2;
-  const badgeRadius = 6; // Un peu plus arrondi
-
-  // Couleurs de bordure pour l'effet de relief
-  const outerBorder = isDarkTheme ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
-  const innerBorder = isDarkTheme ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.5)';
+  const badgeRadius = 6;
 
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Couche 1: Ombre subtile (pour le thème clair) ou lueur (pour le thème sombre) */}
+      {/* Ombre portée */}
       <rect
-        x="0.5"
-        y="1"
-        width={badgeWidth}
-        height={BADGE_HEIGHT}
+        x="0.5" y="1" width={badgeWidth} height={BADGE_HEIGHT}
         rx={badgeRadius}
-        fill={isDarkTheme ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.05)'}
-        filter="url(#text-shadow)" // Réutilisation d'un filtre de flou si disponible
+        fill={'rgba(0,0,0,0.1)'}
+        filter="url(#text-shadow)"
       />
 
-      {/* Couche 2: Le fond principal avec son dégradé et sa bordure */}
+      {/* MODIFIÉ : La couche de fond utilise maintenant l'ID dynamique */}
       <rect
-        width={badgeWidth}
-        height={BADGE_HEIGHT}
+        width={badgeWidth} height={BADGE_HEIGHT}
         rx={badgeRadius}
-        fill="url(#tech-badge-bg-gradient)"
-        stroke={outerBorder}
+        fill={`url(#${colors.backgroundGradientId})`} // <-- UTILISATION DYNAMIQUE !
+        stroke={colors.borderOuter}
         strokeWidth="0.5"
       />
 
-      {/* Couche 3: La bordure intérieure pour l'effet de relief */}
+      {/* Bordure intérieure */}
       <rect
-        x="0.5"
-        y="0.5"
-        width={badgeWidth - 1}
-        height={BADGE_HEIGHT - 1}
+        x="0.5" y="0.5" width={badgeWidth - 1} height={BADGE_HEIGHT - 1}
         rx={badgeRadius - 0.5}
         fill="none"
-        stroke={innerBorder}
+        stroke={colors.borderInner}
         strokeWidth="0.5"
       />
-
-      {/* Couche 4: Le reflet "glossy" sur le dessus */}
+      
+      {/* Reflet (inchangé) */}
       <rect
-        x="0.5"
-        y="0.5"
-        width={badgeWidth - 1}
-        height={(BADGE_HEIGHT - 1) / 2} // Le reflet ne couvre que la moitié supérieure
-        rx={badgeRadius - 0.5}
-        ry={badgeRadius - 0.5}
+        x="0.5" y="0.5" width={badgeWidth - 1} height={(BADGE_HEIGHT - 1) / 2}
+        rx={badgeRadius - 0.5} ry={badgeRadius - 0.5}
         fill="url(#tech-badge-shine-gradient)"
-        clipPath={`url(#badge-clip-${badgeWidth})`} // On pourrait utiliser un clip-path pour les coins
       />
 
-      {/* Couche 5: Le texte, bien contrasté */}
+      {/* Texte (inchangé) */}
       <text
-        x={badgeWidth / 2}
-        y={BADGE_HEIGHT / 2}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontFamily={FONT_FAMILY_SANS}
-        fontSize={FONT_SIZE}
-        fontWeight="600" // Un peu plus gras
+        x={badgeWidth / 2} y={BADGE_HEIGHT / 2}
+        textAnchor="middle" dominantBaseline="middle"
+        fontFamily={FONT_FAMILY_SANS} fontSize={FONT_SIZE} fontWeight="600"
         fill={colors.text}
-        // Ajout d'une ombre très subtile au texte pour le faire ressortir
         style={{
           paintOrder: 'stroke',
-          stroke: isDarkTheme ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)',
+          stroke: 'rgba(0,0,0,0.4)',
           strokeWidth: 0.5,
+          opacity: 0.9,
         }}
       >
         {label}
@@ -355,6 +342,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
     </g>
   );
 };
+
 
   return (
     <svg
@@ -366,6 +354,28 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
      <defs>
+      <linearGradient id="badge-bg-light" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#F9FAFB" />
+        <stop offset="100%" stopColor="#E5E7EB" />
+      </linearGradient>
+
+      <linearGradient id="badge-bg-dark" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="rgba(80, 90, 110, 0.6)" />
+        <stop offset="100%" stopColor="rgba(40, 50, 65, 0.6)" />
+      </linearGradient>
+
+      <linearGradient id="badge-bg-holographic" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="rgba(87, 83, 112, 0.7)" />
+        <stop offset="100%" stopColor="rgba(54, 56, 82, 0.7)" />
+      </linearGradient>
+
+
+      <linearGradient id="tech-badge-shine-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="rgba(255, 255, 255, 0.7)" stopOpacity={isDarkTheme ? 0.3 : 1} />
+        <stop offset="50%" stopColor="rgba(255, 255, 255, 0)" stopOpacity={isDarkTheme ? 0.1 : 0.5} />
+        <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" stopOpacity="0" />
+      </linearGradient>
+
       <linearGradient id="tech-badge-bg-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop
           offset="0%"
@@ -648,8 +658,8 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                     const cardWidth = 320;
                     const gap = 6;
                     const lineHeight = 24;
-                     const techBadgeColors = currentTemplate.badgeColors;
-                     
+                    const techBadgeColors = currentTemplate.badgeColors;
+
                     data.topLanguages.slice(0, 8).forEach((lang) => {
                         const FONT_SIZE = 10;
                         const PADDING_X = 8;

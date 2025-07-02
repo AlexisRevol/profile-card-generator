@@ -17,6 +17,7 @@ export interface BadgeColors {
   text: string;
   borderOuter: string;
   borderInner: string;
+  backgroundGradientId: string; 
 }
 
 export const TEMPLATES: Template[] = [
@@ -28,9 +29,10 @@ export const TEMPLATES: Template[] = [
     theme: 'light',
     // NOUVEAU : Couleurs spécifiques pour le thème "classic"
     badgeColors: {
-      text: '#374151', // Texte gris foncé
-      borderOuter: 'rgba(0, 0, 0, 0.15)', // Bordure extérieure sombre et subtile
-      borderInner: 'rgba(255, 255, 255, 0.7)', // Surbrillance intérieure claire
+      text: '#374151',
+      borderOuter: 'rgba(0, 0, 0, 0.15)',
+      borderInner: 'rgba(255, 255, 255, 0.7)',
+      backgroundGradientId: 'badge-bg-light', // <-- On spécifie quel dégradé utiliser
     },
   },
   {
@@ -41,9 +43,10 @@ export const TEMPLATES: Template[] = [
     innerClassName: 'bg-white/70 backdrop-blur-sm', // Fond blanc semi-transparent avec un effet de flou
      theme: 'light',
      badgeColors: {
-      text: '#E0E7FF', // Texte lavande très clair pour matcher l'ambiance
-      borderOuter: 'rgba(192, 132, 252, 0.4)', // Bordure extérieure violette
-      borderInner: 'rgba(56, 189, 248, 0.3)', // Surbrillance intérieure cyan
+      text: '#E0E7FF',
+      borderOuter: 'rgba(192, 132, 252, 0.4)',
+      borderInner: 'rgba(56, 189, 248, 0.3)',
+      backgroundGradientId: 'badge-bg-holographic', // <-- On spécifie le dégradé spécial
     },
   },
   {
@@ -52,11 +55,12 @@ export const TEMPLATES: Template[] = [
     // On utilise la syntaxe `bg-[url(...)]` de Tailwind pour les images de fond !
     outerClassName: "p-2 bg-cover bg-center bg-[url('/templates/blue.jpg')]",
     innerClassName: 'bg-white/90 backdrop-blur-sm', // Fond blanc semi-transparent avec un effet de flou
-     theme: 'light',
-      badgeColors: {
-      text: '#A5F3FC', // Texte cyan très clair
-      borderOuter: 'rgba(110, 231, 255, 0.4)', // Bordure extérieure cyan
-      borderInner: 'rgba(0, 0, 0, 0.25)', // Ombre intérieure sombre
+    theme: 'light',
+    badgeColors: {
+    text: '#A5F3FC',
+    borderOuter: 'rgba(110, 231, 255, 0.4)',
+    borderInner: 'rgba(0, 0, 0, 0.25)',
+    backgroundGradientId: 'badge-bg-dark', // Le thème bleu peut réutiliser le dégradé sombre
     },
   },
   {
@@ -66,9 +70,10 @@ export const TEMPLATES: Template[] = [
     innerClassName: 'bg-gray-800/85 backdrop-blur-sm',
      theme: 'dark',
      badgeColors: {
-      text: '#D1D5DB', // Texte gris clair
-      borderOuter: 'rgba(255, 255, 255, 0.2)', // Bordure extérieure claire
-      borderInner: 'rgba(0, 0, 0, 0.25)', // Ombre intérieure sombre
+      text: '#D1D5DB',
+      borderOuter: 'rgba(255, 255, 255, 0.2)',
+      borderInner: 'rgba(0, 0, 0, 0.25)',
+      backgroundGradientId: 'badge-bg-dark', // <-- On spécifie quel dégradé utiliser
     },
   },
 ];
