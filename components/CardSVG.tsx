@@ -34,6 +34,14 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const isDarkTheme = currentTemplate.theme === 'dark';
   const colors = isDarkTheme ? THEME_COLORS.dark : THEME_COLORS.light;
 
+  // NOUVEAU : Déterminer la couleur de fond pour le dégradé de l'avatar
+  let avatarFadeColor = '#FFFFFF'; // Par défaut pour les thèmes clairs
+  if (currentTemplate.id === 'classic') {
+    avatarFadeColor = '#F8FAFC';
+  } else if (isDarkTheme) {
+    avatarFadeColor = '#1F2937'; // Couleur de base du fond sombre
+  }
+
   const bioLayout = calculateMultilineLayout(
     data.bio,
     BIO_DEFAULTS.maxWidth - BIO_DEFAULTS.paddingX * 2,
@@ -56,6 +64,11 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
      <defs>
+        <linearGradient id="avatarFadeGradient" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0.4" stopColor={avatarFadeColor} stopOpacity="0" />
+            <stop offset="0.8" stopColor={avatarFadeColor} stopOpacity="1" />
+        </linearGradient>
+
         <linearGradient id="badge-bg-light" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#F9FAFB" />
           <stop offset="100%" stopColor="#E5E7EB" />
@@ -193,10 +206,15 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         {/* --- Avatar --- */}
         <g transform={`translate(${LAYOUT.avatar.x}, ${LAYOUT.avatar.y})`}>
           <g clipPath="url(#avatarClip)">
+            {/* 1. L'image de base, toujours avec xlinkHref pour la compatibilité */}
             <image
               xlinkHref={avatarBase64}
               x="0" y="0" width="256" height="256"
-              mask="url(#avatarMask)"
+            />
+            {/* 2. Le rectangle de superposition qui crée l'effet de fondu */}
+            <rect 
+              x="0" y="0" width="256" height="256"
+              fill="url(#avatarFadeGradient)"
             />
           </g>
           <circle 
