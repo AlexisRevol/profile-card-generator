@@ -260,7 +260,7 @@ export const HeaderStat: React.FC<{
         Son 'x' est à 0. Son 'y' est centré verticalement.
       */}
       <Icon
-        x={0}
+        x={statBlockWidth-30}
         y={-(iconSize / 2)} // Centre l'icône sur la ligne de base du texte
         size={iconSize}
         fill={colors.icon}
