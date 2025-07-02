@@ -42,16 +42,6 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
     avatarFadeColor = '#1F2937'; // Couleur de base du fond sombre
   }
 
-   // NOUVEAU: Préparer l'URL de l'image de fond
-  let bgImage = null;
-  if (currentTemplate.id === 'holographic') {
-    bgImage = templateImages.holographic;
-  } else if (currentTemplate.id === 'blue') {
-    bgImage = templateImages.blue;
-  } else if (currentTemplate.id === 'dark') {
-    bgImage = templateImages.dark;
-  }
-
   const bioLayout = calculateMultilineLayout(
     data.bio,
     BIO_DEFAULTS.maxWidth - BIO_DEFAULTS.paddingX * 2,
@@ -62,7 +52,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
   const bioBgWidth = bioLayout.width + BIO_DEFAULTS.paddingX * 2;
   const bioBgHeight = bioLayout.height + BIO_DEFAULTS.paddingY * 2;
   const bioBgPath = `M 0 0 L ${bioBgWidth + BIO_DEFAULTS.skewAmount} 0 L ${bioBgWidth} ${bioBgHeight} L 0 ${bioBgHeight} Z`;
-
+  
 
   return (
     <svg
@@ -161,52 +151,27 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
 
       {/* --- Card background --- */}
       <g>
-           {/* --- Card background (Bordure extérieure seulement) --- */}
-        {/* Ce rect dessine la bordure qui sera visible autour du clip-path */}
-        <rect 
-          width="384" 
-          height="536" 
-          rx="20" 
-          fill={
-            currentTemplate.id === 'classic' ? 'url(#classic-gradient)' :
-            bgImage ? '#000' : // Fallback noir si l'image est utilisée
-            '#000' // Cas par défaut
-          } 
-        />
-        
-        {/* --- Main group avec le clip-path --- */}
-        <g clipPath="url(#card-border-clip)">
-        
-          {/* --- NOUVELLE SECTION : FOND DU CONTENU --- */}
-          {/* Couche 1: Image de fond (si applicable) */}
-          {bgImage && (
-            <image 
-              xlinkHref={bgImage} 
-              width="384" 
-              height="536" 
-              preserveAspectRatio="xMidYMid slice"
-            />
-          )}
-
-          {/* Couche 2: Superposition de couleur */}
-          <rect 
-            width="384" 
-            height="536"
+        <rect width="384" height="536" rx="20" fill={ currentTemplate.id === 'classic' ? 'url(#classic-gradient)' : currentTemplate.id === 'holographic' ? 'url(#bg-holo)' : 'url(#bg-dark)' } />
+         <rect 
+            x="8" y="8" 
+            width="368" height="520" 
+            rx="12" 
             fill={
               currentTemplate.id === 'classic' ? '#F8FAFC' :
-              currentTemplate.theme === 'light' ? '#FFFFFF' :
-              '#1F2937'
+              currentTemplate.theme === 'light' ? '#FFFFFF' : // holographic & blue
+              '#1F2937' // dark
             }
             fill-opacity={
               currentTemplate.id === 'classic' ? '1' :
               currentTemplate.id === 'holographic' ? '0.70' :
-              currentTemplate.id === 'blue' ? '0.90' :
-              '0.85'
+              currentTemplate.id === 'blue' ? '0.90' : // En supposant que vous vouliez une opacité différente pour 'blue'
+              '0.85' // dark
             }
           />
+      </g>
       
       {/* --- Main group --- */}
-
+      <g clipPath="url(#card-border-clip)">
          {/* --- Header --- */}
         <g transform={`translate(${LAYOUT.header.x}, ${LAYOUT.header.y})`}>
           <SiGithub size="24" fill={colors.icon} />
@@ -306,7 +271,6 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
               colors={currentTemplate.badgeColors}
             />
         </g>
-      </g>
       </g>
     </svg>
   );
