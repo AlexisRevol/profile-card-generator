@@ -15,7 +15,7 @@ export const LAYOUT = {
 
 // --- TYPOGRAPHIE ---
 export const FONT_FAMILY_SANS = "sans-serif, Inter";
-export const FONT_FAMILY_MONO = "monospace, 'Courier New', Courier";
+export const FONT_FAMILY_MONO = "sans-serif, monospace, 'Courier New', Courier";
 
 // --- BIO BLOCK ---
 export const BIO_DEFAULTS = {

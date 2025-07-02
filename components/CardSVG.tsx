@@ -89,12 +89,6 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           />
         </linearGradient>
 
-        <linearGradient id="tech-badge-shine-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="rgba(255, 255, 255, 0.7)" stopOpacity={isDarkTheme ? 0.3 : 1} />
-          <stop offset="50%" stopColor="rgba(255, 255, 255, 0)" stopOpacity={isDarkTheme ? 0.1 : 0.5} />
-          <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" stopOpacity="0" />
-        </linearGradient>
-
         <linearGradient id="bio-reflect-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="white" stopOpacity={isDarkTheme ? "0.15" : "0.7"} />
           <stop offset="50%" stopColor="white" stopOpacity="0" />
@@ -107,13 +101,13 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         </linearGradient>
 
         <pattern id="bg-holo" patternUnits="userSpaceOnUse" width="384" height="536">
-          <image href={templateImages.holographic} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
+          <image xlinkHref={templateImages.holographic} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
         <pattern id="bg-blue" patternUnits="userSpaceOnUse" width="384" height="536">
-          <image href={templateImages.blue} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
+          <image xlinkHref={templateImages.blue} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
         <pattern id="bg-dark" patternUnits="userSpaceOnUse" width="384" height="536">
-          <image href={templateImages.dark} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
+          <image xlinkHref={templateImages.dark} width="384" height="536" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
         
         {/* Mask for avatar */}
@@ -200,7 +194,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         <g transform={`translate(${LAYOUT.avatar.x}, ${LAYOUT.avatar.y})`}>
           <g clipPath="url(#avatarClip)">
             <image
-              href={avatarBase64}
+              xlinkHref={avatarBase64}
               x="0" y="0" width="256" height="256"
               mask="url(#avatarMask)"
             />
