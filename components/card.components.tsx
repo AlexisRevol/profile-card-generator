@@ -235,39 +235,53 @@ export function TechBadgeList({
  */
 export const HeaderStat: React.FC<{
   value: number;
-  x: number; // Coordonnée X du bord droit final. Ex: 360
-  y: number; // Coordonnée Y. Ex: 12
+  x: number; // Coordonnée X du bord droit final de la carte (ex: 360)
+  y: number; // Coordonnée Y (ex: 12)
   colors: { text: string; icon: string; stroke: string; };
   icon: React.ElementType;
 }> = ({ value, x, y, colors, icon: Icon }) => {
   const fontSize = 16;
   const iconSize = 15;
-  // Largeur fixe pour l'icône + son espacement.
-  // C'est la seule valeur dont on a besoin.
-  const iconBlockWidth = iconSize + 8; 
+
+  // 1. Définir la largeur fixe de notre "boîte" pour la statistique.
+  // Assez large pour contenir l'icône et le texte le plus long.
+  const statBlockWidth = 70; // 70px est un bon début, ajustable si besoin.
 
   const formattedValue = formatStatNumber(value);
 
-   return (
-    <g>
+  return (
+    // 2. Positionner le groupe (notre "boîte").
+    // On le translate pour que son BORD DROIT soit à la coordonnée `x`.
+    // Le groupe lui-même va donc de 0 à `statBlockWidth`.
+    <g transform={`translate(${x - statBlockWidth}, ${y})`}>
+      
+      {/* 
+        3. Placer l'ICÔNE, toujours à GAUCHE de la boîte.
+        Son 'x' est à 0. Son 'y' est centré verticalement.
+      */}
+      <Icon
+        x={0}
+        y={-(iconSize / 2)} // Centre l'icône sur la ligne de base du texte
+        size={iconSize}
+        fill={colors.icon}
+      />
+
+      {/* 
+        4. Placer le TEXTE, toujours à DROITE de la boîte.
+        Son 'x' est à `statBlockWidth`.
+        `textAnchor="end"` garantit qu'il s'aligne par sa droite.
+      */}
       <StyledText
-        x={x}
-        y={y}
+        x={statBlockWidth}
+        y={0} // `dominantBaseline="middle"` dans StyledText s'occupe du centrage
         fontSize={fontSize}
         fontWeight="800"
         fill={colors.text}
         stroke={colors.stroke}
-        textAnchor="end" // <-- MODIFICATION ICI : On passe la prop directement
+        textAnchor="end" // On passe la prop d'alignement
       >
         {formattedValue}
       </StyledText>
-
-      <Icon
-        x={x - iconBlockWidth}
-        y={y - (iconSize / 2)}
-        size={iconSize}
-        fill={colors.icon}
-      />
     </g>
   );
 };
