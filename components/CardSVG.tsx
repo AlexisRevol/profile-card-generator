@@ -295,7 +295,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
                   fill={colors.mainText}
                   stroke={colors.stroke}
                 />
-                <g transform="translate(300, 0)">
+                <g transform="translate(290, 0)">
                   <StatBadge icon={GoStar} value={repo.stars} x={0} y={0} colors={colors.starBadge} />
                   <StatBadge icon={GoGitBranch} value={repo.forks} x={0} y={22} colors={colors.forkBadge} />
                 </g>
