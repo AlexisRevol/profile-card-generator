@@ -9,7 +9,7 @@ import {
   StyledMultilineText,
   StatBadge,
   TechBadgeList,
-  ActivityScore,
+  HeaderStat,
 } from './card.components';
 import {
   THEME_COLORS,
@@ -25,7 +25,7 @@ import {
 
 // Icônes
 import { SiGithub } from 'react-icons/si';
-import { GoStar, GoGitBranch } from 'react-icons/go';
+import { GoStar, GoGitBranch, GoRepo } from 'react-icons/go';
 
 interface CardSVGProps {
   data: CardData;
@@ -191,20 +191,18 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
           <StyledText x={34} y={12} fontSize={18} fill={colors.mainText} stroke={colors.stroke}>
             @{data.githubUser}
           </StyledText>
-
           {/* ======================================= */}
-          {/* AJOUT DU SCORE D'ACTIVITÉ (PV) */}
+          {/*       LA SOLUTION FINALE : CLAIRE ET FIABLE       */}
           {/* ======================================= */}
-          {data.contributionsLastYear > 0 && ( // On l'affiche seulement si > 0
-            <ActivityScore
-              score={data.contributionsLastYear}
-              // On le positionne tout à droite
-              // Largeur de la carte - padding de droite du header - padding de la carte
-              x={CARD_WIDTH - (LAYOUT.header.x * 2) - CARD_PADDING} 
-              y={12} // Même hauteur que le nom d'utilisateur
+          {data.publicRepos > 0 && (
+            <HeaderStat
+              value={data.publicRepos} // <-- ON UTILISE publicRepos
+              icon={GoRepo} // <-- On passe l'icône de dépôt
+              x={CARD_WIDTH - (LAYOUT.header.x * 2) - CARD_PADDING}
+              y={12}
               colors={{
                 text: colors.mainText,
-                icon: '#f97316', // Une couleur orange pour l'énergie !
+                icon: colors.subText, // On peut utiliser une couleur sobre
                 stroke: colors.stroke,
               }}
             />

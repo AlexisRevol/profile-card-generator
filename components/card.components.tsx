@@ -222,11 +222,17 @@ export function TechBadgeList({
   return <g transform={`translate(${x}, ${y})`}>{badges}</g>;
 }
 
-// ==========================================================
-// NOUVEAU COMPOSANT : LE "SCORE D'ACTIVITÉ" (PV)
-// ==========================================================
-export const ActivityScore: React.FC<{
-  score: number;
+/**
+ * Affiche une statistique clé dans le header de la carte, comme les "PV" d'une carte Pokémon.
+ * Ce composant est conçu pour être aligné à droite.
+ * @param {number} value - La valeur numérique à afficher.
+ * @param {React.ElementType} icon - Le composant icône à afficher (ex: GoRepo, GoStar).
+ * @param {number} x - La coordonnée x du point d'ancrage (le bord droit du composant).
+ * @param {number} y - La coordonnée y (alignement vertical central).
+ * @param {object} colors - Les couleurs pour le texte, l'icône et le contour.
+ */
+export const HeaderStat: React.FC<{
+  value: number;
   x: number;
   y: number;
   colors: {
@@ -234,28 +240,52 @@ export const ActivityScore: React.FC<{
     icon: string;
     stroke: string;
   };
-}> = ({ score, x, y, colors }) => {
+  icon: React.ElementType;
+}> = ({ value, x, y, colors, icon: Icon }) => {
   const fontSize = 16;
-  const iconSize = 14;
-  const spacing = 4;
+  const iconSize = 15;
+  const spacing = 6; // Espace entre l'icône et le texte
+
+  // Utilise le formateur pour rendre les grands nombres plus lisibles (ex: 1200 -> 1.2k)
+  const formattedValue = formatStatNumber(value);
+
+  // Estimation de la largeur du texte pour positionner l'icône correctement.
+  // Un facteur de 0.6 est une bonne approximation pour une police sans-serif.
+  const textWidth = formattedValue.length * fontSize * 0.6;
+  
+  // La position de l'icône est calculée en reculant depuis le point d'ancrage du texte.
+  const iconXPosition = -textWidth - spacing;
 
   return (
-    // 'text-anchor="end"' aligne le texte sur la droite, ce qui est parfait pour le positionner au bout de la carte
+    // text-anchor="end" est crucial. Il signifie que le point (x, y) est la FIN du texte.
     <g transform={`translate(${x}, ${y})`} textAnchor="end">
+      
+      {/* 
+        Le composant StyledText gère l'affichage du nombre avec son contour.
+        Il est ancré au point (x,y) par son côté droit.
+      */}
       <StyledText
         x={0}
         y={0} // dominantBaseline="middle" s'occupe de l'alignement vertical
         fontSize={fontSize}
-        fontWeight="800" // Un poids de police élevé pour un look impactant
+        fontWeight="800" // Police épaisse pour un look impactant
         fill={colors.text}
         stroke={colors.stroke}
       >
-        {/* On peut ajouter un label comme "ACT" pour "Activité" */}
-        <tspan fill={colors.icon} fontSize={fontSize * 0.8} fontWeight="bold">ACT </tspan>
-        {score}
+        {formattedValue}
       </StyledText>
-      {/* On peut ajouter l'icône à côté si on veut, mais le texte seul peut être plus propre */}
-      {/* <FaFire x={-iconSize - spacing} y={-(iconSize / 2)} size={iconSize} fill={colors.icon} /> */}
+
+      {/* 
+        L'icône est placée à gauche du texte.
+        Sa position est calculée pour qu'elle ne chevauche pas le texte.
+        y={-(iconSize / 2)} la centre verticalement avec le texte.
+      */}
+      <Icon 
+        x={iconXPosition} 
+        y={-(iconSize / 2)} 
+        size={iconSize} 
+        fill={colors.icon} 
+      />
     </g>
   );
 };
