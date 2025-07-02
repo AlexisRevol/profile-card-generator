@@ -243,42 +243,39 @@ export const HeaderStat: React.FC<{
   const fontSize = 16;
   const iconSize = 15;
 
-  // 1. Définir la largeur fixe de notre "boîte" pour la statistique.
-  // Assez large pour contenir l'icône et le texte le plus long.
-  const statBlockWidth = 70; // 70px est un bon début, ajustable si besoin.
+  // =================================================================
+  // LA VALEUR À AJUSTER POUR LE DESIGN
+  // =================================================================
+  // C'est la largeur de la "boîte" invisible qui contient l'icône et le texte.
+  // 85px est une bonne valeur pour contenir une icône de 15px, un texte
+  // allant jusqu'à 6 caractères (ex: 999.9K) et un petit espacement.
+  // Si vous trouvez l'espace encore trop grand, réduisez cette valeur (ex: 75).
+  const statBlockWidth = 85;
+  // =================================================================
 
   const formattedValue = formatStatNumber(value);
 
   return (
-    // 2. Positionner le groupe (notre "boîte").
-    // On le translate pour que son BORD DROIT soit à la coordonnée `x`.
-    // Le groupe lui-même va donc de 0 à `statBlockWidth`.
+    // On positionne le groupe pour que son BORD DROIT soit à la coordonnée `x`.
     <g transform={`translate(${x - statBlockWidth}, ${y})`}>
       
-      {/* 
-        3. Placer l'ICÔNE, toujours à GAUCHE de la boîte.
-        Son 'x' est à 0. Son 'y' est centré verticalement.
-      */}
+      {/* L'ICÔNE est toujours collée à GAUCHE de la boîte (à x=0 dans ce groupe) */}
       <Icon
-        x={statBlockWidth-30}
-        y={-(iconSize / 2)} // Centre l'icône sur la ligne de base du texte
+        x={0}
+        y={-(iconSize / 2)}
         size={iconSize}
         fill={colors.icon}
       />
 
-      {/* 
-        4. Placer le TEXTE, toujours à DROITE de la boîte.
-        Son 'x' est à `statBlockWidth`.
-        `textAnchor="end"` garantit qu'il s'aligne par sa droite.
-      */}
+      {/* Le TEXTE est toujours collé à DROITE de la boîte (à x=statBlockWidth) */}
       <StyledText
         x={statBlockWidth}
-        y={0} // `dominantBaseline="middle"` dans StyledText s'occupe du centrage
+        y={0}
         fontSize={fontSize}
         fontWeight="800"
         fill={colors.text}
         stroke={colors.stroke}
-        textAnchor="end" // On passe la prop d'alignement
+        textAnchor="end"
       >
         {formattedValue}
       </StyledText>
