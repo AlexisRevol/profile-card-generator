@@ -2,6 +2,7 @@
 import React from 'react';
 import { FONT_FAMILY_MONO, FONT_FAMILY_SANS } from './card.constants';
 import { calculateMultilineLayout, formatStatNumber } from './card.utils';
+import { estimateTextWidth } from '@/utils/card.utils';
 
 // --- Text Components ---
 
@@ -225,41 +226,40 @@ export function TechBadgeList({
 }
 
 /**
- * Affiche une statistique clé dans le header de la carte, comme les "PV" d'une carte Pokémon.
- * Ce composant est conçu pour être aligné à droite.
- * @param {number} value - La valeur numérique à afficher.
- * @param {React.ElementType} icon - Le composant icône à afficher (ex: GoRepo, GoStar).
- * @param {number} x - La coordonnée x du point d'ancrage (le bord droit du composant).
- * @param {number} y - La coordonnée y (alignement vertical central).
- * @param {object} colors - Les couleurs pour le texte, l'icône et le contour.
+ * Affiche une statistique clé, alignée à droite, avec un espacement interne parfait.
+ * Utilise la même logique que StatBadge mais adaptée pour un alignement à droite
+ * grâce à une estimation de largeur de texte précise.
  */
 export const HeaderStat: React.FC<{
   value: number;
-  x: number; // Coordonnée X du bord droit final de la carte (ex: 360)
-  y: number; // Coordonnée Y (ex: 12)
+  x: number; // Coordonnée X du bord droit final souhaité
+  y: number;
   colors: { text: string; icon: string; stroke: string; };
   icon: React.ElementType;
 }> = ({ value, x, y, colors, icon: Icon }) => {
   const fontSize = 16;
   const iconSize = 15;
-
-  // =================================================================
-  // LA VALEUR À AJUSTER POUR LE DESIGN
-  // =================================================================
-  // C'est la largeur de la "boîte" invisible qui contient l'icône et le texte.
-  // 85px est une bonne valeur pour contenir une icône de 15px, un texte
-  // allant jusqu'à 6 caractères (ex: 999.9K) et un petit espacement.
-  // Si vous trouvez l'espace encore trop grand, réduisez cette valeur (ex: 75).
-  const statBlockWidth = 85;
-  // =================================================================
+  const spacing = 6; // L'espacement que l'on veut entre l'icône et le texte
 
   const formattedValue = formatStatNumber(value);
 
+  // 1. On calcule la largeur précise des éléments
+  const textWidth = estimateTextWidth(formattedValue, fontSize);
+  const totalWidth = iconSize + spacing + textWidth;
+
+  // 2. On calcule le point de départ du groupe pour qu'il se termine à `x`
+  const startX = x - totalWidth;
+
   return (
-    // On positionne le groupe pour que son BORD DROIT soit à la coordonnée `x`.
-    <g transform={`translate(${x - statBlockWidth}, ${y})`}>
+    // On positionne le groupe pour qu'il soit parfaitement aligné à droite
+    <g transform={`translate(${startX}, ${y})`}>
+
+      {/* 
+        3. On place les éléments à l'intérieur du groupe, de gauche à droite.
+        Les positions sont maintenant relatives au début du groupe (0).
+      */}
       
-      {/* L'ICÔNE est toujours collée à GAUCHE de la boîte (à x=0 dans ce groupe) */}
+      {/* L'icône est au début */}
       <Icon
         x={0}
         y={-(iconSize / 2)}
@@ -267,15 +267,15 @@ export const HeaderStat: React.FC<{
         fill={colors.icon}
       />
 
-      {/* Le TEXTE est toujours collé à DROITE de la boîte (à x=statBlockWidth) */}
+      {/* Le texte est placé juste après l'icône et son espacement */}
       <StyledText
-        x={statBlockWidth}
+        x={iconSize + spacing}
         y={0}
         fontSize={fontSize}
         fontWeight="800"
         fill={colors.text}
         stroke={colors.stroke}
-        textAnchor="end"
+        textAnchor="start" // Important: le texte s'aligne maintenant par son début
       >
         {formattedValue}
       </StyledText>
