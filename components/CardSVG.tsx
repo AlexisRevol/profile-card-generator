@@ -62,6 +62,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
+      style={{ colorScheme: 'light dark' }} 
     >
      <defs>
         <linearGradient id="avatarFadeGradient" x1="1" y1="0" x2="0" y2="1">
