@@ -149,29 +149,54 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
         </filter>
       </defs>
 
-      {/* --- Card background --- */}
+      {/* --- Card background (Structure modifiée pour meilleure compatibilité) --- */}
       <g>
-        <rect width="384" height="536" rx="20" fill={ currentTemplate.id === 'classic' ? 'url(#classic-gradient)' : currentTemplate.id === 'holographic' ? 'url(#bg-holo)' : 'url(#bg-dark)' } />
-         <rect 
-            x="8" y="8" 
-            width="368" height="520" 
-            rx="12" 
+        {/* 1. Le fond de la carte (la couleur de base du contenu) - OPAQUE */}
+        <rect 
+          x="0" y="0" 
+          width="384" height="536" 
+          rx="20" 
+          fill={
+            currentTemplate.id === 'classic' ? '#F8FAFC' :
+            currentTemplate.theme === 'light' ? '#FFFFFF' : 
+            '#1F2937' // dark
+          }
+        />
+
+        {/* 2. La "bordure" / l'effet de fond (pattern/dégradé) qui se voit sur les bords */}
+        {/* On applique le clip-path ici pour ne dessiner que la bordure et le fond transparent */}
+        <g clipPath="url(#card-border-clip)">
+          <rect 
+            width="384" height="536" 
             fill={
-              currentTemplate.id === 'classic' ? '#F8FAFC' :
-              currentTemplate.theme === 'light' ? '#FFFFFF' : // holographic & blue
-              '#1F2937' // dark
-            }
-            fill-opacity={
-              currentTemplate.id === 'classic' ? '1' :
-              currentTemplate.id === 'holographic' ? '1' :
-              currentTemplate.id === 'blue' ? '1' : // En supposant que vous vouliez une opacité différente pour 'blue'
-              '1' // dark
-            }
+              currentTemplate.id === 'classic' ? 'url(#classic-gradient)' : 
+              currentTemplate.id === 'holographic' ? 'url(#bg-holo)' : 
+              'url(#bg-dark)' 
+            } 
           />
+          
+          {/* 3. Un calque de couleur semi-transparent pour les thèmes non-classiques */}
+          {/* Ceci remplace votre "deuxième rect" transparent. */}
+          {currentTemplate.id !== 'classic' && (
+            <rect 
+              width="384" height="536"
+              fill={
+                currentTemplate.theme === 'light' ? '#FFFFFF' : // Pour thèmes light (holographic, etc.)
+                '#1F2937' // Pour thème dark
+              }
+              fill-opacity={
+                currentTemplate.id === 'holographic' ? '0.30' : // Note: 1 - 0.70 = 0.30
+                currentTemplate.id === 'blue' ? '0.10' : // Note: 1 - 0.90 = 0.10
+                '0.15' // dark: 1 - 0.85 = 0.15
+              }
+              style={{ mixBlendMode: 'overlay' }} // Optionnel, mais peut donner de jolis effets
+            />
+          )}
+        </g>
       </g>
       
       {/* --- Main group --- */}
-      <g clipPath="url(#card-border-clip)">
+      <g >
          {/* --- Header --- */}
         <g transform={`translate(${LAYOUT.header.x}, ${LAYOUT.header.y})`}>
           <SiGithub size="24" fill={colors.icon} />
