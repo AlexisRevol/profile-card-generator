@@ -163,15 +163,15 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
             }
             fill-opacity={
               currentTemplate.id === 'classic' ? '1' :
-              currentTemplate.id === 'holographic' ? '0.70' :
-              currentTemplate.id === 'blue' ? '0.90' : // En supposant que vous vouliez une opacité différente pour 'blue'
-              '0.85' // dark
+              currentTemplate.id === 'holographic' ? '1' :
+              currentTemplate.id === 'blue' ? '1' : // En supposant que vous vouliez une opacité différente pour 'blue'
+              '1' // dark
             }
           />
       </g>
       
       {/* --- Main group --- */}
-      <g >
+      <g clipPath="url(#card-border-clip)">
          {/* --- Header --- */}
         <g transform={`translate(${LAYOUT.header.x}, ${LAYOUT.header.y})`}>
           <SiGithub size="24" fill={colors.icon} />
