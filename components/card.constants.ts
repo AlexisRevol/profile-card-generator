@@ -9,8 +9,8 @@ export const LAYOUT = {
   header: { x: 24, y: 32 },
   bio: { x: 8, y: 70 },
   avatar: { x: 180, y: 130, size: 256 },
-  main: { x: 24, y: 270 },
-  footer: { x: 28, y: 485 },
+  main: { x: 24, y: 260 },
+  footer: { x: 28, y: 470 },
 };
 
 // --- TYPOGRAPHIE ---
@@ -30,7 +30,7 @@ export const BIO_DEFAULTS = {
 // --- REPO BLOCK ---
 export const REPO_DEFAULTS = {
   descMaxWidth: 320,
-  itemSpacingY: 60,
+  itemSpacingY: 55,
 };
 
 // --- COULEURS ---
