@@ -171,7 +171,7 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       </g>
       
       {/* --- Main group --- */}
-      <g clipPath="url(#card-border-clip)">
+      <g >
          {/* --- Header --- */}
         <g transform={`translate(${LAYOUT.header.x}, ${LAYOUT.header.y})`}>
           <SiGithub size="24" fill={colors.icon} />
