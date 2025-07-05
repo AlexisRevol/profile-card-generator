@@ -152,21 +152,17 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
       {/* --- Card background --- */}
       <g>
         <rect width="384" height="536" rx="20" fill={ currentTemplate.id === 'classic' ? 'url(#classic-gradient)' : currentTemplate.id === 'holographic' ? 'url(#bg-holo)' : 'url(#bg-dark)' } />
-         <rect 
+        <rect 
             x="8" y="8" 
             width="368" height="520" 
             rx="12" 
             fill={
-              currentTemplate.id === 'classic' ? '#F8FAFC' :
-              currentTemplate.theme === 'light' ? '#FFFFFF' : // holographic & blue
-              '#1F2937' // dark
+              currentTemplate.id === 'classic' ? '#F8FAFC' : // Pas de transparence, on garde la couleur
+              currentTemplate.id === 'holographic' ? 'rgba(255, 255, 255, 0.70)' : // #FFFFFF avec 70% d'opacité
+              currentTemplate.id === 'blue' ? 'rgba(255, 255, 255, 0.90)' : // #FFFFFF avec 90% d'opacité
+              'rgba(31, 41, 55, 0.85)' // #1F2937 avec 85% d'opacité
             }
-            fill-opacity={
-              currentTemplate.id === 'classic' ? '1' :
-              currentTemplate.id === 'holographic' ? '0.70' :
-              currentTemplate.id === 'blue' ? '0.90' : // En supposant que vous vouliez une opacité différente pour 'blue'
-              '0.85' // dark
-            }
+            // L'attribut fill-opacity n'est plus nécessaire !
           />
       </g>
       
