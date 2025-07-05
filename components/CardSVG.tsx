@@ -156,7 +156,11 @@ export default function CardSVG({ data, avatarBase64 }: CardSVGProps) {
             x="8" y="8" 
             width="368" height="520" 
             rx="12" 
-
+            fill={
+              currentTemplate.id === 'classic' ? '#F8FAFC' :
+              currentTemplate.theme === 'light' ? '#FFFFFF' : // holographic & blue
+              '#1F2937' // dark
+            }
             fill-opacity={
               currentTemplate.id === 'classic' ? '1' :
               currentTemplate.id === 'holographic' ? '0.70' :
