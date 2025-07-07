@@ -1,69 +1,53 @@
-# React + TypeScript + Vite
+# 🃏 Générateur de Carte de Profil GitHub
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Deploy on Vercel](https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel)](https://profile-card-generator-pi.vercel.app)
+[![Made with Next.js](https://img.shields.io/badge/Next.js-13-blue?logo=next.js)](https://nextjs.org)
+[![Made by AlexisRevol](https://img.shields.io/badge/Made%20by-AlexisRevol-blueviolet)](https://github.com/AlexisRevol)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Overview
 
-## Expanding the ESLint configuration
+Create a dynamic, stylized **GitHub profile card** that you can embed directly into your `README.md` GitHub profile.  
+Rendering is generated in **real time** via the Github API based on your GitHub username.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+ Example :  
+![Carte GitHub Exemple](https://profile-card-generator-pi.vercel.app/api/card?user=AlexisRevol&template=dark)
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+##  How to use it
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Copy the Markdown code below.
+2. Replace `YOUR_USERNAME` with your GitHub login.
+3. Paste it into your `README.md` profile.
+
+```markdown
+[![Ma Carte GitHub](https://profile-card-generator-pi.vercel.app/api/card?user=VOTRE_USERNAME)](https://github.com/VOTRE_USERNAME)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+##  Available parameters
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Parameter  | Description                      | Required | Values available                                     |
+|------------|----------------------------------|--------|-------------------------------------------------------|
+| `user`     | GitHub username         | ✅     | `AlexisRevol`, `octocat`, etc.                        |
+| `template` | Card visual theme         | ❌     | `classic`, `dark`, `holographic`, `blue` (default : `classic`) |
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+##  Examples of Themes
+
+| Theme        | Overview |
+|--------------|--------|
+| `dark`       | <img src="https://profile-card-generator-pi.vercel.app/api/card?user=AlexisRevol&template=dark" width="300" /> |
+| `holographic`| <img src="https://profile-card-generator-pi.vercel.app/api/card?user=AlexisRevol&template=holographic" width="300" /> |
+| `classic`    | <img src="https://profile-card-generator-pi.vercel.app/api/card?user=AlexisRevol&template=classic" width="300" /> |
+
+
+---
+
+##  Technologies used
+
+- **Next.js / React**: API server and dynamic rendering of SVG components.
+- **TypeScript**: static typing and code security.
+- **Vercel**: fast and easy continuous deployment.
