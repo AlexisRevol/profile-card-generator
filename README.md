@@ -1,12 +1,9 @@
-# 🃏 Générateur de Carte de Profil GitHub
+# GitHub Profile Card Generator
 
 [![Deploy on Vercel](https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel)](https://profile-card-generator-pi.vercel.app)
 [![Made with Next.js](https://img.shields.io/badge/Next.js-13-blue?logo=next.js)](https://nextjs.org)
 [![Made by AlexisRevol](https://img.shields.io/badge/Made%20by-AlexisRevol-blueviolet)](https://github.com/AlexisRevol)
 
----
-
-## Overview
 
 Create a dynamic, stylized **GitHub profile card** that you can embed directly into your `README.md` GitHub profile.  
 Rendering is generated in **real time** via the Github API based on your GitHub username.
