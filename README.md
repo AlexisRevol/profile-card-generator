@@ -20,7 +20,7 @@ Rendering is generated in **real time** via the Github API based on your GitHub 
 3. Paste it into your `README.md` profile.
 
 ```markdown
-[![Ma Carte GitHub](https://profile-card-generator-pi.vercel.app/api/card?user=VOTRE_USERNAME)](https://github.com/VOTRE_USERNAME)
+[![My card GitHub](https://profile-card-generator-pi.vercel.app/api/card?user=VOTRE_USERNAME)](https://github.com/VOTRE_USERNAME)
 ```
 
 ##  Available parameters
